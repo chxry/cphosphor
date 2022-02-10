@@ -10,3 +10,4 @@
 void window_init(char* title, int w, int h);
 void window_loop();
 void window_destroy();
+unsigned int create_shader(const char* vert_path, const char* frag_path);
