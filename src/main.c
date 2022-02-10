@@ -7,3 +7,5 @@ int main() {
   window_destroy();
   return 0;
 }
+
+int atexit() {}

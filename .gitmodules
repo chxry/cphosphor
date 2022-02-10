@@ -1,3 +1,6 @@
 [submodule "lib/log"]
 	path = lib/log
 	url = https://github.com/rxi/log.c
+[submodule "lib/cimgui"]
+	path = lib/cimgui
+	url = https://github.com/cimgui/cimgui
