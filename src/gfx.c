@@ -13,7 +13,10 @@ float vertices[] = {
     -1.0, 1.0, -0.5, 1.0, 0.0, 0.0,
     1.0, 1.0, -0.5, 0.0, 1.0, 0.0};
 unsigned int indices[] = {2, 6, 7, 2, 3, 7, 0, 4, 5, 0, 1, 5, 0, 2, 6, 0, 4, 6, 1, 3, 7, 1, 5, 7, 0, 2, 3, 0, 1, 3, 4, 6, 7, 4, 5, 7};
-const FPS = 60;
+const int FPS = 0; // unlimited
+const float CAM_SPEED = 0.1;
+const float CAM_SENS = 0.1;
+const bool MOUSE_CAPTURED = true;
 
 void window_init(char* title, int w, int h, bool fullscreen) {
   if (SDL_Init(SDL_INIT_EVERYTHING)) {
@@ -26,6 +29,9 @@ void window_init(char* title, int w, int h, bool fullscreen) {
 
   window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (fullscreen ? SDL_WINDOW_FULLSCREEN : 0));
   ctx = SDL_GL_CreateContext(window);
+  SDL_SetRelativeMouseMode(true);
+  SDL_CaptureMouse(true);
+
   if (!gladLoadGL()) {
     log_fatal("Failed to load opengl.");
     exit(-1);
@@ -51,6 +57,12 @@ void window_loop() {
   bool debug_overlay = true;
   int frame_delay = 1000 / FPS;
 
+  vec3 cam_pos = (vec3){0.0, 0.0, 3.0};
+  vec3 cam_front = (vec3){0.0, 0.0, -1.0};
+  vec3 cam_up = GLM_YUP;
+  float yaw = -90.0;
+  float pitch = 0.0;
+
   while (!quit) {
     int frame_start = SDL_GetTicks();
 
@@ -63,6 +75,10 @@ void window_loop() {
           debug_overlay = !debug_overlay;
         }
         break;
+      case SDL_MOUSEMOTION:
+        yaw += e.motion.xrel * CAM_SENS;
+        pitch -= e.motion.yrel * CAM_SENS;
+        break;
       case SDL_WINDOWEVENT:
         if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
           glViewport(0, 0, e.window.data1, e.window.data2);
@@ -73,6 +89,36 @@ void window_loop() {
         break;
       }
     }
+
+    const unsigned char* keys = SDL_GetKeyboardState(NULL);
+    if (keys[SDL_SCANCODE_W]) {
+      vec3 vel;
+      glm_vec3_scale(cam_front, CAM_SPEED, vel);
+      glm_vec3_add(cam_pos, vel, cam_pos);
+    }
+    if (keys[SDL_SCANCODE_S]) {
+      vec3 vel;
+      glm_vec3_scale(cam_front, CAM_SPEED, vel);
+      glm_vec3_sub(cam_pos, vel, cam_pos);
+    }
+    if (keys[SDL_SCANCODE_A]) {
+      vec3 vel;
+      glm_vec3_crossn(cam_front, cam_up, vel);
+      glm_vec3_scale(vel, CAM_SPEED, vel);
+      glm_vec3_sub(cam_pos, vel, cam_pos);
+    }
+    if (keys[SDL_SCANCODE_D]) {
+      vec3 vel;
+      glm_vec3_crossn(cam_front, cam_up, vel);
+      glm_vec3_scale(vel, CAM_SPEED, vel);
+      glm_vec3_add(cam_pos, vel, cam_pos);
+    }
+
+    vec3 cam_dir;
+    cam_dir[0] = cos(glm_rad(yaw)) * cos(glm_rad(pitch));
+    cam_dir[1] = sin(glm_rad(pitch));
+    cam_dir[2] = sin(glm_rad(yaw)) * cos(glm_rad(pitch));
+    glm_vec3_normalize_to(cam_dir, cam_front);
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -91,19 +137,22 @@ void window_loop() {
       igEnd();
     }
 
+    // move to mesh functions
     mat4 model = GLM_MAT4_IDENTITY;
     glm_rotate_x(model, SDL_GetTicks() / 450.0, model);
     glm_rotate_y(model, SDL_GetTicks() / 450.0, model);
     shader_set_mat4(shader, "model", model);
 
-    mat4 view = GLM_MAT4_IDENTITY;
-    glm_translate_z(view, -5.0);
+    mat4 view;
+    glm_look(cam_pos,
+             cam_front,
+             cam_up, view);
     shader_set_mat4(shader, "view", view);
 
     mat4 projection = GLM_MAT4_IDENTITY;
     int w, h;
     SDL_GetWindowSize(window, &w, &h);
-    glm_perspective(80.0f, w / h, 0.1f, 100.0f, projection);
+    glm_perspective(glm_rad(80.0), w / h, 0.1f, 100.0f, projection);
     shader_set_mat4(shader, "projection", projection);
 
     shader_use(shader);
