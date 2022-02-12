@@ -4,15 +4,12 @@ SDL_Window* window;
 SDL_GLContext ctx;
 
 float vertices[] = {
-    0.5f, 0.5f, 0.0f,
-    0.5f, -0.5f, 0.0f,
-    -0.5f, -0.5f, 0.0f,
-    -0.5f, 0.5f, 0.0f};
-unsigned int indices[] = {
-    0, 1, 3,
-    1, 2, 3};
+    0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+    -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f};
+unsigned int indices[] = {0, 1, 2};
 
-void window_init(char* title, int w, int h) {
+void window_init(char* title, int w, int h, bool fullscreen) {
   if (SDL_Init(SDL_INIT_EVERYTHING)) {
     log_fatal("Failed to init SDL.");
     exit(-1);
@@ -21,7 +18,7 @@ void window_init(char* title, int w, int h) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-  window = SDL_CreateWindow(title, 0, 0, w, h, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+  window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (fullscreen ? SDL_WINDOW_FULLSCREEN : 0));
   ctx = SDL_GL_CreateContext(window);
   if (!gladLoadGL()) {
     log_fatal("Failed to load opengl.");
@@ -41,24 +38,7 @@ void window_init(char* title, int w, int h) {
 
 void window_loop() {
   unsigned int shader = create_shader("./res/shader.vert", "./res/shader.frag");
-  unsigned int VBO, VAO, EBO;
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
-  glGenBuffers(1, &EBO);
-  glBindVertexArray(VAO);
-
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-  glEnableVertexAttribArray(0);
-
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  glBindVertexArray(0);
+  mesh_t mesh = create_mesh();
 
   bool quit = false;
   bool debug_overlay = true;
@@ -101,9 +81,8 @@ void window_loop() {
       igEnd();
     }
 
-    glUseProgram(shader);
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    use_shader(shader);
+    render_mesh(mesh);
 
     igRender();
     ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());
@@ -115,22 +94,6 @@ void window_destroy() {
   SDL_GL_DeleteContext(ctx);
   SDL_DestroyWindow(window);
   SDL_Quit();
-}
-
-const char* read_file(const char* path) {
-  char* buf = 0;
-  long length;
-  FILE* f = fopen(path, "rb");
-  fseek(f, 0, SEEK_END);
-  length = ftell(f);
-  fseek(f, 0, SEEK_SET);
-  buf = (char*)malloc((length + 1) * sizeof(char));
-  if (buf) {
-    fread(buf, sizeof(char), length, f);
-  }
-  fclose(f);
-  buf[length] = '\0';
-  return buf;
 }
 
 unsigned int create_shader(const char* vert_path, const char* frag_path) {
@@ -164,4 +127,36 @@ unsigned int create_shader(const char* vert_path, const char* frag_path) {
   glDeleteShader(vert);
   glDeleteShader(frag);
   return program;
+}
+
+void use_shader(unsigned int shader) {
+  glUseProgram(shader);
+}
+
+mesh_t create_mesh() {
+  mesh_t mesh;
+  glGenVertexArrays(1, &mesh.VAO);
+  glGenBuffers(1, &mesh.VBO);
+  glGenBuffers(1, &mesh.EBO);
+  glBindVertexArray(mesh.VAO);
+
+  glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+  // position
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+  glEnableVertexAttribArray(0);
+  // color
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+  glEnableVertexAttribArray(1);
+
+  return mesh;
+}
+
+void render_mesh(mesh_t mesh) {
+  glBindVertexArray(mesh.VAO);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
