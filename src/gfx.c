@@ -13,6 +13,7 @@ float vertices[] = {
     -1.0, 1.0, -0.5, 1.0, 0.0, 0.0,
     1.0, 1.0, -0.5, 0.0, 1.0, 0.0};
 unsigned int indices[] = {2, 6, 7, 2, 3, 7, 0, 4, 5, 0, 1, 5, 0, 2, 6, 0, 4, 6, 1, 3, 7, 1, 5, 7, 0, 2, 3, 0, 1, 3, 4, 6, 7, 4, 5, 7};
+const FPS = 60;
 
 void window_init(char* title, int w, int h, bool fullscreen) {
   if (SDL_Init(SDL_INIT_EVERYTHING)) {
@@ -48,8 +49,11 @@ void window_loop() {
 
   bool quit = false;
   bool debug_overlay = true;
+  int frame_delay = 1000 / FPS;
 
   while (!quit) {
+    int frame_start = SDL_GetTicks();
+
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
       ImGui_ImplSDL2_ProcessEvent(&e);
@@ -99,7 +103,7 @@ void window_loop() {
     mat4 projection = GLM_MAT4_IDENTITY;
     int w, h;
     SDL_GetWindowSize(window, &w, &h);
-    glm_perspective(45.0f, w / h, 0.1f, 100.0f, projection);
+    glm_perspective(80.0f, w / h, 0.1f, 100.0f, projection);
     shader_set_mat4(shader, "projection", projection);
 
     shader_use(shader);
@@ -108,6 +112,10 @@ void window_loop() {
     igRender();
     ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());
     SDL_GL_SwapWindow(window);
+    int frame_time = SDL_GetTicks() - frame_start;
+    if (frame_delay > frame_time) {
+      SDL_Delay(frame_delay - frame_time);
+    }
   }
 }
 
