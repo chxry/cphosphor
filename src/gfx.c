@@ -4,10 +4,15 @@ SDL_Window* window;
 SDL_GLContext ctx;
 
 float vertices[] = {
-    0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-    -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-    0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f};
-unsigned int indices[] = {0, 1, 2};
+    -1.0, -1.0, 0.5, 1.0, 0.0, 0.0,
+    1.0, -1.0, 0.5, 0.0, 1.0, 0.0,
+    -1.0, 1.0, 0.5, 0.0, 0.0, 1.0,
+    1.0, 1.0, 0.5, 1.0, 0.0, 0.0,
+    -1.0, -1.0, -0.5, 0.0, 1.0, 0.0,
+    1.0, -1.0, -0.5, 0.0, 0.0, 1.0,
+    -1.0, 1.0, -0.5, 1.0, 0.0, 0.0,
+    1.0, 1.0, -0.5, 0.0, 1.0, 0.0};
+unsigned int indices[] = {2, 6, 7, 2, 3, 7, 0, 4, 5, 0, 1, 5, 0, 2, 6, 0, 4, 6, 1, 3, 7, 1, 5, 7, 0, 2, 3, 0, 1, 3, 4, 6, 7, 4, 5, 7};
 
 void window_init(char* title, int w, int h, bool fullscreen) {
   if (SDL_Init(SDL_INIT_EVERYTHING)) {
@@ -24,6 +29,7 @@ void window_init(char* title, int w, int h, bool fullscreen) {
     log_fatal("Failed to load opengl.");
     exit(-1);
   }
+  glEnable(GL_DEPTH_TEST);
 
   igCreateContext(NULL);
   ImGuiIO io = *igGetIO();
@@ -37,15 +43,15 @@ void window_init(char* title, int w, int h, bool fullscreen) {
 }
 
 void window_loop() {
-  unsigned int shader = create_shader("./res/shader.vert", "./res/shader.frag");
-  mesh_t mesh = create_mesh();
+  unsigned int shader = shader_init("./res/shader.vert", "./res/shader.frag");
+  mesh_t mesh = mesh_init();
 
   bool quit = false;
   bool debug_overlay = true;
 
   while (!quit) {
     SDL_Event e;
-    while (SDL_PollEvent(&e) != 0) {
+    while (SDL_PollEvent(&e)) {
       ImGui_ImplSDL2_ProcessEvent(&e);
       switch (e.type) {
       case SDL_KEYDOWN:
@@ -65,7 +71,7 @@ void window_loop() {
     }
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame(window);
     igNewFrame();
@@ -81,8 +87,23 @@ void window_loop() {
       igEnd();
     }
 
-    use_shader(shader);
-    render_mesh(mesh);
+    mat4 model = GLM_MAT4_IDENTITY;
+    glm_rotate_x(model, SDL_GetTicks() / 450.0, model);
+    glm_rotate_y(model, SDL_GetTicks() / 450.0, model);
+    shader_set_mat4(shader, "model", model);
+
+    mat4 view = GLM_MAT4_IDENTITY;
+    glm_translate_z(view, -5.0);
+    shader_set_mat4(shader, "view", view);
+
+    mat4 projection = GLM_MAT4_IDENTITY;
+    int w, h;
+    SDL_GetWindowSize(window, &w, &h);
+    glm_perspective(45.0f, w / h, 0.1f, 100.0f, projection);
+    shader_set_mat4(shader, "projection", projection);
+
+    shader_use(shader);
+    mesh_render(mesh);
 
     igRender();
     ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());
@@ -96,7 +117,7 @@ void window_destroy() {
   SDL_Quit();
 }
 
-unsigned int create_shader(const char* vert_path, const char* frag_path) {
+unsigned int shader_init(const char* vert_path, const char* frag_path) {
   int success;
   const char* vert_src = read_file(vert_path);
   unsigned int vert = glCreateShader(GL_VERTEX_SHADER);
@@ -129,11 +150,15 @@ unsigned int create_shader(const char* vert_path, const char* frag_path) {
   return program;
 }
 
-void use_shader(unsigned int shader) {
+void shader_set_mat4(unsigned int shader, const char* name, mat4 val) {
+  glUniformMatrix4fv(glGetUniformLocation(shader, name), 1, GL_FALSE, (float*)val);
+}
+
+void shader_use(unsigned int shader) {
   glUseProgram(shader);
 }
 
-mesh_t create_mesh() {
+mesh_t mesh_init() {
   mesh_t mesh;
   glGenVertexArrays(1, &mesh.VAO);
   glGenBuffers(1, &mesh.VBO);
@@ -156,7 +181,7 @@ mesh_t create_mesh() {
   return mesh;
 }
 
-void render_mesh(mesh_t mesh) {
+void mesh_render(mesh_t mesh) {
   glBindVertexArray(mesh.VAO);
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }

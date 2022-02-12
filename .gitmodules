@@ -7,3 +7,6 @@
 [submodule "lib/ini"]
 	path = lib/ini
 	url = https://github.com/rxi/ini
+[submodule "lib/cglm"]
+	path = lib/cglm
+	url = https://github.com/recp/cglm
