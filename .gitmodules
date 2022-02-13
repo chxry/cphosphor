@@ -10,3 +10,9 @@
 [submodule "lib/cglm"]
 	path = lib/cglm
 	url = https://github.com/recp/cglm
+[submodule "lib/stb"]
+	path = lib/stb
+	url = https://github.com/nothings/stb
+[submodule "lib/vec"]
+	path = lib/vec
+	url = https://github.com/rxi/vec

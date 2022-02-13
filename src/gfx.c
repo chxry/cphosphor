@@ -3,22 +3,94 @@
 SDL_Window* window;
 SDL_GLContext ctx;
 
-float vertices[] = {
-    -1.0, -1.0, 0.5, 1.0, 0.0, 0.0,
-    1.0, -1.0, 0.5, 0.0, 1.0, 0.0,
-    -1.0, 1.0, 0.5, 0.0, 0.0, 1.0,
-    1.0, 1.0, 0.5, 1.0, 0.0, 0.0,
-    -1.0, -1.0, -0.5, 0.0, 1.0, 0.0,
-    1.0, -1.0, -0.5, 0.0, 0.0, 1.0,
-    -1.0, 1.0, -0.5, 1.0, 0.0, 0.0,
-    1.0, 1.0, -0.5, 0.0, 1.0, 0.0};
-unsigned int indices[] = {2, 6, 7, 2, 3, 7, 0, 4, 5, 0, 1, 5, 0, 2, 6, 0, 4, 6, 1, 3, 7, 1, 5, 7, 0, 2, 3, 0, 1, 3, 4, 6, 7, 4, 5, 7};
-const int FPS = 0; // unlimited
-const float CAM_SPEED = 0.1;
-const float CAM_SENS = 0.1;
-const bool MOUSE_CAPTURED = true;
+float cubeVertices[] = {
+    -0.5, -0.5, -0.5, 0.0, 0.0,
+    0.5, -0.5, -0.5, 1.0, 0.0,
+    0.5, 0.5, -0.5, 1.0, 1.0,
+    0.5, 0.5, -0.5, 1.0, 1.0,
+    -0.5, 0.5, -0.5, 0.0, 1.0,
+    -0.5, -0.5, -0.5, 0.0, 0.0,
 
-void window_init(char* title, int w, int h, bool fullscreen) {
+    -0.5, -0.5, 0.5, 0.0, 0.0,
+    0.5, -0.5, 0.5, 1.0, 0.0,
+    0.5, 0.5, 0.5, 1.0, 1.0,
+    0.5, 0.5, 0.5, 1.0, 1.0,
+    -0.5, 0.5, 0.5, 0.0, 1.0,
+    -0.5, -0.5, 0.5, 0.0, 0.0,
+
+    -0.5, 0.5, 0.5, 1.0, 0.0,
+    -0.5, 0.5, -0.5, 1.0, 1.0,
+    -0.5, -0.5, -0.5, 0.0, 1.0,
+    -0.5, -0.5, -0.5, 0.0, 1.0,
+    -0.5, -0.5, 0.5, 0.0, 0.0,
+    -0.5, 0.5, 0.5, 1.0, 0.0,
+
+    0.5, 0.5, 0.5, 1.0, 0.0,
+    0.5, 0.5, -0.5, 1.0, 1.0,
+    0.5, -0.5, -0.5, 0.0, 1.0,
+    0.5, -0.5, -0.5, 0.0, 1.0,
+    0.5, -0.5, 0.5, 0.0, 0.0,
+    0.5, 0.5, 0.5, 1.0, 0.0,
+
+    -0.5, -0.5, -0.5, 0.0, 1.0,
+    0.5, -0.5, -0.5, 1.0, 1.0,
+    0.5, -0.5, 0.5, 1.0, 0.0,
+    0.5, -0.5, 0.5, 1.0, 0.0,
+    -0.5, -0.5, 0.5, 0.0, 0.0,
+    -0.5, -0.5, -0.5, 0.0, 1.0,
+
+    -0.5, 0.5, -0.5, 0.0, 1.0,
+    0.5, 0.5, -0.5, 1.0, 1.0,
+    0.5, 0.5, 0.5, 1.0, 0.0,
+    0.5, 0.5, 0.5, 1.0, 0.0,
+    -0.5, 0.5, 0.5, 0.0, 0.0,
+    -0.5, 0.5, -0.5, 0.0, 1.0};
+float skyboxVertices[] = {
+    -1.0, 1.0, -1.0,
+    -1.0, -1.0, -1.0,
+    1.0, -1.0, -1.0,
+    1.0, -1.0, -1.0,
+    1.0, 1.0, -1.0,
+    -1.0, 1.0, -1.0,
+
+    -1.0, -1.0, 1.0,
+    -1.0, -1.0, -1.0,
+    -1.0, 1.0, -1.0,
+    -1.0, 1.0, -1.0,
+    -1.0, 1.0, 1.0,
+    -1.0, -1.0, 1.0,
+
+    1.0, -1.0, -1.0,
+    1.0, -1.0, 1.0,
+    1.0, 1.0, 1.0,
+    1.0, 1.0, 1.0,
+    1.0, 1.0, -1.0,
+    1.0, -1.0, -1.0,
+
+    -1.0, -1.0, 1.0,
+    -1.0, 1.0, 1.0,
+    1.0, 1.0, 1.0,
+    1.0, 1.0, 1.0,
+    1.0, -1.0, 1.0,
+    -1.0, -1.0, 1.0,
+
+    -1.0, 1.0, -1.0,
+    1.0, 1.0, -1.0,
+    1.0, 1.0, 1.0,
+    1.0, 1.0, 1.0,
+    -1.0, 1.0, 1.0,
+    -1.0, 1.0, -1.0,
+
+    -1.0, -1.0, -1.0,
+    -1.0, -1.0, 1.0,
+    1.0, -1.0, -1.0,
+    1.0, -1.0, -1.0,
+    -1.0, -1.0, 1.0,
+    1.0, -1.0, 1.0};
+
+const int FPS = 0; // unlimited
+
+void window_init(char* title) {
   if (SDL_Init(SDL_INIT_EVERYTHING)) {
     log_fatal("Failed to init SDL.");
     exit(-1);
@@ -26,8 +98,10 @@ void window_init(char* title, int w, int h, bool fullscreen) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, conf.msaa);
 
-  window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (fullscreen ? SDL_WINDOW_FULLSCREEN : 0));
+  window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, conf.width, conf.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (conf.fullscreen ? SDL_WINDOW_FULLSCREEN : 0));
   ctx = SDL_GL_CreateContext(window);
   SDL_SetRelativeMouseMode(true);
   SDL_CaptureMouse(true);
@@ -37,6 +111,7 @@ void window_init(char* title, int w, int h, bool fullscreen) {
     exit(-1);
   }
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_MULTISAMPLE);
 
   igCreateContext(NULL);
   ImGuiIO io = *igGetIO();
@@ -50,18 +125,16 @@ void window_init(char* title, int w, int h, bool fullscreen) {
 }
 
 void window_loop() {
+  mesh_t mesh = mesh_init_pos_tex();
   unsigned int shader = shader_init("./res/shader.vert", "./res/shader.frag");
-  mesh_t mesh = mesh_init();
+  unsigned int tex = tex_load("./res/cat.png", GL_RGBA);
+  mesh_t skybox_mesh = mesh_init_pos();
+  unsigned int skybox_shader = shader_init("./res/skybox.vert", "./res/skybox.frag");
+  unsigned int skybox_tex = tex_load_cubemap((char* [6]){"./res/skybox/right.jpg", "./res/skybox/left.jpg", "./res/skybox/top.jpg", "./res/skybox/bottom.jpg", "./res/skybox/front.jpg", "./res/skybox/back.jpg"}, GL_RGB);
 
   bool quit = false;
   bool debug_overlay = true;
   int frame_delay = 1000 / FPS;
-
-  vec3 cam_pos = (vec3){0.0, 0.0, 3.0};
-  vec3 cam_front = (vec3){0.0, 0.0, -1.0};
-  vec3 cam_up = GLM_YUP;
-  float yaw = -90.0;
-  float pitch = 0.0;
 
   while (!quit) {
     int frame_start = SDL_GetTicks();
@@ -69,15 +142,12 @@ void window_loop() {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
       ImGui_ImplSDL2_ProcessEvent(&e);
+      player_processevent(&e);
       switch (e.type) {
       case SDL_KEYDOWN:
         if (e.key.keysym.sym == SDLK_BACKQUOTE) {
           debug_overlay = !debug_overlay;
         }
-        break;
-      case SDL_MOUSEMOTION:
-        yaw += e.motion.xrel * CAM_SENS;
-        pitch -= e.motion.yrel * CAM_SENS;
         break;
       case SDL_WINDOWEVENT:
         if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
@@ -89,36 +159,6 @@ void window_loop() {
         break;
       }
     }
-
-    const unsigned char* keys = SDL_GetKeyboardState(NULL);
-    if (keys[SDL_SCANCODE_W]) {
-      vec3 vel;
-      glm_vec3_scale(cam_front, CAM_SPEED, vel);
-      glm_vec3_add(cam_pos, vel, cam_pos);
-    }
-    if (keys[SDL_SCANCODE_S]) {
-      vec3 vel;
-      glm_vec3_scale(cam_front, CAM_SPEED, vel);
-      glm_vec3_sub(cam_pos, vel, cam_pos);
-    }
-    if (keys[SDL_SCANCODE_A]) {
-      vec3 vel;
-      glm_vec3_crossn(cam_front, cam_up, vel);
-      glm_vec3_scale(vel, CAM_SPEED, vel);
-      glm_vec3_sub(cam_pos, vel, cam_pos);
-    }
-    if (keys[SDL_SCANCODE_D]) {
-      vec3 vel;
-      glm_vec3_crossn(cam_front, cam_up, vel);
-      glm_vec3_scale(vel, CAM_SPEED, vel);
-      glm_vec3_add(cam_pos, vel, cam_pos);
-    }
-
-    vec3 cam_dir;
-    cam_dir[0] = cos(glm_rad(yaw)) * cos(glm_rad(pitch));
-    cam_dir[1] = sin(glm_rad(pitch));
-    cam_dir[2] = sin(glm_rad(yaw)) * cos(glm_rad(pitch));
-    glm_vec3_normalize_to(cam_dir, cam_front);
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -137,26 +177,36 @@ void window_loop() {
       igEnd();
     }
 
-    // move to mesh functions
+    mat4 view;
+    player_movement(&view);
+    mat4 projection = GLM_MAT4_IDENTITY;
+    int w, h;
+    SDL_GetWindowSize(window, &w, &h);
+    glm_perspective(glm_rad(80.0), w / h, 0.1, 100.0, projection);
+
+    // cube
+    shader_use(shader);
+    tex_use(tex);
     mat4 model = GLM_MAT4_IDENTITY;
     glm_rotate_x(model, SDL_GetTicks() / 450.0, model);
     glm_rotate_y(model, SDL_GetTicks() / 450.0, model);
     shader_set_mat4(shader, "model", model);
-
-    mat4 view;
-    glm_look(cam_pos,
-             cam_front,
-             cam_up, view);
     shader_set_mat4(shader, "view", view);
-
-    mat4 projection = GLM_MAT4_IDENTITY;
-    int w, h;
-    SDL_GetWindowSize(window, &w, &h);
-    glm_perspective(glm_rad(80.0), w / h, 0.1f, 100.0f, projection);
     shader_set_mat4(shader, "projection", projection);
-
-    shader_use(shader);
     mesh_render(mesh);
+
+    // skybox
+    shader_use(skybox_shader);
+    tex_use_cubemap(skybox_tex);
+    glDepthFunc(GL_LEQUAL);
+    mat3 view3;
+    mat4 skybox_view;
+    glm_mat4_pick3(view, view3);
+    glm_mat4_ins3(view3, skybox_view);
+    shader_set_mat4(skybox_shader, "view", skybox_view);
+    shader_set_mat4(skybox_shader, "projection", projection);
+    mesh_render(skybox_mesh);
+    glDepthFunc(GL_LESS);
 
     igRender();
     ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());
@@ -215,30 +265,99 @@ void shader_use(unsigned int shader) {
   glUseProgram(shader);
 }
 
-mesh_t mesh_init() {
+mesh_t mesh_init_pos() {
   mesh_t mesh;
   glGenVertexArrays(1, &mesh.VAO);
   glGenBuffers(1, &mesh.VBO);
-  glGenBuffers(1, &mesh.EBO);
   glBindVertexArray(mesh.VAO);
-
   glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 
   // position
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
-  // color
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+  return mesh;
+}
+
+mesh_t mesh_init_pos_tex() {
+  mesh_t mesh;
+  glGenVertexArrays(1, &mesh.VAO);
+  glGenBuffers(1, &mesh.VBO);
+  glBindVertexArray(mesh.VAO);
+  glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
+
+  // position
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+  // texcoord
   glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
   return mesh;
 }
 
 void mesh_render(mesh_t mesh) {
   glBindVertexArray(mesh.VAO);
-  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+  glDrawArrays(GL_TRIANGLES, 0, 36);
+}
+
+unsigned int tex_load(char* path, int mode) {
+  unsigned int tex;
+  glGenTextures(1, &tex);
+  glBindTexture(GL_TEXTURE_2D, tex);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  int w, h, n;
+  unsigned char* data = stbi_load(path, &w, &h, &n, 0);
+  if (data) {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, mode, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+  } else {
+    log_error("Failed to load texture \"%s\".", path);
+  }
+  stbi_image_free(data);
+  return tex;
+}
+
+void tex_use(unsigned int tex) {
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, tex);
+}
+
+unsigned int tex_load_cubemap(char** faces, int mode) {
+  unsigned int tex;
+  glGenTextures(1, &tex);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, tex);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+  vec_str_t v;
+  vec_init(&v);
+  vec_pusharr(&v, faces, 6);
+  int w, h, n;
+  char* path;
+  int i;
+  vec_foreach(&v, path, i) {
+    unsigned char* data = stbi_load(path, &w, &h, &n, 0);
+    if (data) {
+      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, w, h, 0, mode, GL_UNSIGNED_BYTE, data);
+    } else {
+      log_error("Failed to load texture \"%s\".", path);
+    }
+    stbi_image_free(data);
+  }
+  vec_deinit(&v);
+  return tex;
+}
+
+void tex_use_cubemap(unsigned int tex) {
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, tex);
 }

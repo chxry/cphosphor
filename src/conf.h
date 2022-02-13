@@ -8,6 +8,7 @@ typedef struct {
   int width;
   int height;
   int fullscreen;
+  int msaa;
 } conf_t;
 
 extern conf_t conf;
