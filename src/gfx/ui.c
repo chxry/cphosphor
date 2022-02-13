@@ -32,7 +32,8 @@ void ui_init(SDL_Window* window, SDL_GLContext* ctx) {
   style->WindowRounding = 4.0;
   style->FrameRounding = 4.0;
   style->PopupRounding = 4.0;
-  ImFontAtlas_AddFontFromFileTTF(io->Fonts, "./res/jetbrains mono.ttf", 16, NULL, NULL);
+  asset_t font = asset_load("jetbrains mono.ttf");
+  ImFontAtlas_AddFontFromMemoryTTF(io->Fonts, font.data, font.len, 16, NULL, NULL);
   ImGui_ImplSDL2_InitForOpenGL(window, ctx);
   ImGui_ImplOpenGL3_Init("#version 460");
 }

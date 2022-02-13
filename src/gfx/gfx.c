@@ -84,11 +84,11 @@ void window_init(char* title) {
 
 void window_loop() {
   mesh_t mesh = mesh_init_pos_tex(floor_verts, 6);
-  unsigned int shader = shader_init("./res/shader.vert", "./res/shader.frag");
-  unsigned int tex = tex_load("./res/cat.png", GL_RGBA);
+  unsigned int shader = shader_init("shader.vert", "shader.frag");
+  unsigned int tex = tex_load("cat.png", GL_RGBA);
   mesh_t skybox_mesh = mesh_init_pos(skybox_verts, 36);
-  unsigned int skybox_shader = shader_init("./res/skybox.vert", "./res/skybox.frag");
-  unsigned int skybox_tex = tex_load_cubemap((char* [6]){"./res/skybox/right.jpg", "./res/skybox/left.jpg", "./res/skybox/top.jpg", "./res/skybox/bottom.jpg", "./res/skybox/front.jpg", "./res/skybox/back.jpg"}, GL_RGB);
+  unsigned int skybox_shader = shader_init("skybox.vert", "skybox.frag");
+  unsigned int skybox_tex = tex_load_cubemap((char* [6]){"skybox/right.jpg", "skybox/left.jpg", "skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg", "skybox/back.jpg"}, GL_RGB);
 
   bool quit = false;
   int frame_delay = 1000 / FPS;
@@ -162,7 +162,7 @@ void window_destroy() {
 
 unsigned int shader_init(const char* vert_path, const char* frag_path) {
   int success;
-  const char* vert_src = read_file(vert_path);
+  const char* vert_src = asset_load(vert_path).data;
   unsigned int vert = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(vert, 1, &vert_src, NULL);
   glCompileShader(vert);
@@ -171,7 +171,7 @@ unsigned int shader_init(const char* vert_path, const char* frag_path) {
     log_error("Failed to compile vertex shader \"%s\".", vert_path);
   }
 
-  const char* frag_src = read_file(frag_path);
+  const char* frag_src = asset_load(frag_path).data;
   unsigned int frag = glCreateShader(GL_FRAGMENT_SHADER);
   glShaderSource(frag, 1, &frag_src, NULL);
   glCompileShader(frag);
@@ -252,7 +252,8 @@ unsigned int tex_load(char* path, int mode) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   int w, h, n;
-  unsigned char* data = stbi_load(path, &w, &h, &n, 0);
+  asset_t img = asset_load(path);
+  unsigned char* data = stbi_load_from_memory(img.data, img.len, &w, &h, &n, 0);
   if (data) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, mode, GL_UNSIGNED_BYTE, data);
     log_debug("Loaded texture \"%s\".", path);
@@ -285,7 +286,8 @@ unsigned int tex_load_cubemap(char** faces, int mode) {
   char* path;
   int i;
   vec_foreach(&v, path, i) {
-    unsigned char* data = stbi_load(path, &w, &h, &n, 0);
+    asset_t img = asset_load(path);
+    unsigned char* data = stbi_load_from_memory(img.data, img.len, &w, &h, &n, 0);
     if (data) {
       glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, w, h, 0, mode, GL_UNSIGNED_BYTE, data);
       log_debug("Loaded texture \"%s\".", path);

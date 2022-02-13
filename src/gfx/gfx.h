@@ -9,10 +9,9 @@
 #include <vec.h>
 #include <stb_image.h>
 
-#include "ui.h"
-#include "util.h"
-#include "game/conf.h"
+#include "game/game.h"
 #include "game/player.h"
+#include "ui.h"
 
 typedef struct {
   unsigned int VBO;
