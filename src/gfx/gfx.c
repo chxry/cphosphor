@@ -3,49 +3,15 @@
 SDL_Window* window;
 SDL_GLContext ctx;
 
-float cubeVertices[] = {
-    -0.5, -0.5, -0.5, 0.0, 0.0,
-    0.5, -0.5, -0.5, 1.0, 0.0,
-    0.5, 0.5, -0.5, 1.0, 1.0,
-    0.5, 0.5, -0.5, 1.0, 1.0,
-    -0.5, 0.5, -0.5, 0.0, 1.0,
-    -0.5, -0.5, -0.5, 0.0, 0.0,
+float floor_verts[] = {
+    -15.0, -1.0, -15.0, 0.0, 1.0,
+    15.0, -1.0, -15.0, 1.0, 1.0,
+    15.0, -1.0, 15.0, 1.0, 0.0,
+    15.0, -1.0, 15.0, 1.0, 0.0,
+    -15.0, -1.0, 15.0, 0.0, 0.0,
+    -15.0, -1.0, -15.0, 0.0, 1.0};
 
-    -0.5, -0.5, 0.5, 0.0, 0.0,
-    0.5, -0.5, 0.5, 1.0, 0.0,
-    0.5, 0.5, 0.5, 1.0, 1.0,
-    0.5, 0.5, 0.5, 1.0, 1.0,
-    -0.5, 0.5, 0.5, 0.0, 1.0,
-    -0.5, -0.5, 0.5, 0.0, 0.0,
-
-    -0.5, 0.5, 0.5, 1.0, 0.0,
-    -0.5, 0.5, -0.5, 1.0, 1.0,
-    -0.5, -0.5, -0.5, 0.0, 1.0,
-    -0.5, -0.5, -0.5, 0.0, 1.0,
-    -0.5, -0.5, 0.5, 0.0, 0.0,
-    -0.5, 0.5, 0.5, 1.0, 0.0,
-
-    0.5, 0.5, 0.5, 1.0, 0.0,
-    0.5, 0.5, -0.5, 1.0, 1.0,
-    0.5, -0.5, -0.5, 0.0, 1.0,
-    0.5, -0.5, -0.5, 0.0, 1.0,
-    0.5, -0.5, 0.5, 0.0, 0.0,
-    0.5, 0.5, 0.5, 1.0, 0.0,
-
-    -0.5, -0.5, -0.5, 0.0, 1.0,
-    0.5, -0.5, -0.5, 1.0, 1.0,
-    0.5, -0.5, 0.5, 1.0, 0.0,
-    0.5, -0.5, 0.5, 1.0, 0.0,
-    -0.5, -0.5, 0.5, 0.0, 0.0,
-    -0.5, -0.5, -0.5, 0.0, 1.0,
-
-    -0.5, 0.5, -0.5, 0.0, 1.0,
-    0.5, 0.5, -0.5, 1.0, 1.0,
-    0.5, 0.5, 0.5, 1.0, 0.0,
-    0.5, 0.5, 0.5, 1.0, 0.0,
-    -0.5, 0.5, 0.5, 0.0, 0.0,
-    -0.5, 0.5, -0.5, 0.0, 1.0};
-float skyboxVertices[] = {
+float skybox_verts[] = {
     -1.0, 1.0, -1.0,
     -1.0, -1.0, -1.0,
     1.0, -1.0, -1.0,
@@ -102,6 +68,7 @@ void window_init(char* title) {
   SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, conf.msaa);
   window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, conf.width, conf.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (conf.fullscreen ? SDL_WINDOW_FULLSCREEN : 0));
   ctx = SDL_GL_CreateContext(window);
+  SDL_SetRelativeMouseMode(true);
 
   if (!gladLoadGL()) {
     log_fatal("Failed to load opengl.");
@@ -116,10 +83,10 @@ void window_init(char* title) {
 }
 
 void window_loop() {
-  mesh_t mesh = mesh_init_pos_tex();
+  mesh_t mesh = mesh_init_pos_tex(floor_verts, 6);
   unsigned int shader = shader_init("./res/shader.vert", "./res/shader.frag");
   unsigned int tex = tex_load("./res/cat.png", GL_RGBA);
-  mesh_t skybox_mesh = mesh_init_pos();
+  mesh_t skybox_mesh = mesh_init_pos(skybox_verts, 36);
   unsigned int skybox_shader = shader_init("./res/skybox.vert", "./res/skybox.frag");
   unsigned int skybox_tex = tex_load_cubemap((char* [6]){"./res/skybox/right.jpg", "./res/skybox/left.jpg", "./res/skybox/top.jpg", "./res/skybox/bottom.jpg", "./res/skybox/front.jpg", "./res/skybox/back.jpg"}, GL_RGB);
 
@@ -159,8 +126,7 @@ void window_loop() {
     shader_use(shader);
     tex_use(tex);
     mat4 model = GLM_MAT4_IDENTITY;
-    glm_rotate_x(model, SDL_GetTicks() / 450.0, model);
-    glm_rotate_y(model, SDL_GetTicks() / 450.0, model);
+    glm_rotate_y(model, SDL_GetTicks() / 1000.0, model);
     shader_set_mat4(shader, "model", model);
     shader_set_mat4(shader, "view", view);
     shader_set_mat4(shader, "projection", projection);
@@ -202,7 +168,7 @@ unsigned int shader_init(const char* vert_path, const char* frag_path) {
   glCompileShader(vert);
   glGetShaderiv(vert, GL_COMPILE_STATUS, &success);
   if (!success) {
-    log_error("Failed to compile vertex shader \"%s\".", vert);
+    log_error("Failed to compile vertex shader \"%s\".", vert_path);
   }
 
   const char* frag_src = read_file(frag_path);
@@ -211,7 +177,7 @@ unsigned int shader_init(const char* vert_path, const char* frag_path) {
   glCompileShader(frag);
   glGetShaderiv(frag, GL_COMPILE_STATUS, &success);
   if (!success) {
-    log_error("Failed to compile fragment shader \"%s\".", vert);
+    log_error("Failed to compile fragment shader \"%s\".", frag_path);
   }
 
   unsigned int program = glCreateProgram();
@@ -220,7 +186,9 @@ unsigned int shader_init(const char* vert_path, const char* frag_path) {
   glLinkProgram(program);
   glGetProgramiv(program, GL_LINK_STATUS, &success);
   if (!success) {
-    log_error("Failed to link \"%s\" and \"%s\".", vert, frag);
+    log_error("Failed to link \"%s\" and \"%s\".", vert_path, frag_path);
+  } else {
+    log_debug("Compiled shaders \"%s\" and \"%s\".", vert_path, frag_path);
   }
   glDeleteShader(vert);
   glDeleteShader(frag);
@@ -235,13 +203,14 @@ void shader_use(unsigned int shader) {
   glUseProgram(shader);
 }
 
-mesh_t mesh_init_pos() {
+mesh_t mesh_init_pos(float* verts, int size) {
   mesh_t mesh;
+  mesh.verts = size;
   glGenVertexArrays(1, &mesh.VAO);
   glGenBuffers(1, &mesh.VBO);
   glBindVertexArray(mesh.VAO);
   glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, size * 12, verts, GL_STATIC_DRAW);
 
   // position
   glEnableVertexAttribArray(0);
@@ -250,13 +219,14 @@ mesh_t mesh_init_pos() {
   return mesh;
 }
 
-mesh_t mesh_init_pos_tex() {
+mesh_t mesh_init_pos_tex(float* verts, int size) {
   mesh_t mesh;
+  mesh.verts = size;
   glGenVertexArrays(1, &mesh.VAO);
   glGenBuffers(1, &mesh.VBO);
   glBindVertexArray(mesh.VAO);
   glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, size * 20, verts, GL_STATIC_DRAW);
 
   // position
   glEnableVertexAttribArray(0);
@@ -270,22 +240,22 @@ mesh_t mesh_init_pos_tex() {
 
 void mesh_render(mesh_t mesh) {
   glBindVertexArray(mesh.VAO);
-  glDrawArrays(GL_TRIANGLES, 0, 36);
+  glDrawArrays(GL_TRIANGLES, 0, mesh.verts);
 }
 
 unsigned int tex_load(char* path, int mode) {
   unsigned int tex;
   glGenTextures(1, &tex);
   glBindTexture(GL_TEXTURE_2D, tex);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   int w, h, n;
   unsigned char* data = stbi_load(path, &w, &h, &n, 0);
   if (data) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, mode, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    log_debug("Loaded texture \"%s\".", path);
   } else {
     log_error("Failed to load texture \"%s\".", path);
   }
@@ -318,6 +288,7 @@ unsigned int tex_load_cubemap(char** faces, int mode) {
     unsigned char* data = stbi_load(path, &w, &h, &n, 0);
     if (data) {
       glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, w, h, 0, mode, GL_UNSIGNED_BYTE, data);
+      log_debug("Loaded texture \"%s\".", path);
     } else {
       log_error("Failed to load texture \"%s\".", path);
     }

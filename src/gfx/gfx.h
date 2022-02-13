@@ -17,6 +17,7 @@
 typedef struct {
   unsigned int VBO;
   unsigned int VAO;
+  int verts;
 } mesh_t;
 
 void window_init(char* title);

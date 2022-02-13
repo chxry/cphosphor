@@ -9,6 +9,7 @@ typedef struct {
   int height;
   int fullscreen;
   int msaa;
+  float sens;
 } conf_t;
 
 extern conf_t conf;
