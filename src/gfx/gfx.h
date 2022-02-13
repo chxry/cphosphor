@@ -3,16 +3,16 @@
 #include <math.h>
 #include <SDL2/SDL.h>
 #include <glad/glad.h>
-#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui.h>
 #include <cglm/cglm.h>
 #include <log.h>
 #include <vec.h>
 #include <stb_image.h>
 
+#include "ui.h"
 #include "util.h"
-#include "conf.h"
-#include "player.h"
+#include "game/conf.h"
+#include "game/player.h"
 
 typedef struct {
   unsigned int VBO;

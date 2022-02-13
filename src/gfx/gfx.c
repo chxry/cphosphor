@@ -100,11 +100,8 @@ void window_init(char* title) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
   SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
   SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, conf.msaa);
-
   window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, conf.width, conf.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (conf.fullscreen ? SDL_WINDOW_FULLSCREEN : 0));
   ctx = SDL_GL_CreateContext(window);
-  SDL_SetRelativeMouseMode(true);
-  SDL_CaptureMouse(true);
 
   if (!gladLoadGL()) {
     log_fatal("Failed to load opengl.");
@@ -113,13 +110,7 @@ void window_init(char* title) {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_MULTISAMPLE);
 
-  igCreateContext(NULL);
-  ImGuiIO io = *igGetIO();
-  io.IniFilename = NULL;
-  ImFontAtlas_AddFontFromFileTTF(io.Fonts, "./res/roboto.ttf", 16, NULL, NULL);
-  ImGui_ImplSDL2_InitForOpenGL(window, &ctx);
-  ImGui_ImplOpenGL3_Init("#version 460");
-
+  ui_init(window, &ctx);
   log_info("Created window \"%s\".", title);
   log_info("Renderer: %s - %s", glGetString(GL_RENDERER), glGetString(GL_VERSION));
 }
@@ -133,7 +124,6 @@ void window_loop() {
   unsigned int skybox_tex = tex_load_cubemap((char* [6]){"./res/skybox/right.jpg", "./res/skybox/left.jpg", "./res/skybox/top.jpg", "./res/skybox/bottom.jpg", "./res/skybox/front.jpg", "./res/skybox/back.jpg"}, GL_RGB);
 
   bool quit = false;
-  bool debug_overlay = true;
   int frame_delay = 1000 / FPS;
 
   while (!quit) {
@@ -141,14 +131,9 @@ void window_loop() {
 
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
-      ImGui_ImplSDL2_ProcessEvent(&e);
+      ui_processevent(&e);
       player_processevent(&e);
       switch (e.type) {
-      case SDL_KEYDOWN:
-        if (e.key.keysym.sym == SDLK_BACKQUOTE) {
-          debug_overlay = !debug_overlay;
-        }
-        break;
       case SDL_WINDOWEVENT:
         if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
           glViewport(0, 0, e.window.data1, e.window.data2);
@@ -162,20 +147,6 @@ void window_loop() {
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplSDL2_NewFrame(window);
-    igNewFrame();
-
-    if (debug_overlay) {
-      igSetNextWindowPos((ImVec2){16.0, 16.0}, ImGuiCond_Always, (ImVec2){0.0, 0.0});
-      igSetNextWindowBgAlpha(0.5);
-      if (igBegin("Debug overlay", &debug_overlay, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGuiIO io = *igGetIO();
-        igText("%.1fms", io.DeltaTime * 1000);
-        igText("%.1ffps", io.Framerate);
-      }
-      igEnd();
-    }
 
     mat4 view;
     player_movement(&view);
@@ -208,8 +179,7 @@ void window_loop() {
     mesh_render(skybox_mesh);
     glDepthFunc(GL_LESS);
 
-    igRender();
-    ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());
+    ui_render(window);
     SDL_GL_SwapWindow(window);
     int frame_time = SDL_GetTicks() - frame_start;
     if (frame_delay > frame_time) {

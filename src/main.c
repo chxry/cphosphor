@@ -1,5 +1,5 @@
-#include "conf.h"
-#include "gfx.h"
+#include "game/conf.h"
+#include "gfx/gfx.h"
 
 int main() {
   conf_init("conf.ini");
