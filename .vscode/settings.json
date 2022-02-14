@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "*.asm": "asm",
+    "tinyobj_loader_c.h": "c"
+  }
+}

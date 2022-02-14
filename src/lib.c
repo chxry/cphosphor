@@ -1,4 +1,4 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
-#define FAST_OBJ_IMPLEMENTATION
-#include <fast_obj/fast_obj.h>
+#define TINYOBJ_LOADER_C_IMPLEMENTATION
+#include <tinyobj/tinyobj_loader_c.h>

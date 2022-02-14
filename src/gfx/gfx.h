@@ -8,7 +8,7 @@
 #include <log.h>
 #include <vec.h>
 #include <stb/stb_image.h>
-#include <fast_obj/fast_obj.h>
+#include <tinyobj/tinyobj_loader_c.h>
 
 #include "game/game.h"
 #include "game/player.h"

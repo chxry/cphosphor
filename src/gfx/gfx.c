@@ -91,7 +91,7 @@ void window_loop() {
   unsigned int skybox_shader = shader_init("shaders/skybox.vert", "shaders/skybox.frag");
   unsigned int skybox_tex = tex_load_cubemap((char* [6]){"skybox/right.jpg", "skybox/left.jpg", "skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg", "skybox/back.jpg"}, GL_RGB);
 
-  mesh_t teapot_mesh = mesh_load_obj("./res/teapot.obj");
+  mesh_t teapot_mesh = mesh_load_obj("teapot.obj");
   unsigned int teapot_shader = shader_init("shaders/blank.vert", "shaders/blank.frag");
 
   bool quit = false;
@@ -255,18 +255,31 @@ mesh_t mesh_init_pos_tex(float* verts, int size) {
   return mesh;
 }
 
-mesh_t mesh_load_obj(const char* path) {
-  fastObjMesh* obj = fast_obj_read("./res/teapot.obj"); // todo - use asset_load
-  float* verts = malloc(obj->index_count * 3 * sizeof(float));
+void load_obj(void* ctx, const char* filename, const int is_mtl, const char* obj_filename, char** buf, size_t* len) {
+  asset_t asset = asset_load(filename);
+  *buf = asset.data;
+  *len = asset.len;
+}
 
-  for (int i = 0; i < obj->index_count; i++) {
-    verts[i * 3] = obj->positions[3 * obj->indices[i].p];
-    verts[i * 3 + 1] = obj->positions[3 * obj->indices[i].p + 1];
-    verts[i * 3 + 2] = obj->positions[3 * obj->indices[i].p + 2];
+mesh_t mesh_load_obj(const char* path) {
+  tinyobj_shape_t* shape = NULL;
+  tinyobj_material_t* material = NULL;
+  tinyobj_attrib_t attrib;
+  tinyobj_attrib_init(&attrib);
+  unsigned long num_shapes;
+  unsigned long num_materials;
+  tinyobj_parse_obj(&attrib, &shape, &num_shapes, &material, &num_materials, path, load_obj, NULL, TINYOBJ_FLAG_TRIANGULATE);
+
+  float* verts = malloc(attrib.num_faces * 3 * sizeof(float));
+  for (int i = 0; i < attrib.num_faces; i++) {
+    unsigned int idx = attrib.faces[i].v_idx;
+    verts[i * 3] = attrib.vertices[3 * idx];
+    verts[i * 3 + 1] = attrib.vertices[3 * idx + 1];
+    verts[i * 3 + 2] = attrib.vertices[3 * idx + 2];
   }
 
   log_debug("Loaded model \"%s\".", path);
-  return mesh_init_pos(verts, obj->index_count);
+  return mesh_init_pos(verts, attrib.num_faces);
 }
 
 void mesh_render(mesh_t mesh) {
