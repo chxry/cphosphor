@@ -2,57 +2,8 @@
 
 SDL_Window* window;
 SDL_GLContext ctx;
-
-float floor_verts[] = {
-    -15.0, -1.0, -15.0, 0.0, 1.0,
-    15.0, -1.0, -15.0, 1.0, 1.0,
-    15.0, -1.0, 15.0, 1.0, 0.0,
-    15.0, -1.0, 15.0, 1.0, 0.0,
-    -15.0, -1.0, 15.0, 0.0, 0.0,
-    -15.0, -1.0, -15.0, 0.0, 1.0};
-
-float skybox_verts[] = {
-    -1.0, 1.0, -1.0,
-    -1.0, -1.0, -1.0,
-    1.0, -1.0, -1.0,
-    1.0, -1.0, -1.0,
-    1.0, 1.0, -1.0,
-    -1.0, 1.0, -1.0,
-
-    -1.0, -1.0, 1.0,
-    -1.0, -1.0, -1.0,
-    -1.0, 1.0, -1.0,
-    -1.0, 1.0, -1.0,
-    -1.0, 1.0, 1.0,
-    -1.0, -1.0, 1.0,
-
-    1.0, -1.0, -1.0,
-    1.0, -1.0, 1.0,
-    1.0, 1.0, 1.0,
-    1.0, 1.0, 1.0,
-    1.0, 1.0, -1.0,
-    1.0, -1.0, -1.0,
-
-    -1.0, -1.0, 1.0,
-    -1.0, 1.0, 1.0,
-    1.0, 1.0, 1.0,
-    1.0, 1.0, 1.0,
-    1.0, -1.0, 1.0,
-    -1.0, -1.0, 1.0,
-
-    -1.0, 1.0, -1.0,
-    1.0, 1.0, -1.0,
-    1.0, 1.0, 1.0,
-    1.0, 1.0, 1.0,
-    -1.0, 1.0, 1.0,
-    -1.0, 1.0, -1.0,
-
-    -1.0, -1.0, -1.0,
-    -1.0, -1.0, 1.0,
-    1.0, -1.0, -1.0,
-    1.0, -1.0, -1.0,
-    -1.0, -1.0, 1.0,
-    1.0, -1.0, 1.0};
+unsigned int basic_shader;
+unsigned int blank_shader;
 
 const int FPS = 0; // unlimited
 
@@ -83,20 +34,18 @@ void window_init(char* title) {
 }
 
 void window_loop() {
-  mesh_t floor_mesh = mesh_init_pos_tex(floor_verts, 6);
-  unsigned int floor_shader = shader_init("shaders/shader.vert", "shaders/shader.frag");
-  unsigned int floor_tex = tex_load("cat.png", GL_RGBA);
-
-  mesh_t skybox_mesh = mesh_init_pos(skybox_verts, 36);
   unsigned int skybox_shader = shader_init("shaders/skybox.vert", "shaders/skybox.frag");
-  unsigned int skybox_tex = tex_load_cubemap((char* [6]){"skybox/right.jpg", "skybox/left.jpg", "skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg", "skybox/back.jpg"}, GL_RGB);
+  glUniform1i(glGetUniformLocation(skybox_shader, "skybox"), 0);
 
-  mesh_t teapot_mesh = mesh_load_obj("teapot.obj");
-  unsigned int teapot_shader = shader_init("shaders/blank.vert", "shaders/blank.frag");
+  basic_shader = shader_init("shaders/basic.vert", "shaders/basic.frag");
+  blank_shader = shader_init("shaders/blank.vert", "shaders/blank.frag");
+  glUniform1i(glGetUniformLocation(basic_shader, "tex"), 0);
+
+  mesh_t skybox_mesh = mesh_load_obj("cube.obj");
+  unsigned int skybox_tex = tex_load_cubemap((char* [6]){"skybox/right.jpg", "skybox/left.jpg", "skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg", "skybox/back.jpg"}, GL_RGB);
 
   bool quit = false;
   int frame_delay = 1000 / FPS;
-
   while (!quit) {
     int frame_start = SDL_GetTicks();
 
@@ -121,40 +70,21 @@ void window_loop() {
       player_processevent(&e);
     }
 
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     mat4 view;
     player_movement(&view);
     mat4 projection = GLM_MAT4_IDENTITY;
-    int w, h;
-    SDL_GetWindowSize(window, &w, &h);
-    glm_perspective(glm_rad(80.0), w / h, 0.1, 100.0, projection);
+    glm_perspective(glm_rad(80.0), conf.width / conf.height, 0.1, 100.0, projection);
 
-    // floor
-    shader_use(floor_shader);
-    tex_use(floor_tex);
-    mat4 model_floor = GLM_MAT4_IDENTITY;
-    shader_set_mat4(floor_shader, "model", model_floor);
-    shader_set_mat4(floor_shader, "view", view);
-    shader_set_mat4(floor_shader, "projection", projection);
-    mesh_render(floor_mesh);
+    world_render(view, projection);
 
-    // teapot
-    shader_use(teapot_shader);
-    mat4 teapot_model = GLM_MAT4_IDENTITY;
-    glm_rotate_y(teapot_model, SDL_GetTicks() / 450.0, teapot_model);
-    shader_set_mat4(teapot_shader, "model", teapot_model);
-    shader_set_mat4(teapot_shader, "view", view);
-    shader_set_mat4(teapot_shader, "projection", projection);
-    mesh_render(teapot_mesh);
-
-    // skybox
+    glDepthFunc(GL_LEQUAL);
     shader_use(skybox_shader);
     tex_use_cubemap(skybox_tex);
-    glDepthFunc(GL_LEQUAL);
+    mat4 skybox_view = GLM_MAT4_ZERO;
     mat3 view3;
-    mat4 skybox_view;
     glm_mat4_pick3(view, view3);
     glm_mat4_ins3(view3, skybox_view);
     shader_set_mat4(skybox_shader, "view", skybox_view);

@@ -29,7 +29,7 @@ void player_movement(mat4* view) {
   glm_vec3_normalize(front);
 
   const unsigned char* keys = SDL_GetKeyboardState(NULL);
-  vec3 vel = GLM_VEC3_ZERO;
+  vec3 vel = GLM_VEC3_ZERO; // make this a vec2 and normalize it
   if (SDL_GetRelativeMouseMode()) {
     if (keys[SDL_SCANCODE_W] && !keys[SDL_SCANCODE_S]) {
       glm_vec3_scale(front, SPEED, vel);

@@ -12,6 +12,7 @@
 
 #include "game/game.h"
 #include "game/player.h"
+#include "game/world.h"
 #include "ui.h"
 
 typedef struct {
@@ -19,6 +20,9 @@ typedef struct {
   unsigned int VAO;
   int verts;
 } mesh_t;
+
+extern unsigned int basic_shader;
+extern unsigned int blank_shader;
 
 void window_init(char* title);
 void window_loop();
