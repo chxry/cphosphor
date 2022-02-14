@@ -9,7 +9,7 @@ const float SPEED = 0.1;
 const float GRAVITY = 0.005;
 
 void player_processevent(SDL_Event* e) {
-  if (e->type == SDL_MOUSEMOTION) {
+  if (e->type == SDL_MOUSEMOTION && SDL_GetRelativeMouseMode()) {
     yaw += e->motion.xrel * conf.sens;
     pitch -= e->motion.yrel * conf.sens;
   }
@@ -30,23 +30,25 @@ void player_movement(mat4* view) {
 
   const unsigned char* keys = SDL_GetKeyboardState(NULL);
   vec3 vel = GLM_VEC3_ZERO;
-  if (keys[SDL_SCANCODE_W] && !keys[SDL_SCANCODE_S]) {
-    glm_vec3_scale(front, SPEED, vel);
-  }
-  if (keys[SDL_SCANCODE_S] && !keys[SDL_SCANCODE_W]) {
-    glm_vec3_scale(front, -SPEED, vel);
-  }
-  if (keys[SDL_SCANCODE_A] && !keys[SDL_SCANCODE_D]) {
-    glm_vec3_crossn(front, GLM_YUP, vel);
-    glm_vec3_scale(vel, -SPEED, vel);
-  }
-  if (keys[SDL_SCANCODE_D] && !keys[SDL_SCANCODE_A]) {
-    glm_vec3_crossn(front, GLM_YUP, vel);
-    glm_vec3_scale(vel, SPEED, vel);
-  }
-  if (keys[SDL_SCANCODE_F1] && ground) {
-    yvel = 0.2;
-    ground = false;
+  if (SDL_GetRelativeMouseMode()) {
+    if (keys[SDL_SCANCODE_W] && !keys[SDL_SCANCODE_S]) {
+      glm_vec3_scale(front, SPEED, vel);
+    }
+    if (keys[SDL_SCANCODE_S] && !keys[SDL_SCANCODE_W]) {
+      glm_vec3_scale(front, -SPEED, vel);
+    }
+    if (keys[SDL_SCANCODE_A] && !keys[SDL_SCANCODE_D]) {
+      glm_vec3_crossn(front, GLM_YUP, vel);
+      glm_vec3_scale(vel, -SPEED, vel);
+    }
+    if (keys[SDL_SCANCODE_D] && !keys[SDL_SCANCODE_A]) {
+      glm_vec3_crossn(front, GLM_YUP, vel);
+      glm_vec3_scale(vel, SPEED, vel);
+    }
+    if (keys[SDL_SCANCODE_F1] && ground) {
+      yvel = 0.2;
+      ground = false;
+    }
   }
   yvel -= GRAVITY;
   vel[1] = yvel;

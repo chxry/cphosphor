@@ -5,13 +5,17 @@ bool debug_overlay = true;
 void ui_init(SDL_Window* window, SDL_GLContext* ctx) {
   igCreateContext(NULL);
   ImGuiIO* io = igGetIO();
+  io->IniFilename = NULL;
   ImGuiStyle* style = igGetStyle();
+  style->WindowRounding = 4.0;
+  style->FrameRounding = 4.0;
+  style->PopupRounding = 4.0;
   ImVec4* colors = style->Colors;
   colors[ImGuiCol_FrameBg] = LILAC;
   colors[ImGuiCol_FrameBgHovered] = LILAC2;
   colors[ImGuiCol_FrameBgActive] = LILAC3;
   colors[ImGuiCol_TitleBgActive] = LILAC;
-  colors[ImGuiCol_CheckMark] = LILAC;
+  colors[ImGuiCol_CheckMark] = (ImVec4){1.0, 1.0, 1.0, 1.0};
   colors[ImGuiCol_SliderGrab] = LILAC;
   colors[ImGuiCol_SliderGrabActive] = LILAC3;
   colors[ImGuiCol_Button] = LILAC;
@@ -28,10 +32,8 @@ void ui_init(SDL_Window* window, SDL_GLContext* ctx) {
   colors[ImGuiCol_Tab] = LILAC;
   colors[ImGuiCol_TabHovered] = LILAC2;
   colors[ImGuiCol_TabActive] = LILAC3;
-  io->IniFilename = NULL;
-  style->WindowRounding = 4.0;
-  style->FrameRounding = 4.0;
-  style->PopupRounding = 4.0;
+  colors[ImGuiCol_NavHighlight] = LILAC;
+  colors[ImGuiCol_TextSelectedBg] = LILAC3;
   asset_t font = asset_load("jetbrains mono.ttf");
   ImFontAtlas_AddFontFromMemoryTTF(io->Fonts, font.data, font.len, 16, NULL, NULL);
   ImGui_ImplSDL2_InitForOpenGL(window, ctx);
@@ -59,9 +61,14 @@ void ui_render(SDL_Window* window) {
       ImGuiIO io = *igGetIO();
       igText("%.1fms", io.DeltaTime * 1000);
       igText("%.1ffps", io.Framerate);
+      igSeparator();
+      igText("\'esc\' toggle cursor");
+      igText("\'`\' toggle debug");
     }
     igEnd();
   }
+
+  igShowDemoWindow(&debug_overlay);
 
   igRender();
   ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());

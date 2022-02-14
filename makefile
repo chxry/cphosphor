@@ -4,7 +4,7 @@ TARGET = out
 RES = res.tar
 
 CFLAGS = -Wall -O2 -c -DIMGUI_IMPL_API="extern \"C\"" -DLOG_USE_COLOR -DCIMGUI_DEFINE_ENUMS_AND_STRUCTS
-CFLAGS += -Isrc -Ilib -Ilib/log/src -Ilib/ini/src -Ilib/vec/src -Ilib/microtar/src -Ilib/cimgui -Ilib/cimgui/imgui -Ilib/cglm/include -Ilib/stb -I/usr/include/SDL2
+CFLAGS += -Isrc -Ilib -Ilib/log/src -Ilib/ini/src -Ilib/vec/src -Ilib/microtar/src -Ilib/cimgui -Ilib/cimgui/imgui -Ilib/cglm/include -I/usr/include/SDL2
 LDFLAGS = -ldl -lSDL2 -lm
 
 $(TARGET): $(OBJS) $(RES) cimgui

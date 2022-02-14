@@ -83,12 +83,16 @@ void window_init(char* title) {
 }
 
 void window_loop() {
-  mesh_t mesh = mesh_init_pos_tex(floor_verts, 6);
-  unsigned int shader = shader_init("shader.vert", "shader.frag");
-  unsigned int tex = tex_load("cat.png", GL_RGBA);
+  mesh_t floor_mesh = mesh_init_pos_tex(floor_verts, 6);
+  unsigned int floor_shader = shader_init("shaders/shader.vert", "shaders/shader.frag");
+  unsigned int floor_tex = tex_load("cat.png", GL_RGBA);
+
   mesh_t skybox_mesh = mesh_init_pos(skybox_verts, 36);
-  unsigned int skybox_shader = shader_init("skybox.vert", "skybox.frag");
+  unsigned int skybox_shader = shader_init("shaders/skybox.vert", "shaders/skybox.frag");
   unsigned int skybox_tex = tex_load_cubemap((char* [6]){"skybox/right.jpg", "skybox/left.jpg", "skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg", "skybox/back.jpg"}, GL_RGB);
+
+  mesh_t teapot_mesh = mesh_load_obj("./res/teapot.obj");
+  unsigned int teapot_shader = shader_init("shaders/blank.vert", "shaders/blank.frag");
 
   bool quit = false;
   int frame_delay = 1000 / FPS;
@@ -98,18 +102,23 @@ void window_loop() {
 
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
-      ui_processevent(&e);
-      player_processevent(&e);
       switch (e.type) {
       case SDL_WINDOWEVENT:
         if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
           glViewport(0, 0, e.window.data1, e.window.data2);
         }
         break;
+      case SDL_KEYDOWN:
+        if (e.key.keysym.sym == SDLK_ESCAPE) {
+          SDL_SetRelativeMouseMode(!SDL_GetRelativeMouseMode());
+        }
+        break;
       case SDL_QUIT:
         quit = true;
         break;
       }
+      ui_processevent(&e);
+      player_processevent(&e);
     }
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -122,15 +131,23 @@ void window_loop() {
     SDL_GetWindowSize(window, &w, &h);
     glm_perspective(glm_rad(80.0), w / h, 0.1, 100.0, projection);
 
-    // cube
-    shader_use(shader);
-    tex_use(tex);
-    mat4 model = GLM_MAT4_IDENTITY;
-    glm_rotate_y(model, SDL_GetTicks() / 1000.0, model);
-    shader_set_mat4(shader, "model", model);
-    shader_set_mat4(shader, "view", view);
-    shader_set_mat4(shader, "projection", projection);
-    mesh_render(mesh);
+    // floor
+    shader_use(floor_shader);
+    tex_use(floor_tex);
+    mat4 model_floor = GLM_MAT4_IDENTITY;
+    shader_set_mat4(floor_shader, "model", model_floor);
+    shader_set_mat4(floor_shader, "view", view);
+    shader_set_mat4(floor_shader, "projection", projection);
+    mesh_render(floor_mesh);
+
+    // teapot
+    shader_use(teapot_shader);
+    mat4 teapot_model = GLM_MAT4_IDENTITY;
+    glm_rotate_y(teapot_model, SDL_GetTicks() / 450.0, teapot_model);
+    shader_set_mat4(teapot_shader, "model", teapot_model);
+    shader_set_mat4(teapot_shader, "view", view);
+    shader_set_mat4(teapot_shader, "projection", projection);
+    mesh_render(teapot_mesh);
 
     // skybox
     shader_use(skybox_shader);
@@ -236,6 +253,20 @@ mesh_t mesh_init_pos_tex(float* verts, int size) {
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
   return mesh;
+}
+
+mesh_t mesh_load_obj(const char* path) {
+  fastObjMesh* obj = fast_obj_read("./res/teapot.obj"); // todo - use asset_load
+  float* verts = malloc(obj->index_count * 3 * sizeof(float));
+
+  for (int i = 0; i < obj->index_count; i++) {
+    verts[i * 3] = obj->positions[3 * obj->indices[i].p];
+    verts[i * 3 + 1] = obj->positions[3 * obj->indices[i].p + 1];
+    verts[i * 3 + 2] = obj->positions[3 * obj->indices[i].p + 2];
+  }
+
+  log_debug("Loaded model \"%s\".", path);
+  return mesh_init_pos(verts, obj->index_count);
 }
 
 void mesh_render(mesh_t mesh) {
