@@ -70,7 +70,7 @@ void window_loop() {
     mat4 projection = GLM_MAT4_IDENTITY;
     int w, h;
     SDL_GetWindowSize(window, &w, &h);
-    glm_perspective(glm_rad(80.0), w / h, 0.1, 100.0, projection);
+    glm_perspective(glm_rad(conf.fov), w / h, 0.1, 100.0, projection);
 
     world_render(view, projection);
 
@@ -255,7 +255,7 @@ unsigned int tex_load_cubemap(char** faces, int mode) {
     }
     stbi_image_free(data);
   }
-  log_debug("Loaded cubemap from \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\".", v.data[0],v.data[1],v.data[2],v.data[3],v.data[4],v.data[5]);
+  log_debug("Loaded cubemap from \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\".", v.data[0], v.data[1], v.data[2], v.data[3], v.data[4], v.data[5]);
   vec_deinit(&v);
   return tex;
 }

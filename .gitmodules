@@ -8,9 +8,6 @@
 [submodule "lib/cimgui"]
 	path = lib/cimgui
 	url = https://github.com/cimgui/cimgui
-[submodule "lib/ini"]
-	path = lib/ini
-	url = https://github.com/rxi/ini
 [submodule "lib/cglm"]
 	path = lib/cglm
 	url = https://github.com/recp/cglm

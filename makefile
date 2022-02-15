@@ -1,10 +1,10 @@
-SRC = $(shell find src/ lib/cglm/src/ -type f -name '*.c') lib/glad/build/src/gl.c lib/log/src/log.c lib/ini/src/ini.c lib/vec/src/vec.c lib/microtar/src/microtar.c lib/map/src/map.c lib/parson/parson.c
+SRC = $(shell find src/ lib/cglm/src/ -type f -name '*.c') lib/glad/build/src/gl.c lib/log/src/log.c lib/vec/src/vec.c lib/microtar/src/microtar.c lib/map/src/map.c lib/parson/parson.c
 OBJS = $(SRC:.c=.o)
 TARGET = out
 RES = res.tar
 
 CFLAGS = -Wall -O2 -DLOG_USE_COLOR -DIMGUI_IMPL_API="extern \"C\"" -DCIMGUI_DEFINE_ENUMS_AND_STRUCTS -c
-CFLAGS += -Isrc -Ilib -Ilib/glad/build/include -Ilib/log/src -Ilib/ini/src -Ilib/vec/src -Ilib/microtar/src -Ilib/map/src -Ilib/cimgui -Ilib/cimgui/imgui -Ilib/cglm/include -I/usr/include/SDL2
+CFLAGS += -Isrc -Ilib -Ilib/glad/build/include -Ilib/log/src -Ilib/vec/src -Ilib/microtar/src -Ilib/map/src -Ilib/cimgui -Ilib/cimgui/imgui -Ilib/cglm/include -I/usr/include/SDL2
 LDFLAGS = -ldl -lSDL2 -lm
 
 $(TARGET): glad cimgui $(OBJS) $(RES)

@@ -1,0 +1,7 @@
+{
+  "res": [1280,720],
+  "fullscreen": false,
+  "msaa": 16,
+  "fov": 80,
+  "sens": 0.1
+}

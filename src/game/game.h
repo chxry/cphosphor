@@ -1,15 +1,17 @@
 #pragma once
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ini.h>
 #include <microtar.h>
+#include <parson/parson.h>
 #include <log.h>
 
 typedef struct {
   int width;
   int height;
-  int fullscreen;
+  bool fullscreen;
   int msaa;
+  float fov;
   float sens;
 } conf_t;
 

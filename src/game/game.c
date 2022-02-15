@@ -1,22 +1,18 @@
 #include "game.h"
 
-ini_t* ini;
 conf_t conf;
 mtar_t tar;
 mtar_header_t h;
 
 void conf_init(const char* path) {
-  ini = ini_load(path);
-  if (!ini) {
-    log_fatal("Could not load config \"%s\".", path);
-    exit(-1);
-  }
-  ini_sget(ini, "gfx", "width", "%i", &conf.width);
-  ini_sget(ini, "gfx", "height", "%i", &conf.height);
-  ini_sget(ini, "gfx", "fullscreen", "%i", &conf.fullscreen);
-  ini_sget(ini, "gfx", "msaa", "%i", &conf.msaa);
-  ini_sget(ini, "input", "sens", "%f", &conf.sens);
-
+  JSON_Object* root = json_object(json_parse_file(path));
+  JSON_Array* res = json_object_get_array(root, "res");
+  conf.width = json_array_get_number(res, 0);
+  conf.height = json_array_get_number(res, 1);
+  conf.fullscreen = json_object_get_boolean(root, "fullscreen");
+  conf.msaa = json_object_get_number(root, "msaa");
+  conf.fov = json_object_get_number(root, "fov");
+  conf.sens = json_object_get_number(root, "sens");
   log_info("Loaded config \"%s\".", path);
 }
 

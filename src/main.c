@@ -3,8 +3,8 @@
 #include "gfx/gfx.h"
 
 int main() {
+  conf_init("conf.json");
   assets_init("res.tar");
-  conf_init("conf.ini");
   window_init("flop");
   world_init();
 
