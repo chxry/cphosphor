@@ -1,6 +1,7 @@
 #include "ui.h"
 
 bool debug_overlay = true;
+bool demo = false;
 
 void ui_init(SDL_Window* window, SDL_GLContext* ctx) {
   igCreateContext(NULL);
@@ -67,8 +68,9 @@ void ui_render(SDL_Window* window) {
     }
     igEnd();
   }
-
-  igShowDemoWindow(&debug_overlay);
+  if (demo) {
+    igShowDemoWindow(&demo);
+  }
 
   igRender();
   ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());

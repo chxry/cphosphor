@@ -5,6 +5,14 @@ SDL_GLContext ctx;
 unsigned int basic_shader;
 unsigned int blank_shader;
 
+float floor_verts[] = {
+    -15.0, -1.0, -15.0, 0.0, 1.0,
+    15.0, -1.0, -15.0, 1.0, 1.0,
+    15.0, -1.0, 15.0, 1.0, 0.0,
+    15.0, -1.0, 15.0, 1.0, 0.0,
+    -15.0, -1.0, 15.0, 0.0, 0.0,
+    -15.0, -1.0, -15.0, 0.0, 1.0};
+
 const int FPS = 0; // unlimited
 
 void window_init(char* title) {
@@ -35,13 +43,11 @@ void window_init(char* title) {
 
 void window_loop() {
   unsigned int skybox_shader = shader_init("shaders/skybox.vert", "shaders/skybox.frag");
-  glUniform1i(glGetUniformLocation(skybox_shader, "skybox"), 0);
-
-  basic_shader = shader_init("shaders/basic.vert", "shaders/basic.frag");
-  blank_shader = shader_init("shaders/blank.vert", "shaders/blank.frag");
-  glUniform1i(glGetUniformLocation(basic_shader, "tex"), 0);
-
-  mesh_t skybox_mesh = mesh_load_obj("cube.obj");
+  unsigned int basic_shader = shader_init("shaders/basic.vert", "shaders/basic.frag");
+  mesh_t floor_mesh = mesh_init(floor_verts, 6, pos_tex);
+  mesh_t teapot_mesh = mesh_load_obj("teapot.obj", pos_tex);
+  mesh_t skybox_mesh = mesh_load_obj("cube.obj", pos);
+  unsigned int floor_tex = tex_load("cat.png", GL_RGBA);
   unsigned int skybox_tex = tex_load_cubemap((char* [6]){"skybox/right.jpg", "skybox/left.jpg", "skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg", "skybox/back.jpg"}, GL_RGB);
 
   bool quit = false;
@@ -76,9 +82,23 @@ void window_loop() {
     mat4 view;
     player_movement(&view);
     mat4 projection = GLM_MAT4_IDENTITY;
-    glm_perspective(glm_rad(80.0), conf.width / conf.height, 0.1, 100.0, projection);
+    int w, h;
+    SDL_GetWindowSize(window, &w, &h);
+    glm_perspective(glm_rad(80.0), w / h, 0.1, 100.0, projection);
 
-    world_render(view, projection);
+    shader_use(basic_shader);
+    tex_use(floor_tex);
+    shader_set_mat4(basic_shader, "model", GLM_MAT4_IDENTITY);
+    shader_set_mat4(basic_shader, "view", view);
+    shader_set_mat4(basic_shader, "projection", projection);
+    mesh_render(floor_mesh);
+
+    shader_use(basic_shader);
+    tex_use(floor_tex);
+    mat4 model = GLM_MAT4_IDENTITY;
+    glm_rotate_y(model, SDL_GetTicks() / 450.0, model);
+    shader_set_mat4(basic_shader, "model", model);
+    mesh_render(teapot_mesh);
 
     glDepthFunc(GL_LEQUAL);
     shader_use(skybox_shader);
@@ -150,37 +170,22 @@ void shader_use(unsigned int shader) {
   glUseProgram(shader);
 }
 
-mesh_t mesh_init_pos(float* verts, int size) {
+mesh_t mesh_init(float* verts, int len, mesh_attr attr) {
   mesh_t mesh;
-  mesh.verts = size;
+  int stride = attr * sizeof(float);
+  mesh.verts = len;
   glGenVertexArrays(1, &mesh.VAO);
   glGenBuffers(1, &mesh.VBO);
   glBindVertexArray(mesh.VAO);
   glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
-  glBufferData(GL_ARRAY_BUFFER, size * 12, verts, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, len * stride, verts, GL_STATIC_DRAW);
 
-  // position
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-  return mesh;
-}
-
-mesh_t mesh_init_pos_tex(float* verts, int size) {
-  mesh_t mesh;
-  mesh.verts = size;
-  glGenVertexArrays(1, &mesh.VAO);
-  glGenBuffers(1, &mesh.VBO);
-  glBindVertexArray(mesh.VAO);
-  glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
-  glBufferData(GL_ARRAY_BUFFER, size * 20, verts, GL_STATIC_DRAW);
-
-  // position
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-  // texcoord
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
+  if (attr >= pos_tex) {
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
+  }
 
   return mesh;
 }
@@ -191,7 +196,7 @@ void load_obj(void* ctx, const char* filename, const int is_mtl, const char* obj
   *len = asset.len;
 }
 
-mesh_t mesh_load_obj(const char* path) {
+mesh_t mesh_load_obj(const char* path, mesh_attr attr) {
   tinyobj_shape_t* shape = NULL;
   tinyobj_material_t* material = NULL;
   tinyobj_attrib_t attrib;
@@ -200,16 +205,21 @@ mesh_t mesh_load_obj(const char* path) {
   unsigned long num_materials;
   tinyobj_parse_obj(&attrib, &shape, &num_shapes, &material, &num_materials, path, load_obj, NULL, TINYOBJ_FLAG_TRIANGULATE);
 
-  float* verts = malloc(attrib.num_faces * 3 * sizeof(float));
+  float* verts = malloc(attrib.num_faces * attr * sizeof(float));
   for (int i = 0; i < attrib.num_faces; i++) {
-    unsigned int idx = attrib.faces[i].v_idx;
-    verts[i * 3] = attrib.vertices[3 * idx];
-    verts[i * 3 + 1] = attrib.vertices[3 * idx + 1];
-    verts[i * 3 + 2] = attrib.vertices[3 * idx + 2];
+    unsigned int pos = attrib.faces[i].v_idx;
+    unsigned int tex = attrib.faces[i].vt_idx;
+    verts[i * attr] = attrib.vertices[3 * pos];
+    verts[i * attr + 1] = attrib.vertices[3 * pos + 1];
+    verts[i * attr + 2] = attrib.vertices[3 * pos + 2];
+    if (attr >= pos_tex) {
+      verts[i * attr + 3] = attrib.texcoords[2 * tex];
+      verts[i * attr + 4] = attrib.texcoords[2 * tex + 1];
+    }
   }
 
   log_debug("Loaded model \"%s\".", path);
-  return mesh_init_pos(verts, attrib.num_faces);
+  return mesh_init(verts, attrib.num_faces, attr);
 }
 
 void mesh_render(mesh_t mesh) {
@@ -227,6 +237,7 @@ unsigned int tex_load(char* path, int mode) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   int w, h, n;
   asset_t img = asset_load(path);
+  stbi_set_flip_vertically_on_load(true);
   unsigned char* data = stbi_load_from_memory(img.data, img.len, &w, &h, &n, 0);
   if (data) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, mode, GL_UNSIGNED_BYTE, data);
@@ -259,6 +270,7 @@ unsigned int tex_load_cubemap(char** faces, int mode) {
   int w, h, n;
   char* path;
   int i;
+  stbi_set_flip_vertically_on_load(false);
   vec_foreach(&v, path, i) {
     asset_t img = asset_load(path);
     unsigned char* data = stbi_load_from_memory(img.data, img.len, &w, &h, &n, 0);
