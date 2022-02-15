@@ -1,7 +1,10 @@
 {
-  "res": [1280,720],
-  "fullscreen": false,
-  "msaa": 16,
-  "fov": 80,
-  "sens": 0.1
+    "res": [
+        1280,
+        720
+    ],
+    "fullscreen": false,
+    "msaa": 4,
+    "fov": 80,
+    "sens": 0.10000000149011612
 }

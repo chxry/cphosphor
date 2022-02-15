@@ -15,7 +15,7 @@ void window_init(char* title) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
   SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, conf.msaa);
+  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2 ^ conf.msaa);
   window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, conf.width, conf.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (conf.fullscreen ? SDL_WINDOW_FULLSCREEN : 0));
   ctx = SDL_GL_CreateContext(window);
   SDL_SetRelativeMouseMode(true);
@@ -47,6 +47,8 @@ void window_loop() {
       case SDL_WINDOWEVENT:
         if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
           glViewport(0, 0, e.window.data1, e.window.data2);
+          conf.width = e.window.data1;
+          conf.height = e.window.data2;
         }
         break;
       case SDL_KEYDOWN:

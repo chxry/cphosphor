@@ -1,7 +1,10 @@
 #include "ui.h"
 
 bool debug_overlay = true;
-bool demo = false;
+bool options = true;
+bool demo = true;
+
+conf_t options_conf;
 
 void ui_init(SDL_Window* window, SDL_GLContext* ctx) {
   igCreateContext(NULL);
@@ -39,6 +42,7 @@ void ui_init(SDL_Window* window, SDL_GLContext* ctx) {
   ImFontAtlas_AddFontFromMemoryTTF(io->Fonts, font.data, font.len, 16, NULL, NULL);
   ImGui_ImplSDL2_InitForOpenGL(window, ctx);
   ImGui_ImplOpenGL3_Init("#version 460");
+  options_conf = conf;
 }
 
 void ui_processevent(SDL_Event* e) {
@@ -54,12 +58,12 @@ void ui_render(SDL_Window* window) {
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplSDL2_NewFrame(window);
   igNewFrame();
+  ImGuiIO io = *igGetIO();
 
   if (debug_overlay) {
-    igSetNextWindowPos((ImVec2){16.0, 16.0}, ImGuiCond_Always, (ImVec2){0.0, 0.0});
+    igSetNextWindowPos((ImVec2){16, 16}, ImGuiCond_Always, VEC2_ZERO);
     igSetNextWindowBgAlpha(0.5);
     if (igBegin("Debug overlay", &debug_overlay, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_AlwaysAutoResize)) {
-      ImGuiIO io = *igGetIO();
       igText("%.1fms", io.DeltaTime * 1000);
       igText("%.1ffps", io.Framerate);
       igSeparator();
@@ -68,6 +72,41 @@ void ui_render(SDL_Window* window) {
     }
     igEnd();
   }
+
+  if (options) {
+    igSetNextWindowSize((ImVec2){480, 320}, ImGuiCond_Once);
+    if (igBegin("Options", &options, ImGuiWindowFlags_None)) {
+      bool open = true;
+      igBeginChild_Str("optionscontent", (ImVec2){0, -igGetFrameHeightWithSpacing()}, false, ImGuiWindowFlags_None);
+      if (igBeginTabBar("options", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
+        if (igBeginTabItem("Video", &open, ImGuiTabItemFlags_NoCloseButton)) {
+          igInputInt2("Resolution", (int*)&options_conf, ImGuiInputTextFlags_None);
+          igCheckbox("Fullscreen", &options_conf.fullscreen);
+          igCombo_Str("MSAA", &options_conf.msaa, "None\0x2\0x4\0x8\0x16", 0);
+          igSliderFloat("FOV", &options_conf.fov, 30, 90, "%.1f", ImGuiSliderFlags_None);
+          igEndTabItem();
+        }
+        if (igBeginTabItem("Input", &open, ImGuiTabItemFlags_NoCloseButton)) {
+          igSliderFloat("Sensitivity", &options_conf.sens, 0.02, 0.4, "%.2f", ImGuiSliderFlags_None);
+          igEndTabItem();
+        }
+        igEndTabBar();
+      }
+      igEndChild();
+      if (igButton("Apply", VEC2_ZERO)) {
+        conf = options_conf;
+        SDL_SetWindowSize(window, conf.width, conf.height);
+        SDL_SetWindowFullscreen(window, conf.fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+        conf_write("conf.json");
+      }
+      igSameLine(0, 4);
+      if (igButton("Reset", VEC2_ZERO)) {
+        options_conf = conf;
+      }
+    }
+    igEnd();
+  }
+
   if (demo) {
     igShowDemoWindow(&demo);
   }

@@ -24,6 +24,7 @@ typedef enum {
   pos_tex = 5
 } mesh_attr;
 
+extern SDL_Window* window;
 extern unsigned int basic_shader;
 
 void window_init(char* title);

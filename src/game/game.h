@@ -23,5 +23,6 @@ typedef struct {
 extern conf_t conf;
 
 void conf_init(const char* path);
+void conf_write(const char* path);
 void assets_init(const char* path);
 asset_t asset_load(const char* path);
