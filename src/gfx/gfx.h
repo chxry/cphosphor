@@ -1,9 +1,7 @@
 #pragma once
 #include <stdbool.h>
-#include <math.h>
 #include <SDL2/SDL.h>
 #include <glad/gl.h>
-#include <cimgui.h>
 #include <cglm/cglm.h>
 #include <log.h>
 #include <vec.h>
@@ -12,6 +10,7 @@
 
 #include "game/game.h"
 #include "game/player.h"
+#include "game/world.h"
 #include "ui.h"
 
 typedef struct {
@@ -24,6 +23,8 @@ typedef enum {
   pos = 3,
   pos_tex = 5
 } mesh_attr;
+
+extern unsigned int basic_shader;
 
 void window_init(char* title);
 void window_loop();

@@ -3,15 +3,6 @@
 SDL_Window* window;
 SDL_GLContext ctx;
 unsigned int basic_shader;
-unsigned int blank_shader;
-
-float floor_verts[] = {
-    -15.0, -1.0, -15.0, 0.0, 1.0,
-    15.0, -1.0, -15.0, 1.0, 1.0,
-    15.0, -1.0, 15.0, 1.0, 0.0,
-    15.0, -1.0, 15.0, 1.0, 0.0,
-    -15.0, -1.0, 15.0, 0.0, 0.0,
-    -15.0, -1.0, -15.0, 0.0, 1.0};
 
 const int FPS = 0; // unlimited
 
@@ -41,12 +32,9 @@ void window_init(char* title) {
 
 void window_loop() {
   unsigned int skybox_shader = shader_init("shaders/skybox.vert", "shaders/skybox.frag");
-  unsigned int basic_shader = shader_init("shaders/basic.vert", "shaders/basic.frag");
-  mesh_t floor_mesh = mesh_init(floor_verts, 6, pos_tex);
-  mesh_t teapot_mesh = mesh_load_obj("teapot.obj", pos_tex);
   mesh_t skybox_mesh = mesh_load_obj("cube.obj", pos);
-  unsigned int floor_tex = tex_load("cat.png", GL_RGBA);
   unsigned int skybox_tex = tex_load_cubemap((char* [6]){"skybox/right.jpg", "skybox/left.jpg", "skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg", "skybox/back.jpg"}, GL_RGB);
+  basic_shader = shader_init("shaders/basic.vert", "shaders/basic.frag");
 
   bool quit = false;
   int frame_delay = 1000 / FPS;
@@ -84,19 +72,7 @@ void window_loop() {
     SDL_GetWindowSize(window, &w, &h);
     glm_perspective(glm_rad(80.0), w / h, 0.1, 100.0, projection);
 
-    shader_use(basic_shader);
-    tex_use(floor_tex);
-    shader_set_mat4(basic_shader, "model", GLM_MAT4_IDENTITY);
-    shader_set_mat4(basic_shader, "view", view);
-    shader_set_mat4(basic_shader, "projection", projection);
-    mesh_render(floor_mesh);
-
-    shader_use(basic_shader);
-    tex_use(floor_tex);
-    mat4 model = GLM_MAT4_IDENTITY;
-    glm_rotate_y(model, SDL_GetTicks() / 450.0, model);
-    shader_set_mat4(basic_shader, "model", model);
-    mesh_render(teapot_mesh);
+    world_render(view, projection);
 
     glDepthFunc(GL_LEQUAL);
     shader_use(skybox_shader);
