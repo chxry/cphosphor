@@ -29,10 +29,8 @@ void window_init(char* title) {
   ctx = SDL_GL_CreateContext(window);
   SDL_SetRelativeMouseMode(true);
 
-  if (!gladLoadGL()) {
-    log_fatal("Failed to load opengl.");
-    exit(-1);
-  }
+  int gl = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
+  log_info("Loaded OpenGL %i.%i", GLAD_VERSION_MAJOR(gl), GLAD_VERSION_MINOR(gl));
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_MULTISAMPLE);
 
