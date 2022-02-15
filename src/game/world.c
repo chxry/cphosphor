@@ -19,7 +19,7 @@ void world_init() {
       map_set(&meshes, mesh, mesh_load_obj(mesh, pos_tex));
     }
     if (!map_get(&textures, tex)) {
-      map_set(&textures, tex, tex_load("cat.png", GL_RGBA));
+      map_set(&textures, tex, tex_load(tex, GL_RGBA));
     }
     JSON_Array* pos = json_object_get_array(obj, "pos");
     JSON_Array* rot = json_object_get_array(obj, "rot");

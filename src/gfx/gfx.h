@@ -35,7 +35,7 @@ void shader_use(unsigned int shader);
 mesh_t mesh_init(float* verts, int len, mesh_attr attr);
 mesh_t mesh_load_obj(const char* path, mesh_attr attr);
 void mesh_render(mesh_t mesh);
-unsigned int tex_load(char* path, int mode);
+unsigned int tex_load(const char* path, int mode);
 void tex_use(unsigned int tex);
 unsigned int tex_load_cubemap(char** faces, int mode);
 void tex_use_cubemap(unsigned int tex);

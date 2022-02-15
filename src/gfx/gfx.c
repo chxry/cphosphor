@@ -31,9 +31,9 @@ void window_init(char* title) {
 }
 
 void window_loop() {
+  mesh_t skybox_mesh = mesh_load_obj("mesh/cube.obj", pos);
+  unsigned int skybox_tex = tex_load_cubemap((char* [6]){"tex/right.jpg", "tex/left.jpg", "tex/top.jpg", "tex/bottom.jpg", "tex/front.jpg", "tex/back.jpg"}, GL_RGB);
   unsigned int skybox_shader = shader_init("shaders/skybox.vert", "shaders/skybox.frag");
-  mesh_t skybox_mesh = mesh_load_obj("cube.obj", pos);
-  unsigned int skybox_tex = tex_load_cubemap((char* [6]){"skybox/right.jpg", "skybox/left.jpg", "skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg", "skybox/back.jpg"}, GL_RGB);
   basic_shader = shader_init("shaders/basic.vert", "shaders/basic.frag");
 
   bool quit = false;
@@ -201,7 +201,7 @@ void mesh_render(mesh_t mesh) {
   glDrawArrays(GL_TRIANGLES, 0, mesh.verts);
 }
 
-unsigned int tex_load(char* path, int mode) {
+unsigned int tex_load(const char* path, int mode) {
   unsigned int tex;
   glGenTextures(1, &tex);
   glBindTexture(GL_TEXTURE_2D, tex);
@@ -250,12 +250,12 @@ unsigned int tex_load_cubemap(char** faces, int mode) {
     unsigned char* data = stbi_load_from_memory(img.data, img.len, &w, &h, &n, 0);
     if (data) {
       glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, w, h, 0, mode, GL_UNSIGNED_BYTE, data);
-      log_debug("Loaded texture \"%s\".", path);
     } else {
       log_error("Failed to load texture \"%s\".", path);
     }
     stbi_image_free(data);
   }
+  log_debug("Loaded cubemap from \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\".", v.data[0],v.data[1],v.data[2],v.data[3],v.data[4],v.data[5]);
   vec_deinit(&v);
   return tex;
 }

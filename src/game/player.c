@@ -7,6 +7,7 @@ float yvel = 0.0;
 bool ground = true;
 const float SPEED = 0.1;
 const float GRAVITY = 0.005;
+const float HEIGHT = 1.2;
 
 void player_processevent(SDL_Event* e) {
   if (e->type == SDL_MOUSEMOTION && SDL_GetRelativeMouseMode()) {
@@ -53,8 +54,8 @@ void player_movement(mat4* view) {
   yvel -= GRAVITY;
   vel[1] = yvel;
   glm_vec3_add(pos, vel, pos);
-  if (pos[1] < 0.0) {
-    pos[1] = 0.0;
+  if (pos[1] < HEIGHT) {
+    pos[1] = HEIGHT;
     ground = true;
   }
 

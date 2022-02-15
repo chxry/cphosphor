@@ -1,14 +1,14 @@
 [
   {
-    "mesh": "teapot.obj",
-    "tex": "cat.png",
-    "pos": [10,0,0],
+    "mesh": "mesh/floor.obj",
+    "tex": "tex/cat.png",
+    "pos": [0,0,0],
     "rot": [0,0,0],
-    "scale": [3,3,3]
+    "scale": [1,1,1]
   },
   {
-    "mesh": "teapot.obj",
-    "tex": "cat.png",
+    "mesh": "mesh/teapot.obj",
+    "tex": "tex/cat.png",
     "pos": [2,0.5,3],
     "rot": [45,45,0],
     "scale": [1,1,1]
