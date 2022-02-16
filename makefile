@@ -16,7 +16,7 @@ cimgui:
 	clang++ $(CFLAGS) lib/cimgui/imgui/backends/imgui_impl_opengl3.cpp -o imgui_opengl3.o
 
 glad: 
-	cd lib/glad && python -m glad --extensions='' --api="gl:core" --out-path=build c
+	cd lib/glad && python -m glad --extensions='' --api="gl:core" --out-path=build --reproducible c
 
 $(RES): res
 	tar -cf $(RES) res

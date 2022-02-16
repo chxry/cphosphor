@@ -51,11 +51,6 @@ void window_loop() {
           conf.height = e.window.data2;
         }
         break;
-      case SDL_KEYDOWN:
-        if (e.key.keysym.sym == SDLK_ESCAPE) {
-          SDL_SetRelativeMouseMode(!SDL_GetRelativeMouseMode());
-        }
-        break;
       case SDL_QUIT:
         quit = true;
         break;

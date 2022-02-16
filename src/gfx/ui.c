@@ -1,7 +1,8 @@
 #include "ui.h"
 
+bool mouse_captured;
 bool debug_overlay = true;
-bool options = true;
+bool options = false;
 bool demo = true;
 
 conf_t options_conf;
@@ -14,30 +15,6 @@ void ui_init(SDL_Window* window, SDL_GLContext* ctx) {
   style->WindowRounding = 4.0;
   style->FrameRounding = 4.0;
   style->PopupRounding = 4.0;
-  ImVec4* colors = style->Colors;
-  colors[ImGuiCol_FrameBg] = LILAC;
-  colors[ImGuiCol_FrameBgHovered] = LILAC2;
-  colors[ImGuiCol_FrameBgActive] = LILAC3;
-  colors[ImGuiCol_TitleBgActive] = LILAC;
-  colors[ImGuiCol_CheckMark] = (ImVec4){1.0, 1.0, 1.0, 1.0};
-  colors[ImGuiCol_SliderGrab] = LILAC;
-  colors[ImGuiCol_SliderGrabActive] = LILAC3;
-  colors[ImGuiCol_Button] = LILAC;
-  colors[ImGuiCol_ButtonHovered] = LILAC2;
-  colors[ImGuiCol_ButtonActive] = LILAC3;
-  colors[ImGuiCol_Header] = LILAC;
-  colors[ImGuiCol_HeaderHovered] = LILAC2;
-  colors[ImGuiCol_HeaderActive] = LILAC3;
-  colors[ImGuiCol_SeparatorHovered] = LILAC2;
-  colors[ImGuiCol_SeparatorActive] = LILAC3;
-  colors[ImGuiCol_ResizeGrip] = LILAC;
-  colors[ImGuiCol_ResizeGripHovered] = LILAC2;
-  colors[ImGuiCol_ResizeGripActive] = LILAC3;
-  colors[ImGuiCol_Tab] = LILAC;
-  colors[ImGuiCol_TabHovered] = LILAC2;
-  colors[ImGuiCol_TabActive] = LILAC3;
-  colors[ImGuiCol_NavHighlight] = LILAC;
-  colors[ImGuiCol_TextSelectedBg] = LILAC3;
   asset_t font = asset_load("jetbrains mono.ttf");
   ImFontAtlas_AddFontFromMemoryTTF(io->Fonts, font.data, font.len, 16, NULL, NULL);
   ImGui_ImplSDL2_InitForOpenGL(window, ctx);
@@ -48,8 +25,13 @@ void ui_init(SDL_Window* window, SDL_GLContext* ctx) {
 void ui_processevent(SDL_Event* e) {
   ImGui_ImplSDL2_ProcessEvent(e);
   if (e->type == SDL_KEYDOWN) {
-    if (e->key.keysym.sym == SDLK_BACKQUOTE) {
+    SDL_Scancode code = e->key.keysym.scancode;
+    if (code == conf.binds[KEYBIND_DEBUG]) { // USE A SWITCH
       debug_overlay = !debug_overlay;
+    } else if (code == conf.binds[KEYBIND_MENU]) {
+      options = !options;
+      SDL_SetRelativeMouseMode(!options);
+      mouse_captured = !options;
     }
   }
 }
@@ -67,8 +49,7 @@ void ui_render(SDL_Window* window) {
       igText("%.1fms", io.DeltaTime * 1000);
       igText("%.1ffps", io.Framerate);
       igSeparator();
-      igText("\'esc\' toggle cursor");
-      igText("\'`\' toggle debug");
+      igText("%.1f %.1f %.1f", player_pos[0], player_pos[1], player_pos[2]);
     }
     igEnd();
   }
@@ -76,18 +57,24 @@ void ui_render(SDL_Window* window) {
   if (options) {
     igSetNextWindowSize((ImVec2){480, 320}, ImGuiCond_Once);
     if (igBegin("Options", &options, ImGuiWindowFlags_None)) {
-      bool open = true;
       igBeginChild_Str("optionscontent", (ImVec2){0, -igGetFrameHeightWithSpacing()}, false, ImGuiWindowFlags_None);
       if (igBeginTabBar("options", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
-        if (igBeginTabItem("Video", &open, ImGuiTabItemFlags_NoCloseButton)) {
+        if (igBeginTabItem("Video", NULL, ImGuiTabItemFlags_NoCloseButton)) {
           igInputInt2("Resolution", (int*)&options_conf, ImGuiInputTextFlags_None);
           igCheckbox("Fullscreen", &options_conf.fullscreen);
           igCombo_Str("MSAA", &options_conf.msaa, "None\0x2\0x4\0x8\0x16", 0);
           igSliderFloat("FOV", &options_conf.fov, 30, 90, "%.1f", ImGuiSliderFlags_None);
           igEndTabItem();
         }
-        if (igBeginTabItem("Input", &open, ImGuiTabItemFlags_NoCloseButton)) {
+        if (igBeginTabItem("Input", NULL, ImGuiTabItemFlags_NoCloseButton)) {
           igSliderFloat("Sensitivity", &options_conf.sens, 0.02, 0.4, "%.2f", ImGuiSliderFlags_None);
+          for (int i = 0; i < KEYBINDS; i++) {
+            if (igButton(SDL_GetScancodeName(conf.binds[i]), VEC2_ZERO)) {
+              log_warn("TODO");
+            }
+            igSameLine(0, 4);
+            igText(keybind_names_h[i]);
+          }
           igEndTabItem();
         }
         igEndTabBar();
@@ -105,6 +92,9 @@ void ui_render(SDL_Window* window) {
       }
     }
     igEnd();
+  } else if (!mouse_captured) {
+    SDL_SetRelativeMouseMode(true);
+    mouse_captured = true;
   }
 
   if (demo) {
