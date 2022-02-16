@@ -30,8 +30,7 @@ bool test_collision(vec3 new_pos) {
   int i;
   collider_t collider;
   vec_foreach(&colliders, collider, i) {
-    collides = glm_aabb_aabb(player_box, (vec3*)&collider);
-    if (collides) {
+    if (collides = glm_aabb_aabb(player_box, (vec3*)&collider)) {
       break;
     }
   }
@@ -80,7 +79,9 @@ void player_movement(mat4* view) {
   }
   yvel -= GRAVITY;
   new_pos[1] += yvel;
-  ground = test_collision(new_pos);
+  if (ground = test_collision(new_pos)) {
+    yvel = 0.0;
+  }
 
   vec3 cam_pos;
   glm_vec3_add(player_pos, (vec3){0.0, HEIGHT, 0.0}, cam_pos);
