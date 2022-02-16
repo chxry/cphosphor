@@ -10,10 +10,10 @@
     "input": {
         "keys": {
             "forward": "W",
-            "backward": "S",
+            "back": "S",
             "left": "A",
             "right": "D",
-            "jump": "Space",
+            "jump": "F1",
             "debug": "F3",
             "menu": "Escape"
         }

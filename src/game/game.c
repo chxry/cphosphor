@@ -4,8 +4,8 @@ conf_t conf;
 mtar_t tar;
 mtar_header_t h;
 
-const char* keybind_names[KEYBINDS] = {"forward", "backward", "left", "right", "jump", "debug", "menu"};
-const char* keybind_names_h[KEYBINDS] = {"Move Forward", "Move Back", "Move Left", "Move Right", "Jump", "Open Debug Menu", "Open Menu"};
+const char* keybind_names[KEYBINDS] = {"forward", "back", "left", "right", "jump", "debug", "menu"};
+const char* keybind_names_h[KEYBINDS] = {"Move Forward", "Move Backward", "Move Left", "Move Right", "Jump", "Open Debug Menu", "Open Menu"};
 
 void conf_init(const char* path) {
   JSON_Object* root = json_object(json_parse_file("conf.json"));

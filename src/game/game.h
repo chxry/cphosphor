@@ -8,7 +8,7 @@
 #include <log.h>
 
 #define KEYBIND_FORWARD 0
-#define KEYBIND_BACKWARD 1
+#define KEYBIND_BACK 1
 #define KEYBIND_LEFT 2
 #define KEYBIND_RIGHT 3
 #define KEYBIND_JUMP 4

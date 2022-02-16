@@ -2,7 +2,9 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <cglm/cglm.h>
+#include <vec.h>
 
+#include "world.h"
 #include "game.h"
 
 extern vec3 player_pos;
