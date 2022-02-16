@@ -1,33 +1,22 @@
 #version 460 core
-in vec3 vert;
+in vec3 fragpos;
 in vec2 texcoord;
 in vec3 normal;
 out vec4 FragColor;
 
 uniform sampler2D tex;
-uniform mat4 model;
 uniform struct {
-  vec3 position;
+  vec3 pos;
   vec3 color;
-  float attenuation;
-  float ambientCoefficient;
+  float ambient;
 } light;
 
 void main() {
-  vec3 wnormal = normalize(transpose(inverse(mat3(model))) * normal);
-  vec3 surfacePos = vec3(model * vec4(vert, 1));
-  vec4 surfaceColor = texture(tex, texcoord);
-  vec3 surfaceToLight = normalize(light.position - surfacePos);
+  vec3 lightDir = normalize(light.pos - fragpos); 
+  vec3 color = texture(tex,texcoord).rgb;
 
-  float diffuseCoefficient = max(0.0, dot(wnormal, surfaceToLight));
-  vec3 diffuse = diffuseCoefficient * surfaceColor.rgb * light.color;
+  vec3 diffuse = max(dot(normal, lightDir), 0.0) * light.color;
+  vec3 ambient = light.ambient * light.color;
 
-  vec3 ambient = light.ambientCoefficient * surfaceColor.rgb * light.color;
-
-  float distanceToLight = length(light.position - surfacePos);
-  float attenuation = 1.0 / (1.0 + light.attenuation * pow(distanceToLight, 2));
-
-  vec3 linearColor = ambient + attenuation*diffuse;
-  vec3 gamma = vec3(1.0/2.2);
-  FragColor = vec4(pow(linearColor, gamma), surfaceColor.a);
+  FragColor = vec4((diffuse+ambient)*color, 1.0);
 }

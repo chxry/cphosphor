@@ -67,7 +67,7 @@ void window_loop() {
     mat4 projection = GLM_MAT4_IDENTITY;
     int w, h;
     SDL_GetWindowSize(window, &w, &h);
-    glm_perspective(glm_rad(conf.fov), w / h, 0.1, 100.0, projection);
+    glm_perspective(glm_rad(conf.fov), (float)w / (float)h, 0.1, 100.0, projection);
 
     world_render(view, projection);
 

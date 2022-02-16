@@ -43,10 +43,9 @@ void world_render(mat4 view, mat4 projection) {
   shader_use(basic_shader);
   shader_set_mat4(basic_shader, "view", view);
   shader_set_mat4(basic_shader, "projection", projection);
-  shader_set_vec3(basic_shader, "light.position", GLM_YUP);
+  shader_set_vec3(basic_shader, "light.pos", GLM_YUP);
   shader_set_vec3(basic_shader, "light.color", GLM_VEC3_ONE);
-  shader_set_float(basic_shader, "light.attenuation", 0.2);
-  shader_set_float(basic_shader, "light.ambientCoefficient", 0.005);
+  shader_set_float(basic_shader, "light.ambient", 0.25);
 
   int i;
   gameobj_t obj;
