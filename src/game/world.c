@@ -16,10 +16,10 @@ void world_init() {
     const char* mesh = json_object_get_string(obj, "mesh");
     const char* tex = json_object_get_string(obj, "tex");
     if (!map_get(&meshes, mesh)) {
-      map_set(&meshes, mesh, mesh_load_obj(mesh, pos_tex));
+      map_set(&meshes, mesh, mesh_load_obj(mesh, pos_tex_norm));
     }
     if (!map_get(&textures, tex)) {
-      map_set(&textures, tex, tex_load(tex, GL_RGBA));
+      map_set(&textures, tex, tex_load(tex, GL_RGB));
     }
     JSON_Array* pos = json_object_get_array(obj, "pos");
     JSON_Array* rot = json_object_get_array(obj, "rot");
@@ -33,6 +33,10 @@ void world_render(mat4 view, mat4 projection) {
   shader_use(basic_shader);
   shader_set_mat4(basic_shader, "view", view);
   shader_set_mat4(basic_shader, "projection", projection);
+  shader_set_vec3(basic_shader, "light.position", GLM_YUP);
+  shader_set_vec3(basic_shader, "light.color", GLM_VEC3_ONE);
+  shader_set_float(basic_shader, "light.attenuation", 0.2);
+  shader_set_float(basic_shader, "light.ambientCoefficient", 0.005);
 
   int i;
   gameobj_t obj;

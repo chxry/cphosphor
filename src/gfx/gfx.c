@@ -31,7 +31,7 @@ void window_init(char* title) {
 }
 
 void window_loop() {
-  mesh_t skybox_mesh = mesh_load_obj("mesh/cube.obj", pos);
+  mesh_t skybox_mesh = mesh_load_obj("mesh/sky.obj", pos);
   unsigned int skybox_tex = tex_load_cubemap((char* [6]){"tex/right.jpg", "tex/left.jpg", "tex/top.jpg", "tex/bottom.jpg", "tex/front.jpg", "tex/back.jpg"}, GL_RGB);
   unsigned int skybox_shader = shader_init("shaders/skybox.vert", "shaders/skybox.frag");
   basic_shader = shader_init("shaders/basic.vert", "shaders/basic.frag");
@@ -137,6 +137,14 @@ void shader_set_mat4(unsigned int shader, const char* name, mat4 val) {
   glUniformMatrix4fv(glGetUniformLocation(shader, name), 1, GL_FALSE, (float*)val);
 }
 
+void shader_set_vec3(unsigned int shader, const char* name, vec3 val) {
+  glUniform3fv(glGetUniformLocation(shader, name), 1, (float*)val);
+}
+
+void shader_set_float(unsigned int shader, const char* name, float val) {
+  glUniform1f(glGetUniformLocation(shader, name), val);
+}
+
 void shader_use(unsigned int shader) {
   glUseProgram(shader);
 }
@@ -155,7 +163,11 @@ mesh_t mesh_init(float* verts, int len, mesh_attr attr) {
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
   if (attr >= pos_tex) {
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, stride, (void*)(3 * sizeof(float)));
+    if (attr >= pos_tex_norm) {
+      glEnableVertexAttribArray(2);
+      glVertexAttribPointer(2, 3, GL_FLOAT, GL_TRUE, stride, (void*)(5 * sizeof(float)));
+    }
   }
 
   return mesh;
@@ -180,12 +192,18 @@ mesh_t mesh_load_obj(const char* path, mesh_attr attr) {
   for (int i = 0; i < attrib.num_faces; i++) {
     unsigned int pos = attrib.faces[i].v_idx;
     unsigned int tex = attrib.faces[i].vt_idx;
+    unsigned int norm = attrib.faces[i].vn_idx;
     verts[i * attr] = attrib.vertices[3 * pos];
     verts[i * attr + 1] = attrib.vertices[3 * pos + 1];
     verts[i * attr + 2] = attrib.vertices[3 * pos + 2];
     if (attr >= pos_tex) {
       verts[i * attr + 3] = attrib.texcoords[2 * tex];
       verts[i * attr + 4] = attrib.texcoords[2 * tex + 1];
+      if (attr >= pos_tex_norm) {
+        verts[i * attr + 5] = attrib.normals[3 * norm];
+        verts[i * attr + 6] = attrib.normals[3 * norm + 1];
+        verts[i * attr + 7] = attrib.normals[3 * norm + 2];
+      }
     }
   }
 

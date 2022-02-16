@@ -5,7 +5,6 @@
 #include <vec.h>
 
 #include "gfx/gfx.h"
-#include "world.h"
 
 typedef struct {
   const char* mesh;

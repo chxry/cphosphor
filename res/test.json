@@ -1,16 +1,23 @@
 [
   {
     "mesh": "mesh/floor.obj",
-    "tex": "tex/cat.png",
+    "tex": "tex/bricks.jpg",
     "pos": [0,0,0],
     "rot": [0,0,0],
     "scale": [1,1,1]
   },
   {
     "mesh": "mesh/teapot.obj",
-    "tex": "tex/cat.png",
+    "tex": "tex/flop.jpg",
     "pos": [2,0.5,3],
-    "rot": [45,45,0],
-    "scale": [1,1,1]
+    "rot": [0,0,0],
+    "scale": [0.8,0.8,0.8]
+  },  
+  {
+    "mesh": "mesh/cube.obj",
+    "tex": "tex/block.jpg",
+    "pos": [4,1,4],
+    "rot": [0,0,0],
+    "scale": [1.0,1.0,1.0]
   }
 ]

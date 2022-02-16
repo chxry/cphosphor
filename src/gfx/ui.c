@@ -3,7 +3,7 @@
 bool mouse_captured;
 bool debug_overlay = true;
 bool options = false;
-bool demo = true;
+bool demo = false;
 
 conf_t options_conf;
 

@@ -21,7 +21,8 @@ typedef struct {
 
 typedef enum {
   pos = 3,
-  pos_tex = 5
+  pos_tex = 5,
+  pos_tex_norm = 8
 } mesh_attr;
 
 extern SDL_Window* window;
@@ -32,6 +33,8 @@ void window_loop();
 void window_destroy();
 unsigned int shader_init(const char* vert_path, const char* frag_path);
 void shader_set_mat4(unsigned int shader, const char* name, mat4 val);
+void shader_set_vec3(unsigned int shader, const char* name, vec3 val);
+void shader_set_float(unsigned int shader, const char* name, float val);
 void shader_use(unsigned int shader);
 mesh_t mesh_init(float* verts, int len, mesh_attr attr);
 mesh_t mesh_load_obj(const char* path, mesh_attr attr);
