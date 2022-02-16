@@ -62,7 +62,8 @@ void ui_render(SDL_Window* window) {
         if (igBeginTabItem("Video", NULL, ImGuiTabItemFlags_NoCloseButton)) {
           igInputInt2("Resolution", (int*)&options_conf, ImGuiInputTextFlags_None);
           igCheckbox("Fullscreen", &options_conf.fullscreen);
-          igCombo_Str("MSAA", &options_conf.msaa, "None\0x2\0x4\0x8\0x16", 0);
+          igInputInt("FPS Limit", &options_conf.fps, 0, 0, ImGuiInputTextFlags_None);
+          igCombo_Str("MSAA", &options_conf.msaa, "None\0x2\0x4\0x8\0x16\0", 0);
           igSliderFloat("FOV", &options_conf.fov, 30, 90, "%.1f", ImGuiSliderFlags_None);
           igEndTabItem();
         }
@@ -84,6 +85,7 @@ void ui_render(SDL_Window* window) {
         conf = options_conf;
         SDL_SetWindowSize(window, conf.width, conf.height);
         SDL_SetWindowFullscreen(window, conf.fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+        frame_delay = 1000 / conf.fps;
         conf_write("conf.json");
       }
       igSameLine(0, 4);

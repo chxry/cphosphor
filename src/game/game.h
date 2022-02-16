@@ -20,6 +20,7 @@ typedef struct {
   int width;
   int height;
   bool fullscreen;
+  int fps;
   int msaa;
   float fov;
   float sens;

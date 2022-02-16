@@ -2,9 +2,8 @@
 
 SDL_Window* window;
 SDL_GLContext ctx;
+int frame_delay;
 unsigned int basic_shader;
-
-const int FPS = 0; // unlimited
 
 void window_init(char* title) {
   if (SDL_Init(SDL_INIT_EVERYTHING)) {
@@ -37,7 +36,7 @@ void window_loop() {
   basic_shader = shader_init("shaders/basic.vert", "shaders/basic.frag");
 
   bool quit = false;
-  int frame_delay = 1000 / FPS;
+  frame_delay = 1000 / conf.fps;
   while (!quit) {
     int frame_start = SDL_GetTicks();
 

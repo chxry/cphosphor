@@ -26,6 +26,7 @@ typedef enum {
 } mesh_attr;
 
 extern SDL_Window* window;
+extern int frame_delay;
 extern unsigned int basic_shader;
 
 void window_init(char* title);

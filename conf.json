@@ -4,6 +4,7 @@
         720
     ],
     "fullscreen": false,
+    "fps": 144,
     "msaa": 4,
     "fov": 80,
     "sens": 0.10000000149011612,
@@ -13,7 +14,7 @@
             "back": "S",
             "left": "A",
             "right": "D",
-            "jump": "F1",
+            "jump": "SPACE",
             "debug": "F3",
             "menu": "Escape"
         }
