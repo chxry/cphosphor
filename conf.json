@@ -14,7 +14,7 @@
             "back": "S",
             "left": "A",
             "right": "D",
-            "jump": "SPACE",
+            "jump": "Space",
             "debug": "F3",
             "menu": "Escape"
         }

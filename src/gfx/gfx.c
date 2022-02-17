@@ -3,7 +3,9 @@
 SDL_Window* window;
 SDL_GLContext ctx;
 int frame_delay;
+mesh_t cube_mesh;
 unsigned int basic_shader;
+unsigned int debug_shader;
 
 void window_init(char* title) {
   if (SDL_Init(SDL_INIT_EVERYTHING)) {
@@ -20,9 +22,10 @@ void window_init(char* title) {
   SDL_SetRelativeMouseMode(true);
 
   int gl = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
-  log_info("Loaded OpenGL %i.%i", GLAD_VERSION_MAJOR(gl), GLAD_VERSION_MINOR(gl));
+  log_info("Loaded OpenGL %i.%i.", GLAD_VERSION_MAJOR(gl), GLAD_VERSION_MINOR(gl));
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_MULTISAMPLE);
+  glLineWidth(2.0);
 
   ui_init(window, &ctx);
   log_info("Created window \"%s\".", title);
@@ -30,10 +33,11 @@ void window_init(char* title) {
 }
 
 void window_loop() {
-  mesh_t skybox_mesh = mesh_load_obj("mesh/sky.obj", pos);
-  unsigned int skybox_tex = tex_load_cubemap((char* [6]){"tex/right.jpg", "tex/left.jpg", "tex/top.jpg", "tex/bottom.jpg", "tex/front.jpg", "tex/back.jpg"}, GL_RGB);
+  cube_mesh = mesh_load_obj("mesh/sky.obj", pos);
+  unsigned int skybox_tex = tex_load_cubemap((char* [6]){"tex/sky/right.jpg", "tex/sky/left.jpg", "tex/sky/top.jpg", "tex/sky/bottom.jpg", "tex/sky/front.jpg", "tex/sky/back.jpg"}, GL_RGB);
   unsigned int skybox_shader = shader_init("shaders/skybox.vert", "shaders/skybox.frag");
   basic_shader = shader_init("shaders/basic.vert", "shaders/basic.frag");
+  debug_shader = shader_init("shaders/debug.vert", "shaders/debug.frag");
 
   bool quit = false;
   frame_delay = 1000 / conf.fps;
@@ -79,7 +83,7 @@ void window_loop() {
     glm_mat4_ins3(view3, skybox_view);
     shader_set_mat4(skybox_shader, "view", skybox_view);
     shader_set_mat4(skybox_shader, "projection", projection);
-    mesh_render(skybox_mesh);
+    mesh_render(cube_mesh);
     glDepthFunc(GL_LESS);
 
     ui_render(window);

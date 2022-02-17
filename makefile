@@ -5,9 +5,9 @@ RES = res.tar
 
 CFLAGS = -Wall -O2 -DLOG_USE_COLOR -DIMGUI_IMPL_API="extern \"C\"" -c
 CFLAGS += -Isrc -Ilib -Ilib/glad/build/include -Ilib/log/src -Ilib/vec/src -Ilib/microtar/src -Ilib/map/src -Ilib/cimgui -Ilib/cimgui/imgui -Ilib/cglm/include -I/usr/include/SDL2
-LDFLAGS = -ldl -lSDL2 -lm
+LDFLAGS = -ldl -lSDL2 -lm -llua
 
-$(TARGET): glad cimgui $(OBJS) $(RES)
+$(TARGET): $(OBJS) $(RES)
 	clang++ $(LDFLAGS) $(OBJS) lib/cimgui/libcimgui.a imgui_sdl.o imgui_opengl3.o -o $(TARGET)
 
 cimgui: 

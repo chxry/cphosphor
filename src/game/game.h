@@ -1,11 +1,16 @@
 #pragma once
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <SDL2/SDL.h>
 #include <microtar.h>
 #include <parson/parson.h>
 #include <log.h>
+#include <vec.h>
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 
 #define KEYBIND_FORWARD 0
 #define KEYBIND_BACK 1
@@ -32,10 +37,22 @@ typedef struct {
   int len;
 } asset_t;
 
+typedef struct {
+  float world_gravity;
+  float player_speed;
+  float player_jumpheight;
+  bool debug_drawcolliders;
+} state_t;
+
 extern conf_t conf;
+extern state_t state;
+extern vec_str_t game_log;
 extern const char* keybind_names_h[KEYBINDS];
 
 void conf_init(const char* path);
 void conf_write(const char* path);
 void assets_init(const char* path);
 asset_t asset_load(const char* path);
+void log_game(const char* fmt, ...);
+void lua_init();
+void lua_exec(const char* buf);

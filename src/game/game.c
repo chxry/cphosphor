@@ -1,8 +1,15 @@
 #include "game.h"
 
 conf_t conf;
+lua_State* lua;
+vec_str_t game_log;
 mtar_t tar;
-mtar_header_t h;
+
+state_t state = {
+    .world_gravity = 0.003,
+    .player_speed = 0.07,
+    .player_jumpheight = 0.1,
+    .debug_drawcolliders = false};
 
 const char* keybind_names[KEYBINDS] = {"forward", "back", "left", "right", "jump", "debug", "menu"};
 const char* keybind_names_h[KEYBINDS] = {"Move Forward", "Move Backward", "Move Left", "Move Right", "Jump", "Open Debug Menu", "Open Menu"};
@@ -57,10 +64,58 @@ void assets_init(const char* path) {
 
 asset_t asset_load(const char* path) {
   asset_t asset;
+  mtar_header_t h;
   char base[64] = "res/";
   mtar_find(&tar, strcat(base, path), &h);
   asset.len = h.size;
   asset.data = calloc(1, h.size + 1);
   mtar_read_data(&tar, asset.data, h.size);
   return asset;
+}
+
+int lua_set(lua_State* l) {
+  if (lua_isnumber(l, 2)) {
+    *(float*)lua_touserdata(l, 1) = lua_tonumber(l, 2);
+  } else {
+    *(bool*)lua_touserdata(l, 1) = lua_toboolean(l, 2);
+  }
+  return 0;
+}
+
+void lua_bind(lua_State* l, void* val, const char* name) {
+  lua_pushlightuserdata(l, val);
+  lua_setglobal(l, name);
+}
+
+void log_game(const char* fmt, ...) {
+  char* buf = malloc(128);
+  va_list args;
+  va_start(args, fmt);
+  sprintf(buf, fmt, args);
+  vec_push(&game_log, buf);
+  va_end(args);
+}
+
+void lua_init() {
+  vec_init(&game_log);
+  lua = luaL_newstate();
+  luaopen_base(lua);
+  log_info("Loaded %s.", LUA_VERSION);
+  log_game(LUA_VERSION);
+  lua_pushcfunction(lua, lua_set);
+  lua_setglobal(lua, "set");
+
+  lua_bind(lua, &state.world_gravity, "world_gravity");
+  lua_bind(lua, &state.player_speed, "player_speed");
+  lua_bind(lua, &state.player_jumpheight, "player_jumpheight");
+  lua_bind(lua, &state.debug_drawcolliders, "debug_drawcolliders");
+}
+
+void lua_exec(const char* buf) {
+  luaL_loadstring(lua, buf);
+  if (lua_pcall(lua, 0, -1, 0)) {
+    const char* err = lua_tostring(lua, -1);
+    log_error("Error in Lua: %s", err);
+    log_game(err);
+  }
 }

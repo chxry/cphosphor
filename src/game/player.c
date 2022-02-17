@@ -5,9 +5,6 @@ float yvel = 0.0;
 float yaw = -90.0;
 float pitch = 0.0;
 bool ground = false;
-const float SPEED = 0.1;
-const float GRAVITY = 0.003;
-const float JUMP_HEIGHT = 0.1;
 const float HEIGHT = 1.6;
 const float RADIUS = 0.4;
 
@@ -54,30 +51,30 @@ void player_movement(mat4* view) {
   glm_vec3_copy(player_pos, new_pos);
   if (SDL_GetRelativeMouseMode()) {
     if (keys[conf.binds[KEYBIND_FORWARD]]) {
-      new_pos[0] += SPEED * cos(glm_rad(yaw));
-      new_pos[2] += SPEED * sin(glm_rad(yaw));
+      new_pos[0] += state.player_speed * cos(glm_rad(yaw));
+      new_pos[2] += state.player_speed * sin(glm_rad(yaw));
       test_collision(new_pos);
     }
     if (keys[conf.binds[KEYBIND_BACK]]) {
-      new_pos[0] -= SPEED * cos(glm_rad(yaw));
-      new_pos[2] -= SPEED * sin(glm_rad(yaw));
+      new_pos[0] -= state.player_speed * cos(glm_rad(yaw));
+      new_pos[2] -= state.player_speed * sin(glm_rad(yaw));
       test_collision(new_pos);
     }
     if (keys[conf.binds[KEYBIND_LEFT]]) {
-      new_pos[0] -= SPEED * cos(glm_rad(90 + yaw));
-      new_pos[2] -= SPEED * sin(glm_rad(90 + yaw));
+      new_pos[0] -= state.player_speed * cos(glm_rad(90 + yaw));
+      new_pos[2] -= state.player_speed * sin(glm_rad(90 + yaw));
       test_collision(new_pos);
     }
     if (keys[conf.binds[KEYBIND_RIGHT]]) {
-      new_pos[0] += SPEED * cos(glm_rad(90 + yaw));
-      new_pos[2] += SPEED * sin(glm_rad(90 + yaw));
+      new_pos[0] += state.player_speed * cos(glm_rad(90 + yaw));
+      new_pos[2] += state.player_speed * sin(glm_rad(90 + yaw));
       test_collision(new_pos);
     }
     if (keys[conf.binds[KEYBIND_JUMP]] && ground) {
-      yvel = JUMP_HEIGHT;
+      yvel = state.player_jumpheight;
     }
   }
-  yvel -= GRAVITY;
+  yvel -= state.world_gravity;
   new_pos[1] += yvel;
   if ((ground = test_collision(new_pos))) {
     yvel = 0.0;

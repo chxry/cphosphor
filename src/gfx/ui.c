@@ -1,11 +1,20 @@
 #include "ui.h"
 
-bool mouse_captured;
 bool debug_overlay = true;
-bool options = false;
 bool demo = false;
 
+bool options = false;
+bool mouse_captured;
 conf_t options_conf;
+int key_select = -1;
+
+bool console = true;
+char console_buf[128] = "";
+void console_exec() {
+  log_game(console_buf);
+  lua_exec(console_buf);
+  console_buf[0] = 0;
+}
 
 void ui_init(SDL_Window* window, SDL_GLContext* ctx) {
   igCreateContext(NULL);
@@ -26,12 +35,16 @@ void ui_processevent(SDL_Event* e) {
   ImGui_ImplSDL2_ProcessEvent(e);
   if (e->type == SDL_KEYDOWN) {
     SDL_Scancode code = e->key.keysym.scancode;
-    if (code == conf.binds[KEYBIND_DEBUG]) { // USE A SWITCH
+    if (code == conf.binds[KEYBIND_DEBUG]) {
       debug_overlay = !debug_overlay;
     } else if (code == conf.binds[KEYBIND_MENU]) {
       options = !options;
       SDL_SetRelativeMouseMode(!options);
       mouse_captured = !options;
+    }
+    if (key_select >= 0) {
+      options_conf.binds[key_select] = code;
+      key_select = -1;
     }
   }
 }
@@ -45,7 +58,7 @@ void ui_render(SDL_Window* window) {
   if (debug_overlay) {
     igSetNextWindowPos((ImVec2){16, 16}, ImGuiCond_Always, VEC2_ZERO);
     igSetNextWindowBgAlpha(0.5);
-    if (igBegin("Debug overlay", &debug_overlay, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_AlwaysAutoResize)) {
+    if (igBegin("##", &debug_overlay, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_AlwaysAutoResize)) {
       igText("%.1fms", io.DeltaTime * 1000);
       igText("%.1ffps", io.Framerate);
       igSeparator();
@@ -57,8 +70,8 @@ void ui_render(SDL_Window* window) {
   if (options) {
     igSetNextWindowSize((ImVec2){480, 320}, ImGuiCond_Once);
     if (igBegin("Options", &options, ImGuiWindowFlags_None)) {
-      igBeginChild_Str("optionscontent", (ImVec2){0, -igGetFrameHeightWithSpacing()}, false, ImGuiWindowFlags_None);
-      if (igBeginTabBar("options", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
+      igBeginChild_Str("##", (ImVec2){0, -igGetFrameHeightWithSpacing()}, false, ImGuiWindowFlags_None);
+      if (igBeginTabBar("##", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
         if (igBeginTabItem("Video", NULL, ImGuiTabItemFlags_NoCloseButton)) {
           igInputInt2("Resolution", (int*)&options_conf, ImGuiInputTextFlags_None);
           igCheckbox("Fullscreen", &options_conf.fullscreen);
@@ -70,8 +83,8 @@ void ui_render(SDL_Window* window) {
         if (igBeginTabItem("Input", NULL, ImGuiTabItemFlags_NoCloseButton)) {
           igSliderFloat("Sensitivity", &options_conf.sens, 0.02, 0.4, "%.2f", ImGuiSliderFlags_None);
           for (int i = 0; i < KEYBINDS; i++) {
-            if (igButton(SDL_GetScancodeName(conf.binds[i]), VEC2_ZERO)) {
-              log_warn("TODO");
+            if (igButton(key_select == i ? "Cancel" : SDL_GetScancodeName(options_conf.binds[i]), VEC2_ZERO)) {
+              key_select = key_select == i ? -1 : i;
             }
             igSameLine(0, 4);
             igText(keybind_names_h[i]);
@@ -97,6 +110,25 @@ void ui_render(SDL_Window* window) {
   } else if (!mouse_captured) {
     SDL_SetRelativeMouseMode(true);
     mouse_captured = true;
+  }
+
+  if (console) {
+    igSetNextWindowSize((ImVec2){480, 320}, ImGuiCond_Once);
+    if (igBegin("Console", &console, ImGuiWindowFlags_None)) {
+      igBeginChild_Str("##", (ImVec2){0, -igGetFrameHeightWithSpacing()}, false, ImGuiWindowFlags_None);
+      int i;
+      char* str;
+      vec_foreach(&game_log, str, i) {
+        igText(str);
+      }
+      igEndChild();
+      igInputText("##", console_buf, sizeof(console_buf), ImGuiInputTextFlags_None, NULL, NULL);
+      igSameLine(0, 4);
+      if (igButton("Exec", VEC2_ZERO)) {
+        console_exec();
+      }
+    }
+    igEnd();
   }
 
   if (demo) {

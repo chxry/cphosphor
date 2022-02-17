@@ -43,9 +43,9 @@ void world_render(mat4 view, mat4 projection) {
   shader_use(basic_shader);
   shader_set_mat4(basic_shader, "view", view);
   shader_set_mat4(basic_shader, "projection", projection);
-  shader_set_vec3(basic_shader, "light.pos", GLM_YUP);
+  shader_set_vec3(basic_shader, "light.pos", (vec3){-10.0, 10.0, -10.0});
   shader_set_vec3(basic_shader, "light.color", GLM_VEC3_ONE);
-  shader_set_float(basic_shader, "light.ambient", 0.25);
+  shader_set_float(basic_shader, "light.ambient", 0.35);
 
   int i;
   gameobj_t obj;
@@ -59,5 +59,26 @@ void world_render(mat4 view, mat4 projection) {
     glm_scale(model, obj.scale);
     shader_set_mat4(basic_shader, "model", model);
     mesh_render(*map_get(&meshes, obj.mesh));
+  }
+
+  if (state.debug_drawcolliders) {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    shader_use(debug_shader);
+    shader_set_mat4(debug_shader, "view", view);
+    shader_set_mat4(debug_shader, "projection", projection);
+    collider_t collider;
+    vec_foreach(&colliders, collider, i) {
+      mat4 model;
+      vec3 center;
+      vec3 size;
+      glm_vec3_center(collider.min, collider.max, center);
+      glm_vec3_sub(collider.max, collider.min, size);
+      glm_vec3_divs(size, 2, size);
+      glm_translate_make(model, center);
+      glm_scale(model, size);
+      shader_set_mat4(debug_shader, "model", model);
+      mesh_render(cube_mesh);
+    }
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
 }

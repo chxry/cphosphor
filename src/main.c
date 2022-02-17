@@ -5,6 +5,7 @@
 int main() {
   conf_init("conf.json");
   assets_init("res.tar");
+  lua_init();
   window_init("flop");
   world_init();
 

@@ -1,10 +1,12 @@
 #pragma once
+#include <stdbool.h>
 #include <cglm/cglm.h>
 #include <parson/parson.h>
 #include <map.h>
 #include <vec.h>
 
 #include "gfx/gfx.h"
+#include "game.h"
 
 typedef struct {
   const char* mesh;
