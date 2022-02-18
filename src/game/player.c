@@ -72,11 +72,13 @@ void player_movement(mat4* view) {
     }
     if (keys[conf.binds[KEYBIND_JUMP]] && ground) {
       yvel = state.player_jumpheight;
+      ground = false;
     }
   }
   yvel -= state.world_gravity;
   new_pos[1] += yvel;
-  if ((ground = test_collision(new_pos))) {
+  if (test_collision(new_pos)) {
+    ground = yvel < 0;
     yvel = 0.0;
   }
 

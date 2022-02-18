@@ -3,7 +3,6 @@
 #include <SDL2/SDL.h>
 #include <glad/gl.h>
 #include <cglm/cglm.h>
-#include <log.h>
 #include <vec.h>
 #include <stb/stb_image.h>
 #include <tinyobj/tinyobj_loader_c.h>
@@ -12,6 +11,7 @@
 #include "game/player.h"
 #include "game/world.h"
 #include "ui.h"
+#include "log.h"
 
 typedef struct {
   unsigned int VBO;

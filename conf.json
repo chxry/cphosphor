@@ -1,22 +1,25 @@
 {
-    "res": [
-        1280,
-        720
-    ],
-    "fullscreen": false,
-    "fps": 144,
-    "msaa": 4,
-    "fov": 80,
-    "sens": 0.10000000149011612,
+    "gfx": {
+        "res": [
+            1280,
+            720
+        ],
+        "fullscreen": false,
+        "fps": 144,
+        "msaa": 4,
+        "fov": 80
+    },
     "input": {
+        "sens": 0.10000000149011612,
         "keys": {
             "forward": "W",
             "back": "S",
             "left": "A",
             "right": "D",
             "jump": "Space",
-            "debug": "F3",
-            "menu": "Escape"
+            "menu": "Escape",
+            "console": "`",
+            "debug": "F3"
         }
     }
 }

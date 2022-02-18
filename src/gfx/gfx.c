@@ -9,7 +9,7 @@ unsigned int debug_shader;
 
 void window_init(char* title) {
   if (SDL_Init(SDL_INIT_EVERYTHING)) {
-    log_fatal("Failed to init SDL.");
+    log_error("Failed to init SDL.");
     exit(-1);
   }
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -129,7 +129,7 @@ unsigned int shader_init(const char* vert_path, const char* frag_path) {
   if (!success) {
     log_error("Failed to link \"%s\" and \"%s\".", vert_path, frag_path);
   } else {
-    log_debug("Compiled shaders \"%s\" and \"%s\".", vert_path, frag_path);
+    log_info("Compiled shaders \"%s\" and \"%s\".", vert_path, frag_path);
   }
   glDeleteShader(vert);
   glDeleteShader(frag);
@@ -210,7 +210,7 @@ mesh_t mesh_load_obj(const char* path, mesh_attr attr) {
     }
   }
 
-  log_debug("Loaded model \"%s\".", path);
+  log_info("Loaded model \"%s\".", path);
   return mesh_init(verts, attrib.num_faces, attr);
 }
 
@@ -223,8 +223,8 @@ unsigned int tex_load(const char* path, int mode) {
   unsigned int tex;
   glGenTextures(1, &tex);
   glBindTexture(GL_TEXTURE_2D, tex);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   int w, h, n;
@@ -233,7 +233,7 @@ unsigned int tex_load(const char* path, int mode) {
   unsigned char* data = stbi_load_from_memory(img.data, img.len, &w, &h, &n, 0);
   if (data) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, mode, GL_UNSIGNED_BYTE, data);
-    log_debug("Loaded texture \"%s\".", path);
+    log_info("Loaded texture \"%s\".", path);
   } else {
     log_error("Failed to load texture \"%s\".", path);
   }
@@ -250,8 +250,8 @@ unsigned int tex_load_cubemap(char** faces, int mode) {
   unsigned int tex;
   glGenTextures(1, &tex);
   glBindTexture(GL_TEXTURE_CUBE_MAP, tex);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -273,7 +273,7 @@ unsigned int tex_load_cubemap(char** faces, int mode) {
     }
     stbi_image_free(data);
   }
-  log_debug("Loaded cubemap from \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\".", v.data[0], v.data[1], v.data[2], v.data[3], v.data[4], v.data[5]);
+  log_info("Loaded cubemap from \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\".", v.data[0], v.data[1], v.data[2], v.data[3], v.data[4], v.data[5]);
   vec_deinit(&v);
   return tex;
 }

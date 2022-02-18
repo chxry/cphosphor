@@ -1,8 +1,10 @@
 #include "game/game.h"
 #include "game/world.h"
 #include "gfx/gfx.h"
+#include "log.h"
 
 int main() {
+  log_init();
   conf_init("conf.json");
   assets_init("res.tar");
   lua_init();

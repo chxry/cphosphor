@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui.h>
+#include <lua.h>
 
 #include "game/player.h"
 #include "game/game.h"

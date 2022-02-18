@@ -8,12 +8,15 @@ bool mouse_captured;
 conf_t options_conf;
 int key_select = -1;
 
-bool console = true;
+bool console = false;
+bool console_scroll;
 char console_buf[128] = "";
 void console_exec() {
-  log_game(console_buf);
-  lua_exec(console_buf);
-  console_buf[0] = 0;
+  console_scroll = true;
+  if (console_buf[0]) {
+    lua_exec(console_buf, true);
+    console_buf[0] = 0;
+  }
 }
 
 void ui_init(SDL_Window* window, SDL_GLContext* ctx) {
@@ -24,7 +27,7 @@ void ui_init(SDL_Window* window, SDL_GLContext* ctx) {
   style->WindowRounding = 4.0;
   style->FrameRounding = 4.0;
   style->PopupRounding = 4.0;
-  asset_t font = asset_load("jetbrains mono.ttf");
+  asset_t font = asset_load("roboto.ttf");
   ImFontAtlas_AddFontFromMemoryTTF(io->Fonts, font.data, font.len, 16, NULL, NULL);
   ImGui_ImplSDL2_InitForOpenGL(window, ctx);
   ImGui_ImplOpenGL3_Init("#version 460");
@@ -35,12 +38,15 @@ void ui_processevent(SDL_Event* e) {
   ImGui_ImplSDL2_ProcessEvent(e);
   if (e->type == SDL_KEYDOWN) {
     SDL_Scancode code = e->key.keysym.scancode;
-    if (code == conf.binds[KEYBIND_DEBUG]) {
-      debug_overlay = !debug_overlay;
-    } else if (code == conf.binds[KEYBIND_MENU]) {
+    if (code == conf.binds[KEYBIND_MENU]) {
       options = !options;
       SDL_SetRelativeMouseMode(!options);
       mouse_captured = !options;
+    } else if (code == conf.binds[KEYBIND_CONSOLE]) {
+      console = !console;
+      console_scroll = true;
+    } else if (code == conf.binds[KEYBIND_DEBUG]) {
+      debug_overlay = !debug_overlay;
     }
     if (key_select >= 0) {
       options_conf.binds[key_select] = code;
@@ -114,15 +120,36 @@ void ui_render(SDL_Window* window) {
 
   if (console) {
     igSetNextWindowSize((ImVec2){480, 320}, ImGuiCond_Once);
-    if (igBegin("Console", &console, ImGuiWindowFlags_None)) {
+    char title_buf[32] = "Console | ";
+    if (igBegin(strcat(title_buf, LUA_VERSION), &console, ImGuiWindowFlags_None)) {
       igBeginChild_Str("##", (ImVec2){0, -igGetFrameHeightWithSpacing()}, false, ImGuiWindowFlags_None);
       int i;
-      char* str;
-      vec_foreach(&game_log, str, i) {
-        igText(str);
+      logevent_t event;
+      vec_foreach(&log_events, event, i) {
+        ImVec4 color;
+        switch (event.level) {
+        case level_error:
+          color = (ImVec4){1.0, 0.4, 0.4, 1.0};
+          break;
+        case level_lua:
+          color = (ImVec4){1.0, 1.0, 1.0, 1.0};
+          break;
+        default:
+          color = (ImVec4){0.6, 0.6, 0.6, 1.0};
+        }
+        igPushStyleColor_Vec4(ImGuiCol_Text, color);
+        igText(event.str);
+        igPopStyleColor(1);
+      }
+      if (console_scroll) {
+        igSetScrollHereY(1.0);
+        igSetKeyboardFocusHere(1);
+        console_scroll = false;
       }
       igEndChild();
-      igInputText("##", console_buf, sizeof(console_buf), ImGuiInputTextFlags_None, NULL, NULL);
+      if (igInputText("##", console_buf, sizeof(console_buf), ImGuiInputTextFlags_EnterReturnsTrue, NULL, NULL)) {
+        console_exec();
+      }
       igSameLine(0, 4);
       if (igButton("Exec", VEC2_ZERO)) {
         console_exec();

@@ -2,9 +2,6 @@
 	path = lib/glad
 	url = https://github.com/Dav1dde/glad
 	branch = glad2
-[submodule "lib/log"]
-	path = lib/log
-	url = https://github.com/rxi/log.c
 [submodule "lib/cimgui"]
 	path = lib/cimgui
 	url = https://github.com/cimgui/cimgui
