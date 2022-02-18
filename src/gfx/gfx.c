@@ -86,7 +86,7 @@ void window_loop() {
     mesh_render(cube_mesh);
     glDepthFunc(GL_LESS);
 
-    ui_render(window);
+    ui_render(window, w, h);
     SDL_GL_SwapWindow(window);
     int frame_time = SDL_GetTicks() - frame_start;
     if (frame_delay > frame_time) {
@@ -128,8 +128,6 @@ unsigned int shader_init(const char* vert_path, const char* frag_path) {
   glGetProgramiv(program, GL_LINK_STATUS, &success);
   if (!success) {
     log_error("Failed to link \"%s\" and \"%s\".", vert_path, frag_path);
-  } else {
-    log_info("Compiled shaders \"%s\" and \"%s\".", vert_path, frag_path);
   }
   glDeleteShader(vert);
   glDeleteShader(frag);
@@ -210,7 +208,6 @@ mesh_t mesh_load_obj(const char* path, mesh_attr attr) {
     }
   }
 
-  log_info("Loaded model \"%s\".", path);
   return mesh_init(verts, attrib.num_faces, attr);
 }
 
@@ -233,7 +230,6 @@ unsigned int tex_load(const char* path, int mode) {
   unsigned char* data = stbi_load_from_memory(img.data, img.len, &w, &h, &n, 0);
   if (data) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, mode, GL_UNSIGNED_BYTE, data);
-    log_info("Loaded texture \"%s\".", path);
   } else {
     log_error("Failed to load texture \"%s\".", path);
   }
@@ -273,7 +269,6 @@ unsigned int tex_load_cubemap(char** faces, int mode) {
     }
     stbi_image_free(data);
   }
-  log_info("Loaded cubemap from \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\".", v.data[0], v.data[1], v.data[2], v.data[3], v.data[4], v.data[5]);
   vec_deinit(&v);
   return tex;
 }

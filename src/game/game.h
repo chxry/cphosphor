@@ -32,6 +32,9 @@ typedef struct {
   float fov;
   float sens;
   SDL_Scancode binds[KEYBINDS];
+  int crosshair_size;
+  int crosshair_thickness;
+  int crosshair_color;
 } conf_t;
 
 typedef struct {

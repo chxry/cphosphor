@@ -27,6 +27,9 @@ void conf_init(const char* path) {
     char buf[64] = "input.keys.";
     conf.binds[i] = SDL_GetScancodeFromName(json_object_dotget_string(root, strcat(buf, keybind_names[i])));
   }
+  conf.crosshair_size = json_object_dotget_number(root, "crosshair.size");
+  conf.crosshair_thickness = json_object_dotget_number(root, "crosshair.thickness");
+  conf.crosshair_color = json_object_dotget_number(root, "crosshair.color");
 
   log_info("Loaded config \"%s\".", path);
 }
@@ -48,6 +51,9 @@ void conf_write(const char* path) {
     char buf[64] = "input.keys.";
     json_object_dotset_string(root, strcat(buf, keybind_names[i]), SDL_GetScancodeName(conf.binds[i]));
   }
+  json_object_dotset_number(root, "crosshair.size", conf.crosshair_size);
+  json_object_dotset_number(root, "crosshair.thickness", conf.crosshair_thickness);
+  json_object_dotset_number(root, "crosshair.color", conf.crosshair_color);
 
   json_serialize_to_file_pretty(rootv, "conf.json");
   log_info("Wrote config \"%s\".", path);

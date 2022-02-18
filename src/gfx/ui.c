@@ -6,7 +6,12 @@ bool demo = false;
 bool options = false;
 bool mouse_captured;
 conf_t options_conf;
+ImVec4 options_color;
 int key_select = -1;
+void options_reset() {
+  options_conf = conf;
+  igColorConvertU32ToFloat4(&options_color, conf.crosshair_color);
+}
 
 bool console = false;
 bool console_scroll;
@@ -31,7 +36,7 @@ void ui_init(SDL_Window* window, SDL_GLContext* ctx) {
   ImFontAtlas_AddFontFromMemoryTTF(io->Fonts, font.data, font.len, 16, NULL, NULL);
   ImGui_ImplSDL2_InitForOpenGL(window, ctx);
   ImGui_ImplOpenGL3_Init("#version 460");
-  options_conf = conf;
+  options_reset();
 }
 
 void ui_processevent(SDL_Event* e) {
@@ -55,7 +60,7 @@ void ui_processevent(SDL_Event* e) {
   }
 }
 
-void ui_render(SDL_Window* window) {
+void ui_render(SDL_Window* window, int w, int h) {
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplSDL2_NewFrame(window);
   igNewFrame();
@@ -97,10 +102,17 @@ void ui_render(SDL_Window* window) {
           }
           igEndTabItem();
         }
+        if (igBeginTabItem("Crosshair", NULL, ImGuiTabItemFlags_NoCloseButton)) {
+          igSliderInt("Size", &options_conf.crosshair_size, 1, 100, "%i", ImGuiInputTextFlags_None);
+          igSliderInt("Thickness", &options_conf.crosshair_thickness, 1, 10, "%i", ImGuiInputTextFlags_None);
+          igColorEdit4("Color", (float*)&options_color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha);
+          igEndTabItem();
+        }
         igEndTabBar();
       }
       igEndChild();
       if (igButton("Apply", VEC2_ZERO)) {
+        options_conf.crosshair_color = igGetColorU32_Vec4(options_color);
         conf = options_conf;
         SDL_SetWindowSize(window, conf.width, conf.height);
         SDL_SetWindowFullscreen(window, conf.fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
@@ -109,7 +121,7 @@ void ui_render(SDL_Window* window) {
       }
       igSameLine(0, 4);
       if (igButton("Reset", VEC2_ZERO)) {
-        options_conf = conf;
+        options_reset();
       }
     }
     igEnd();
@@ -161,6 +173,10 @@ void ui_render(SDL_Window* window) {
   if (demo) {
     igShowDemoWindow(&demo);
   }
+
+  ImDrawList* draw = igGetBackgroundDrawList_Nil();
+  ImDrawList_AddLine(draw, (ImVec2){w / 2 - conf.crosshair_size, h / 2}, (ImVec2){w / 2 + conf.crosshair_size, h / 2}, conf.crosshair_color, conf.crosshair_thickness);
+  ImDrawList_AddLine(draw, (ImVec2){w / 2, h / 2 - conf.crosshair_size}, (ImVec2){w / 2, h / 2 + conf.crosshair_size}, conf.crosshair_color, conf.crosshair_thickness);
 
   igRender();
   ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());

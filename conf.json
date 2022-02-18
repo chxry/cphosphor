@@ -1,8 +1,8 @@
 {
     "gfx": {
         "res": [
-            1280,
-            720
+            1213,
+            1390
         ],
         "fullscreen": false,
         "fps": 144,
@@ -21,5 +21,10 @@
             "console": "`",
             "debug": "F3"
         }
+    },
+    "crosshair": {
+        "size": 10,
+        "thickness": 2,
+        "color": -16776961
     }
 }
