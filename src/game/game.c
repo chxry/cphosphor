@@ -23,6 +23,7 @@ void conf_init(const char* path) {
   conf.msaa = json_object_dotget_number(root, "gfx.msaa");
   conf.fov = json_object_dotget_number(root, "gfx.fov");
   conf.sens = json_object_dotget_number(root, "input.sens");
+  conf.volume = json_object_dotget_number(root, "audio.volume");
   for (int i = 0; i < KEYBINDS; i++) {
     char buf[64] = "input.keys.";
     conf.binds[i] = SDL_GetScancodeFromName(json_object_dotget_string(root, strcat(buf, keybind_names[i])));
@@ -47,6 +48,7 @@ void conf_write(const char* path) {
   json_object_dotset_number(root, "gfx.msaa", conf.msaa);
   json_object_dotset_number(root, "gfx.fov", conf.fov);
   json_object_dotset_number(root, "input.sens", conf.sens);
+  json_object_dotset_number(root, "audio.volume", conf.volume);
   for (int i = 0; i < KEYBINDS; i++) {
     char buf[64] = "input.keys.";
     json_object_dotset_string(root, strcat(buf, keybind_names[i]), SDL_GetScancodeName(conf.binds[i]));
@@ -74,7 +76,9 @@ asset_t asset_load(const char* path) {
   mtar_find(&tar, strcat(base, path), &h);
   asset.len = h.size;
   asset.data = calloc(1, h.size + 1);
-  mtar_read_data(&tar, asset.data, h.size);
+  if (mtar_read_data(&tar, asset.data, h.size)) {
+    log_error("Failed to load asset \"%s\".", path);
+  }
   return asset;
 }
 
@@ -109,10 +113,8 @@ void lua_init() {
   lua_bind(lua, &state.debug_drawcolliders, "debug_drawcolliders");
 }
 
-void lua_exec(const char* buf, bool log) {
-  if (log) {
-    log_lua("> %s", buf);
-  }
+void lua_exec(const char* buf) {
+  log_lua("> %s", buf);
   luaL_loadstring(lua, buf);
   if (lua_pcall(lua, 0, -1, 0)) {
     const char* err = lua_tostring(lua, -1);

@@ -26,3 +26,6 @@
 [submodule "lib/map"]
 	path = lib/map
 	url = https://github.com/rxi/map
+[submodule "lib/cmixer"]
+	path = lib/cmixer
+	url = https://github.com/rxi/cmixer

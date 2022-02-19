@@ -1,8 +1,8 @@
 {
     "gfx": {
         "res": [
-            1213,
-            1390
+            1280,
+            720
         ],
         "fullscreen": false,
         "fps": 144,
@@ -21,6 +21,9 @@
             "console": "`",
             "debug": "F3"
         }
+    },
+    "audio": {
+        "volume": 0.40000000596046448
     },
     "crosshair": {
         "size": 10,

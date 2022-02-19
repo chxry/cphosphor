@@ -1,6 +1,7 @@
 #include "game/game.h"
 #include "game/world.h"
 #include "gfx/gfx.h"
+#include "audio.h"
 #include "log.h"
 
 int main() {
@@ -9,9 +10,9 @@ int main() {
   assets_init("res.tar");
   lua_init();
   window_init("flop");
+  audio_init();
   world_init();
 
   window_loop();
-  window_destroy();
   return 0;
 }

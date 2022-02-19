@@ -32,6 +32,7 @@ typedef struct {
   float fov;
   float sens;
   SDL_Scancode binds[KEYBINDS];
+  float volume;
   int crosshair_size;
   int crosshair_thickness;
   int crosshair_color;
@@ -59,4 +60,4 @@ void assets_init(const char* path);
 asset_t asset_load(const char* path);
 void log_game(const char* fmt, ...);
 void lua_init();
-void lua_exec(const char* buf, bool log);
+void lua_exec(const char* buf);

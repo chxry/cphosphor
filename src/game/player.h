@@ -6,6 +6,7 @@
 
 #include "world.h"
 #include "game.h"
+#include "audio.h"
 
 extern vec3 player_pos;
 

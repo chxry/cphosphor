@@ -77,9 +77,10 @@ void player_movement(mat4* view) {
   }
   yvel -= state.world_gravity;
   new_pos[1] += yvel;
-  if (test_collision(new_pos)) {
-    ground = yvel < 0;
-    yvel = 0.0;
+  if (test_collision(new_pos) && yvel < 0 && !ground) {
+    audio_play("audio/fall.wav");
+    ground = true;
+    yvel = 0;
   }
 
   vec3 cam_pos;

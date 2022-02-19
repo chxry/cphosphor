@@ -22,14 +22,12 @@ void window_init(char* title) {
   SDL_SetRelativeMouseMode(true);
 
   int gl = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
-  log_info("Loaded OpenGL %i.%i.", GLAD_VERSION_MAJOR(gl), GLAD_VERSION_MINOR(gl));
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_MULTISAMPLE);
   glLineWidth(2.0);
 
   ui_init(window, &ctx);
-  log_info("Created window \"%s\".", title);
-  log_info("Renderer: %s - %s", glGetString(GL_RENDERER), glGetString(GL_VERSION));
+  log_info("Loaded OpenGL %i.%i on \"%s\".", GLAD_VERSION_MAJOR(gl), GLAD_VERSION_MINOR(gl), glGetString(GL_RENDERER));
 }
 
 void window_loop() {
@@ -93,12 +91,6 @@ void window_loop() {
       SDL_Delay(frame_delay - frame_time);
     }
   }
-}
-
-void window_destroy() {
-  SDL_GL_DeleteContext(ctx);
-  SDL_DestroyWindow(window);
-  SDL_Quit();
 }
 
 unsigned int shader_init(const char* vert_path, const char* frag_path) {

@@ -8,6 +8,7 @@
 #include "game/player.h"
 #include "game/game.h"
 #include "gfx.h"
+#include "audio.h"
 
 #define VEC2_ZERO \
   (ImVec2) { 0.0, 0.0 }

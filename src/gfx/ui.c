@@ -19,7 +19,7 @@ char console_buf[128] = "";
 void console_exec() {
   console_scroll = true;
   if (console_buf[0]) {
-    lua_exec(console_buf, true);
+    lua_exec(console_buf);
     console_buf[0] = 0;
   }
 }
@@ -102,6 +102,10 @@ void ui_render(SDL_Window* window, int w, int h) {
           }
           igEndTabItem();
         }
+        if (igBeginTabItem("Audio", NULL, ImGuiTabItemFlags_NoCloseButton)) {
+          igSliderFloat("Volume", &options_conf.volume, 0, 1, "%.1f", ImGuiSliderFlags_None);
+          igEndTabItem();
+        }
         if (igBeginTabItem("Crosshair", NULL, ImGuiTabItemFlags_NoCloseButton)) {
           igSliderInt("Size", &options_conf.crosshair_size, 1, 100, "%i", ImGuiInputTextFlags_None);
           igSliderInt("Thickness", &options_conf.crosshair_thickness, 1, 10, "%i", ImGuiInputTextFlags_None);
@@ -117,6 +121,7 @@ void ui_render(SDL_Window* window, int w, int h) {
         SDL_SetWindowSize(window, conf.width, conf.height);
         SDL_SetWindowFullscreen(window, conf.fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
         frame_delay = 1000 / conf.fps;
+        audio_setvolume(conf.volume);
         conf_write("conf.json");
       }
       igSameLine(0, 4);
