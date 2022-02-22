@@ -5,7 +5,6 @@
 #include <map.h>
 #include <vec.h>
 
-#include "gfx/gfx.h"
 #include "game.h"
 
 typedef struct {
@@ -22,6 +21,8 @@ typedef struct {
   vec3 max;
 } collider_t;
 typedef vec_t(collider_t) vec_collider_t;
+
+#include "gfx/gfx.h"
 
 #define VEC3_FROM_JSON(v) \
   { json_array_get_number(v, 0), json_array_get_number(v, 1), json_array_get_number(v, 2) }
