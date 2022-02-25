@@ -20,7 +20,6 @@ void conf_init(const char* path) {
   conf.height = json_array_get_number(res, 1);
   conf.fullscreen = json_object_dotget_boolean(root, "gfx.fullscreen");
   conf.fps = json_object_dotget_number(root, "gfx.fps");
-  conf.msaa = json_object_dotget_number(root, "gfx.msaa");
   conf.fov = json_object_dotget_number(root, "gfx.fov");
   conf.sens = json_object_dotget_number(root, "input.sens");
   conf.volume = json_object_dotget_number(root, "audio.volume");
@@ -45,7 +44,6 @@ void conf_write(const char* path) {
   json_object_dotset_value(root, "gfx.res", resv);
   json_object_dotset_boolean(root, "gfx.fullscreen", conf.fullscreen);
   json_object_dotset_number(root, "gfx.fps", conf.fps);
-  json_object_dotset_number(root, "gfx.msaa", conf.msaa);
   json_object_dotset_number(root, "gfx.fov", conf.fov);
   json_object_dotset_number(root, "input.sens", conf.sens);
   json_object_dotset_number(root, "audio.volume", conf.volume);

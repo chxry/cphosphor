@@ -6,7 +6,6 @@
         ],
         "fullscreen": false,
         "fps": 144,
-        "msaa": 4,
         "fov": 80
     },
     "input": {

@@ -9,6 +9,7 @@
 #include "audio.h"
 
 extern vec3 player_pos;
+extern vec3 cam_pos;
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))

@@ -31,3 +31,4 @@ extern vec_collider_t colliders;
 
 void world_init();
 void world_render(mat4 view, mat4 projection);
+void world_render_shadows(mat4 view, mat4 projection);

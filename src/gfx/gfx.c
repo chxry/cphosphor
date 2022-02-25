@@ -6,6 +6,14 @@ int frame_delay;
 mesh_t cube_mesh;
 unsigned int basic_shader;
 unsigned int debug_shader;
+unsigned int lighting_shader;
+unsigned int shadow_shader;
+mesh_t quad;
+unsigned int gbuffer, gposition, gnormal, galbedospec, depthbuffer;
+unsigned int shadowbuffer;
+unsigned int shadowmap;
+
+vec3 light_dir = {0.5, 9, 1.5};
 
 void window_init(char* title) {
   if (SDL_Init(SDL_INIT_EVERYTHING)) {
@@ -15,17 +23,15 @@ void window_init(char* title) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2 ^ conf.msaa);
   window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, conf.width, conf.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (conf.fullscreen ? SDL_WINDOW_FULLSCREEN : 0));
   ctx = SDL_GL_CreateContext(window);
   SDL_SetRelativeMouseMode(true);
 
   int gl = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
   glEnable(GL_DEPTH_TEST);
-  glEnable(GL_MULTISAMPLE);
   glLineWidth(2.0);
 
+  gbuffer_init(conf.width, conf.height);
   ui_init(window, &ctx);
   log_info("Loaded OpenGL %i.%i on \"%s\".", GLAD_VERSION_MAJOR(gl), GLAD_VERSION_MINOR(gl), glGetString(GL_RENDERER));
 }
@@ -36,6 +42,7 @@ void window_loop() {
   unsigned int skybox_shader = shader_init("shaders/skybox.vert", "shaders/skybox.frag");
   basic_shader = shader_init("shaders/basic.vert", "shaders/basic.frag");
   debug_shader = shader_init("shaders/debug.vert", "shaders/debug.frag");
+  shadow_shader = shader_init("shaders/shadow.vert", "shaders/shadow.frag");
 
   bool quit = false;
   frame_delay = 1000 / conf.fps;
@@ -45,9 +52,10 @@ void window_loop() {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
       switch (e.type) {
+
       case SDL_WINDOWEVENT:
         if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-          glViewport(0, 0, e.window.data1, e.window.data2);
+          gbuffer_resize(e.window.data1, e.window.data2);
           conf.width = e.window.data1;
           conf.height = e.window.data2;
         }
@@ -60,16 +68,21 @@ void window_loop() {
       player_processevent(&e);
     }
 
-    glClearColor(0.0, 0.0, 0.0, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    mat4 light_view, light_projection;
+    glm_lookat((vec3){0, 10, 0}, light_dir, GLM_YUP, light_view);
+    glm_ortho(-50, 50, -50, 50, 0.01, 50, light_projection);
+    glViewport(0, 0, 4096, 4096);
+    glBindFramebuffer(GL_FRAMEBUFFER, shadowbuffer);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    world_render_shadows(light_view, light_projection);
 
-    mat4 view;
+    mat4 view, projection;
     player_movement(&view);
-    mat4 projection = GLM_MAT4_IDENTITY;
-    int w, h;
-    SDL_GetWindowSize(window, &w, &h);
-    glm_perspective(glm_rad(conf.fov), (float)w / (float)h, 0.1, 100.0, projection);
-
+    glm_perspective(glm_rad(conf.fov), (float)conf.width / (float)conf.height, 0.1, 100.0, projection);
+    glViewport(0, 0, conf.width, conf.height);
+    glClearColor(0, 0, 0, 1);
+    glBindFramebuffer(GL_FRAMEBUFFER, gbuffer);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     world_render(view, projection);
 
     glDepthFunc(GL_LEQUAL);
@@ -84,13 +97,107 @@ void window_loop() {
     mesh_render(cube_mesh);
     glDepthFunc(GL_LESS);
 
-    ui_render(window, w, h);
+    gbuffer_render(light_view, light_projection);
+    ui_render(window);
     SDL_GL_SwapWindow(window);
     int frame_time = SDL_GetTicks() - frame_start;
     if (frame_delay > frame_time) {
       SDL_Delay(frame_delay - frame_time);
     }
   }
+}
+
+void gbuffer_init(int width, int height) {
+  glGenFramebuffers(1, &gbuffer);
+  glBindFramebuffer(GL_FRAMEBUFFER, gbuffer);
+
+  glGenTextures(1, &gposition);
+  glBindTexture(GL_TEXTURE_2D, gposition);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gposition, 0);
+
+  glGenTextures(1, &gnormal);
+  glBindTexture(GL_TEXTURE_2D, gnormal);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gnormal, 0);
+
+  glGenTextures(1, &galbedospec);
+  glBindTexture(GL_TEXTURE_2D, galbedospec);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, galbedospec, 0);
+
+  glDrawBuffers(3, (GLenum[3]){GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2});
+  glGenRenderbuffers(1, &depthbuffer);
+  glBindRenderbuffer(GL_RENDERBUFFER, depthbuffer);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthbuffer);
+
+  glGenFramebuffers(1, &shadowbuffer);
+  glGenTextures(1, &shadowmap);
+  glBindTexture(GL_TEXTURE_2D, shadowmap);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+               4096, 4096, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glBindFramebuffer(GL_FRAMEBUFFER, shadowbuffer);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowmap, 0);
+
+  lighting_shader = shader_init("shaders/lighting.vert", "shaders/lighting.frag");
+  shader_use(lighting_shader);
+  shader_set_int(lighting_shader, "gPosition", 0);
+  shader_set_int(lighting_shader, "gNormal", 1);
+  shader_set_int(lighting_shader, "gAlbedospec", 2);
+  shader_set_int(lighting_shader, "shadowmap", 3);
+
+  float verts[] = {
+      1, 1, 0, 1, 1,
+      1, -1, 0, 1, 0,
+      -1, 1, 0, 0, 1,
+      1, -1, 0, 1, 0,
+      -1, -1, 0, 0, 0,
+      -1, 1, 0, 0, 1};
+  quad = mesh_init(verts, 6, pos_tex);
+}
+
+void gbuffer_resize(int width, int height) {
+  glBindFramebuffer(GL_FRAMEBUFFER, gbuffer);
+  glBindTexture(GL_TEXTURE_2D, gposition);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+  glBindTexture(GL_TEXTURE_2D, gnormal);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+  glBindTexture(GL_TEXTURE_2D, galbedospec);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glBindRenderbuffer(GL_RENDERBUFFER, depthbuffer);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+}
+
+void gbuffer_render(mat4 light_view, mat4 light_projection) {
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  shader_use(lighting_shader);
+  shader_set_vec3(lighting_shader, "viewpos", cam_pos);
+  shader_set_vec3(lighting_shader, "light_dir", light_dir);
+  shader_set_vec3(lighting_shader, "light_color", (vec3){1.0, 1.0, 1.0});
+  shader_set_mat4(lighting_shader, "light_view", light_view);
+  shader_set_mat4(lighting_shader, "light_projection", light_projection);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, gposition);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, gnormal);
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, galbedospec);
+  glActiveTexture(GL_TEXTURE3);
+  glBindTexture(GL_TEXTURE_2D, shadowmap);
+
+  mesh_render(quad);
 }
 
 unsigned int shader_init(const char* vert_path, const char* frag_path) {
@@ -136,6 +243,10 @@ void shader_set_vec3(unsigned int shader, const char* name, vec3 val) {
 
 void shader_set_float(unsigned int shader, const char* name, float val) {
   glUniform1f(glGetUniformLocation(shader, name), val);
+}
+
+void shader_set_int(unsigned int shader, const char* name, int val) {
+  glUniform1i(glGetUniformLocation(shader, name), val);
 }
 
 void shader_use(unsigned int shader) {

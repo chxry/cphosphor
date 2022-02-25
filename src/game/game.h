@@ -28,7 +28,6 @@ typedef struct {
   int height;
   bool fullscreen;
   int fps;
-  int msaa;
   float fov;
   float sens;
   SDL_Scancode binds[KEYBINDS];

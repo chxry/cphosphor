@@ -1,9 +1,10 @@
 #version 460 core
-in vec3 TexCoords;
-out vec4 FragColor;
+layout (location = 2) out vec4 gAlbedospec;
+in vec3 texcoord;
 
 uniform samplerCube skybox;
 
 void main() {
-  FragColor = texture(skybox, TexCoords);
+  gAlbedospec.rgb = texture(skybox, texcoord).rgb;
+  gAlbedospec.a = -1.0;
 }

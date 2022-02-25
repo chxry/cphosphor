@@ -43,9 +43,6 @@ void world_render(mat4 view, mat4 projection) {
   shader_use(basic_shader);
   shader_set_mat4(basic_shader, "view", view);
   shader_set_mat4(basic_shader, "projection", projection);
-  shader_set_vec3(basic_shader, "light.pos", (vec3){-10.0, 10.0, -10.0});
-  shader_set_vec3(basic_shader, "light.color", GLM_VEC3_ONE);
-  shader_set_float(basic_shader, "light.ambient", 0.35);
 
   int i;
   gameobj_t obj;
@@ -80,5 +77,24 @@ void world_render(mat4 view, mat4 projection) {
       mesh_render(cube_mesh);
     }
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  }
+}
+
+void world_render_shadows(mat4 view, mat4 projection) {
+  shader_use(shadow_shader);
+  shader_set_mat4(shadow_shader, "view", view);
+  shader_set_mat4(shadow_shader, "projection", projection);
+
+  int i;
+  gameobj_t obj;
+  vec_foreach(&gameobjs, obj, i) {
+    mat4 model;
+    glm_translate_make(model, obj.pos);
+    glm_rotate_x(model, glm_rad(obj.rot[0]), model);
+    glm_rotate_y(model, glm_rad(obj.rot[1]), model);
+    glm_rotate_z(model, glm_rad(obj.rot[2]), model);
+    glm_scale(model, obj.scale);
+    shader_set_mat4(shadow_shader, "model", model);
+    mesh_render(*map_get(&meshes, obj.mesh));
   }
 }
