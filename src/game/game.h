@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <SDL2/SDL.h>
+#include <cglm/cglm.h>
 #include <microtar.h>
 #include <parson/parson.h>
 #include <vec.h>
@@ -44,6 +45,7 @@ typedef struct {
 
 typedef struct {
   float world_gravity;
+  vec3 world_lightdir;
   float player_speed;
   float player_jumpheight;
   bool debug_drawcolliders;

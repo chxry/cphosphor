@@ -6,6 +6,7 @@ mtar_t tar;
 
 state_t state = {
     .world_gravity = 0.003,
+    .world_lightdir = {-2, 6, -5},
     .player_speed = 0.07,
     .player_jumpheight = 0.1,
     .debug_drawcolliders = false};

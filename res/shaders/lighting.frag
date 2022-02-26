@@ -24,11 +24,18 @@ void main() {
 
   vec4 lightspace = light_projection * light_view * vec4(fragpos,1.0);
   lightspace = lightspace * 0.5 + 0.5;
-  float closest = texture(shadowmap, lightspace.xy).r; 
   float bias = max(0.05 * (1.0 - dot(normal, light_dir)), 0.005);
   float current = lightspace.z-bias;
-  float shadow = current < closest ? 1.0 : 0.0;
+  float shadow = 0.0;
+  vec2 texelSize = 1.0 / textureSize(shadowmap, 0);
+  for(int x = -1; x <= 1; ++x) {
+    for(int y = -1; y <= 1; ++y) {
+      float closest = texture(shadowmap, lightspace.xy + vec2(x, y) * texelSize).r;
+      shadow += current - bias > closest ? 1.0 : 0.0;
+    }
+  }
+  shadow /= 9.0;
 
-  vec3 light = vec3(ambient + shadow * diffuse);
+  vec3 light = vec3(ambient + (1-shadow) * diffuse);
   FragColor = vec4(light * albedo,1.0);
 }

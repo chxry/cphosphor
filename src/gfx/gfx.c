@@ -13,8 +13,6 @@ unsigned int gbuffer, gposition, gnormal, galbedospec, depthbuffer;
 unsigned int shadowbuffer;
 unsigned int shadowmap;
 
-vec3 light_dir = {0.5, 9, 1.5};
-
 void window_init(char* title) {
   if (SDL_Init(SDL_INIT_EVERYTHING)) {
     log_error("Failed to init SDL.");
@@ -69,9 +67,9 @@ void window_loop() {
     }
 
     mat4 light_view, light_projection;
-    glm_lookat((vec3){0, 10, 0}, light_dir, GLM_YUP, light_view);
+    glm_lookat(state.world_lightdir, (vec3){0, 0, 0}, GLM_YUP, light_view);
     glm_ortho(-50, 50, -50, 50, 0.01, 50, light_projection);
-    glViewport(0, 0, 4096, 4096);
+    glViewport(0, 0, SHADOW_RES, SHADOW_RES);
     glBindFramebuffer(GL_FRAMEBUFFER, shadowbuffer);
     glClear(GL_DEPTH_BUFFER_BIT);
     world_render_shadows(light_view, light_projection);
@@ -142,7 +140,7 @@ void gbuffer_init(int width, int height) {
   glGenTextures(1, &shadowmap);
   glBindTexture(GL_TEXTURE_2D, shadowmap);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-               4096, 4096, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+               SHADOW_RES, SHADOW_RES, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -184,7 +182,7 @@ void gbuffer_render(mat4 light_view, mat4 light_projection) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   shader_use(lighting_shader);
   shader_set_vec3(lighting_shader, "viewpos", cam_pos);
-  shader_set_vec3(lighting_shader, "light_dir", light_dir);
+  shader_set_vec3(lighting_shader, "light_dir", state.world_lightdir);
   shader_set_vec3(lighting_shader, "light_color", (vec3){1.0, 1.0, 1.0});
   shader_set_mat4(lighting_shader, "light_view", light_view);
   shader_set_mat4(lighting_shader, "light_projection", light_projection);

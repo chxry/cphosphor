@@ -25,6 +25,8 @@ typedef enum {
   pos_tex_norm = 8
 } mesh_attr;
 
+#define SHADOW_RES 8192
+
 extern SDL_Window* window;
 extern int frame_delay;
 extern mesh_t cube_mesh;
