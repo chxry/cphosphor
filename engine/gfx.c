@@ -3,11 +3,10 @@
 SDL_Window* window;
 SDL_GLContext ctx;
 int frame_delay;
-mesh_t cube_mesh;
 unsigned int basic_shader;
 unsigned int debug_shader;
 
-void window_init(char* title) {
+void window_init(int width, int height, bool fullscreen, char* title) {
   if (SDL_Init(SDL_INIT_EVERYTHING)) {
     log_error("Failed to init SDL.");
     exit(-1);
@@ -15,7 +14,7 @@ void window_init(char* title) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-  window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, conf.width, conf.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (conf.fullscreen ? SDL_WINDOW_FULLSCREEN : 0));
+  window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (fullscreen ? SDL_WINDOW_FULLSCREEN : 0));
   ctx = SDL_GL_CreateContext(window);
   SDL_SetRelativeMouseMode(true);
 
@@ -23,74 +22,8 @@ void window_init(char* title) {
   glEnable(GL_DEPTH_TEST);
   glLineWidth(2.0);
 
-  gbuffer_init(conf.width, conf.height);
-  ui_init(window, &ctx);
+  gbuffer_init(width, height);
   log_info("Loaded OpenGL %i.%i on \"%s\".", GLAD_VERSION_MAJOR(gl), GLAD_VERSION_MINOR(gl), glGetString(GL_RENDERER));
-}
-
-void window_loop() {
-  cube_mesh = mesh_load_obj("mesh/sky.obj", pos);
-  unsigned int skybox_tex = tex_load_cubemap((char* [6]){"tex/sky/right.jpg", "tex/sky/left.jpg", "tex/sky/top.jpg", "tex/sky/bottom.jpg", "tex/sky/front.jpg", "tex/sky/back.jpg"}, GL_RGB);
-  unsigned int skybox_shader = shader_init("shaders/skybox.vert", "shaders/skybox.frag");
-  basic_shader = shader_init("shaders/basic.vert", "shaders/basic.frag");
-  debug_shader = shader_init("shaders/debug.vert", "shaders/debug.frag");
-
-  bool quit = false;
-  frame_delay = 1000 / conf.fps;
-  while (!quit) {
-    int frame_start = SDL_GetTicks();
-
-    SDL_Event e;
-    while (SDL_PollEvent(&e)) {
-      switch (e.type) {
-
-      case SDL_WINDOWEVENT:
-        if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-          gbuffer_resize(e.window.data1, e.window.data2);
-          conf.width = e.window.data1;
-          conf.height = e.window.data2;
-        }
-        break;
-      case SDL_QUIT:
-        quit = true;
-        break;
-      }
-      ui_processevent(&e);
-      player_processevent(&e);
-    }
-
-    mat4 light_view, light_projection;
-    gbuffer_render_shadows(light_view, light_projection);
-
-    mat4 view, projection;
-    player_movement(&view);
-    glm_perspective(glm_rad(conf.fov), (float)conf.width / (float)conf.height, 0.1, 100.0, projection);
-    glViewport(0, 0, conf.width, conf.height);
-    glClearColor(0, 0, 0, 1);
-    glBindFramebuffer(GL_FRAMEBUFFER, gbuffer);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    world_render(view, projection);
-
-    glDepthFunc(GL_LEQUAL);
-    shader_use(skybox_shader);
-    tex_use_cubemap(skybox_tex);
-    mat4 skybox_view = GLM_MAT4_ZERO;
-    mat3 view3;
-    glm_mat4_pick3(view, view3);
-    glm_mat4_ins3(view3, skybox_view);
-    shader_set_mat4(skybox_shader, "view", skybox_view);
-    shader_set_mat4(skybox_shader, "projection", projection);
-    mesh_render(cube_mesh);
-    glDepthFunc(GL_LESS);
-
-    gbuffer_render(light_view, light_projection);
-    ui_render(window);
-    SDL_GL_SwapWindow(window);
-    int frame_time = SDL_GetTicks() - frame_start;
-    if (frame_delay > frame_time) {
-      SDL_Delay(frame_delay - frame_time);
-    }
-  }
 }
 
 unsigned int shader_init(const char* vert_path, const char* frag_path) {

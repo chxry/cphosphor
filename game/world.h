@@ -2,9 +2,11 @@
 #include <stdbool.h>
 #include <cglm/cglm.h>
 #include <parson/parson.h>
-#include <map.h>
 #include <vec.h>
 
+#include "engine/core.h"
+#include "engine/gfx.h"
+#include "engine/lighting.h"
 #include "game.h"
 
 typedef struct {
@@ -21,9 +23,6 @@ typedef struct {
   vec3 max;
 } collider_t;
 typedef vec_t(collider_t) vec_collider_t;
-
-#include "gfx/gfx.h"
-#include "gfx/lighting.h"
 
 #define VEC3_FROM_JSON(v) \
   { json_array_get_number(v, 0), json_array_get_number(v, 1), json_array_get_number(v, 2) }

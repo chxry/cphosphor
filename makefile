@@ -1,14 +1,15 @@
-SRC = $(shell find src/ lib/cglm/src/ -type f -name '*.c') lib/glad/build/src/gl.c lib/vec/src/vec.c lib/microtar/src/microtar.c lib/map/src/map.c lib/cmixer/src/cmixer.c lib/parson/parson.c
+SRC = $(shell find engine/ lib/cglm/src/ -type f -name '*.c') lib/glad/build/src/gl.c lib/vec/src/vec.c lib/microtar/src/microtar.c lib/map/src/map.c lib/cmixer/src/cmixer.c lib/parson/parson.c
+SRC += $(shell find game/ -type f -name '*.c')
 OBJS = $(SRC:.c=.o)
-TARGET = out
+GAME = game.o
 RES = res.tar
 
 CFLAGS = -Wall -O2 -DIMGUI_IMPL_API="extern \"C\"" -c
-CFLAGS += -Isrc -Ilib -Ilib/glad/build/include -Ilib/vec/src -Ilib/microtar/src -Ilib/map/src -Ilib/cmixer/src -Ilib/cimgui -Ilib/cimgui/imgui -Ilib/cglm/include -I/usr/include/SDL2
+CFLAGS += -I. -Ilib -Ilib/glad/build/include -Ilib/vec/src -Ilib/microtar/src -Ilib/map/src -Ilib/cmixer/src -Ilib/cimgui -Ilib/cimgui/imgui -Ilib/cglm/include -I/usr/include/SDL2
 LDFLAGS = -ldl -lSDL2 -lm -llua
 
-$(TARGET): $(OBJS) $(RES)
-	clang++ $(LDFLAGS) $(OBJS) lib/cimgui/libcimgui.a imgui_sdl.o imgui_opengl3.o -o $(TARGET)
+$(GAME): $(OBJS) $(RES)
+	clang++ $(LDFLAGS) $(OBJS) lib/cimgui/libcimgui.a imgui_sdl.o imgui_opengl3.o -o $(GAME)
 
 cimgui: 
 	make -C lib/cimgui static
@@ -24,11 +25,11 @@ $(RES): res
 %.o: %.c
 	clang $(CFLAGS) $< -o $@
 
-run: $(TARGET)
-	./out
+run: $(GAME)
+	./$(GAME)
 
 format:
-	clang-format -i $(shell find src/ -type f -name '*.[ch]')
+	clang-format -i $(shell find engine/ game/ -type f -name '*.[ch]')
 
 clean:
 	rm -rf $(OBJS) $(TARGET) $(RES) imgui_sdl.o imgui_opengl3.o

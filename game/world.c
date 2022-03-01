@@ -2,14 +2,10 @@
 
 vec_gameobj_t gameobjs;
 vec_collider_t colliders;
-map_t(mesh_t) meshes;
-map_t(unsigned int) textures;
 
 void world_init() {
   vec_init(&gameobjs);
   vec_init(&colliders);
-  map_init(&meshes);
-  map_init(&textures);
 
   JSON_Object* root = json_object(json_parse_string(asset_load("test.json").data));
   JSON_Array* objects = json_object_get_array(root, "gameobjs");
@@ -17,12 +13,6 @@ void world_init() {
     JSON_Object* obj = json_array_get_object(objects, i);
     const char* mesh = json_object_get_string(obj, "mesh");
     const char* tex = json_object_get_string(obj, "tex");
-    if (!map_get(&meshes, mesh)) {
-      map_set(&meshes, mesh, mesh_load_obj(mesh, pos_tex_norm));
-    }
-    if (!map_get(&textures, tex)) {
-      map_set(&textures, tex, tex_load(tex, GL_RGB));
-    }
     JSON_Array* pos = json_object_get_array(obj, "pos");
     JSON_Array* rot = json_object_get_array(obj, "rot");
     JSON_Array* scale = json_object_get_array(obj, "scale");
@@ -47,7 +37,7 @@ void world_render(mat4 view, mat4 projection) {
   int i;
   gameobj_t obj;
   vec_foreach(&gameobjs, obj, i) {
-    tex_use(*map_get(&textures, obj.tex));
+    tex_use(get_tex(obj.tex));
     mat4 model;
     glm_translate_make(model, obj.pos);
     glm_rotate_x(model, glm_rad(obj.rot[0]), model);
@@ -55,7 +45,7 @@ void world_render(mat4 view, mat4 projection) {
     glm_rotate_z(model, glm_rad(obj.rot[2]), model);
     glm_scale(model, obj.scale);
     shader_set_mat4(basic_shader, "model", model);
-    mesh_render(*map_get(&meshes, obj.mesh));
+    mesh_render(get_mesh(obj.mesh, pos_tex_norm));
   }
 
   if (state.debug_drawcolliders) {
@@ -74,7 +64,7 @@ void world_render(mat4 view, mat4 projection) {
       glm_translate_make(model, center);
       glm_scale(model, size);
       shader_set_mat4(debug_shader, "model", model);
-      mesh_render(cube_mesh);
+      mesh_render(get_mesh("mesh/sky.obj", pos));
     }
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
@@ -95,6 +85,6 @@ void world_render_shadows(mat4 view, mat4 projection) {
     glm_rotate_z(model, glm_rad(obj.rot[2]), model);
     glm_scale(model, obj.scale);
     shader_set_mat4(shadow_shader, "model", model);
-    mesh_render(*map_get(&meshes, obj.mesh));
+    mesh_render(get_mesh(obj.mesh, pos_tex_norm));
   }
 }

@@ -4,9 +4,9 @@
 #include <cglm/cglm.h>
 #include <vec.h>
 
-#include "world.h"
-#include "game.h"
-#include "audio.h"
+#include "engine/audio.h"
+#include "game/world.h"
+#include "game/game.h"
 
 extern vec3 player_pos;
 

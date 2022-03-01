@@ -50,7 +50,7 @@ void gbuffer_init(int width, int height) {
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowmap, 0);
 
   shadow_shader = shader_init("shaders/shadow.vert", "shaders/shadow.frag");
-  lighting_shader = shader_init("shaders/pass.vert", "shaders/lighting.frag");
+  lighting_shader = shader_init("shaders/lighting.vert", "shaders/lighting.frag");
   shader_use(lighting_shader);
   shader_set_int(lighting_shader, "gPosition", 0);
   shader_set_int(lighting_shader, "gNormal", 1);
@@ -79,20 +79,19 @@ void gbuffer_resize(int width, int height) {
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
 }
 
-void gbuffer_render_shadows(mat4 light_view, mat4 light_projection) {
-  glm_lookat(state.world_lightdir, (vec3){0, 0, 0}, GLM_YUP, light_view);
+void gbuffer_render_shadows(mat4 light_view, mat4 light_projection, vec3 light_dir) {
+  glm_lookat(light_dir, (vec3){0, 0, 0}, GLM_YUP, light_view);
   glm_ortho(-50, 50, -50, 50, 0.01, 50, light_projection);
   glViewport(0, 0, SHADOW_RES, SHADOW_RES);
   glBindFramebuffer(GL_FRAMEBUFFER, shadowbuffer);
   glClear(GL_DEPTH_BUFFER_BIT);
-  world_render_shadows(light_view, light_projection);
 }
 
-void gbuffer_render(mat4 light_view, mat4 light_projection) {
+void gbuffer_render(mat4 light_view, mat4 light_projection, vec3 light_dir) {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   shader_use(lighting_shader);
-  shader_set_vec3(lighting_shader, "light_dir", state.world_lightdir);
+  shader_set_vec3(lighting_shader, "light_dir", light_dir);
   shader_set_vec3(lighting_shader, "light_color", (vec3){1.0, 1.0, 1.0});
   shader_set_mat4(lighting_shader, "light_view", light_view);
   shader_set_mat4(lighting_shader, "light_projection", light_projection);

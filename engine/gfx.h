@@ -7,13 +7,6 @@
 #include <stb/stb_image.h>
 #include <tinyobj/tinyobj_loader_c.h>
 
-#include "game/game.h"
-#include "game/player.h"
-#include "game/world.h"
-#include "lighting.h"
-#include "ui.h"
-#include "log.h"
-
 typedef struct {
   unsigned int VBO;
   unsigned int VAO;
@@ -26,14 +19,17 @@ typedef enum {
   pos_tex_norm = 8
 } mesh_attr;
 
+#include "lighting.h"
+#include "core.h"
+#include "log.h"
+
 extern SDL_Window* window;
+extern SDL_GLContext ctx;
 extern int frame_delay;
-extern mesh_t cube_mesh;
 extern unsigned int basic_shader;
 extern unsigned int debug_shader;
 
-void window_init(char* title);
-void window_loop();
+void window_init(int width, int height, bool fullscreen, char* title);
 unsigned int shader_init(const char* vert_path, const char* frag_path);
 void shader_set_mat4(unsigned int shader, const char* name, mat4 val);
 void shader_set_vec3(unsigned int shader, const char* name, vec3 val);

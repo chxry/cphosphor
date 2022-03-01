@@ -6,7 +6,7 @@ void audio_callback(void* udata, unsigned char* stream, int size) {
   cm_process((void*)stream, size / 2);
 }
 
-void audio_init() {
+void audio_init(float volume) {
   SDL_AudioSpec fmt, got;
   memset(&fmt, 0, sizeof(fmt));
   fmt.freq = 44100;
@@ -19,7 +19,7 @@ void audio_init() {
   SDL_PauseAudioDevice(dev, 0);
 
   cm_init(got.freq);
-  cm_set_master_gain(conf.volume);
+  cm_set_master_gain(volume);
   log_info("Loaded audio at %iHz on \"%s\".", got.freq, SDL_GetCurrentAudioDriver());
 }
 
