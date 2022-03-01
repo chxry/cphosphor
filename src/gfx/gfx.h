@@ -10,6 +10,7 @@
 #include "game/game.h"
 #include "game/player.h"
 #include "game/world.h"
+#include "lighting.h"
 #include "ui.h"
 #include "log.h"
 
@@ -25,20 +26,14 @@ typedef enum {
   pos_tex_norm = 8
 } mesh_attr;
 
-#define SHADOW_RES 8192
-
 extern SDL_Window* window;
 extern int frame_delay;
 extern mesh_t cube_mesh;
 extern unsigned int basic_shader;
 extern unsigned int debug_shader;
-extern unsigned int shadow_shader;
 
 void window_init(char* title);
 void window_loop();
-void gbuffer_init(int width, int height);
-void gbuffer_resize(int width, int height);
-void gbuffer_render();
 unsigned int shader_init(const char* vert_path, const char* frag_path);
 void shader_set_mat4(unsigned int shader, const char* name, mat4 val);
 void shader_set_vec3(unsigned int shader, const char* name, vec3 val);
