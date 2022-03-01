@@ -41,53 +41,14 @@ void player_processevent(SDL_Event* e) {
 }
 
 bool test_collision(vec3 new_pos) {
-  vec3 player_box[2] = {{new_pos[0] - RADIUS, new_pos[1], new_pos[2] - RADIUS}, {new_pos[0] + RADIUS, new_pos[1] + HEIGHT, new_pos[2] + RADIUS}};
-  bool collides = false;
-  int i;
-  collider_t collider;
-  vec_foreach(&colliders, collider, i) {
-    if ((collides = glm_aabb_aabb(player_box, (vec3*)&collider))) {
-      break;
-    }
-  }
-  if (collides) {
+  collider_t player_box = {{new_pos[0] - RADIUS, new_pos[1], new_pos[2] - RADIUS}, {new_pos[0] + RADIUS, new_pos[1] + HEIGHT, new_pos[2] + RADIUS}};
+  if (world_test_collision(player_box)) {
     glm_vec3_copy(player_pos, new_pos);
+    return true;
   } else {
     glm_vec3_copy(new_pos, player_pos);
+    return false;
   }
-  return collides;
-}
-
-float aabb_raycast(vec3 origin, vec3 dir, collider_t box) {
-  float t[10];
-  t[1] = (box.min[0] - origin[0]) / dir[0];
-  t[2] = (box.max[0] - origin[0]) / dir[0];
-  t[3] = (box.min[1] - origin[1]) / dir[1];
-  t[4] = (box.max[1] - origin[1]) / dir[1];
-  t[5] = (box.min[2] - origin[2]) / dir[2];
-  t[6] = (box.max[2] - origin[2]) / dir[2];
-  t[7] = MAX(MAX(MIN(t[1], t[2]), MIN(t[3], t[4])), MIN(t[5], t[6]));
-  t[8] = MIN(MIN(MAX(t[1], t[2]), MAX(t[3], t[4])), MAX(t[5], t[6]));
-  t[9] = (t[8] < 0 || t[7] > t[8]) ? 0 : t[7];
-  return t[9];
-}
-
-float world_raycast(vec3 origin, vec3 dir) {
-  float closest = 0;
-  int i;
-  collider_t collider;
-  vec_foreach(&colliders, collider, i) {
-    float distance = aabb_raycast(origin, dir, collider);
-    if (distance == 0) {
-      continue;
-    }
-    if (closest == 0) {
-      closest = distance;
-      continue;
-    }
-    closest = distance < closest ? distance : closest;
-  }
-  return closest;
 }
 
 void player_movement(mat4* view) {

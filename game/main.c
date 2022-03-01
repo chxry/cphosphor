@@ -1,12 +1,12 @@
 #include <SDL2/SDL.h>
 #include <cglm/cglm.h>
 
+#include "engine/core.h"
 #include "engine/gfx.h"
 #include "engine/audio.h"
+#include "engine/world.h"
 #include "engine/log.h"
-#include "engine/core.h"
 #include "game.h"
-#include "world.h"
 #include "ui.h"
 #include "player.h"
 
@@ -61,6 +61,9 @@ int main() {
     glBindFramebuffer(GL_FRAMEBUFFER, gbuffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     world_render(view, projection);
+    if(state.debug_drawcolliders){
+      world_render_colliders(view, projection);
+    }
 
     glDepthFunc(GL_LEQUAL);
     shader_use(skybox_shader);

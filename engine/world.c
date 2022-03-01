@@ -1,7 +1,7 @@
 #include "world.h"
 
-vec_gameobj_t gameobjs;
-vec_collider_t colliders;
+vec_t(gameobj_t) gameobjs;
+vec_t(collider_t) colliders;
 
 void world_init() {
   vec_init(&gameobjs);
@@ -47,27 +47,29 @@ void world_render(mat4 view, mat4 projection) {
     shader_set_mat4(basic_shader, "model", model);
     mesh_render(get_mesh(obj.mesh, pos_tex_norm));
   }
+}
 
-  if (state.debug_drawcolliders) {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    shader_use(debug_shader);
-    shader_set_mat4(debug_shader, "view", view);
-    shader_set_mat4(debug_shader, "projection", projection);
-    collider_t collider;
-    vec_foreach(&colliders, collider, i) {
-      mat4 model;
-      vec3 center;
-      vec3 size;
-      glm_vec3_center(collider.min, collider.max, center);
-      glm_vec3_sub(collider.max, collider.min, size);
-      glm_vec3_divs(size, 2, size);
-      glm_translate_make(model, center);
-      glm_scale(model, size);
-      shader_set_mat4(debug_shader, "model", model);
-      mesh_render(get_mesh("mesh/sky.obj", pos));
-    }
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+void world_render_colliders(mat4 view, mat4 projection) {
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  shader_use(debug_shader);
+  shader_set_mat4(debug_shader, "view", view);
+  shader_set_mat4(debug_shader, "projection", projection);
+
+  int i;
+  collider_t collider;
+  vec_foreach(&colliders, collider, i) {
+    mat4 model;
+    vec3 center;
+    vec3 size;
+    glm_vec3_center(collider.min, collider.max, center);
+    glm_vec3_sub(collider.max, collider.min, size);
+    glm_vec3_divs(size, 2, size);
+    glm_translate_make(model, center);
+    glm_scale(model, size);
+    shader_set_mat4(debug_shader, "model", model);
+    mesh_render(get_mesh("mesh/sky.obj", pos));
   }
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void world_render_shadows(mat4 view, mat4 projection) {
@@ -87,4 +89,49 @@ void world_render_shadows(mat4 view, mat4 projection) {
     shader_set_mat4(shadow_shader, "model", model);
     mesh_render(get_mesh(obj.mesh, pos_tex_norm));
   }
+}
+
+bool world_test_collision(collider_t box) {
+  bool collides = false;
+  int i;
+  collider_t collider;
+  vec_foreach(&colliders, collider, i) {
+    if ((collides = glm_aabb_aabb((vec3*)&box, (vec3*)&collider))) {
+      break;
+    }
+  }
+  return collides;
+}
+
+//move
+float aabb_raycast(vec3 origin, vec3 dir, collider_t box) {
+  float t[10];
+  t[1] = (box.min[0] - origin[0]) / dir[0];
+  t[2] = (box.max[0] - origin[0]) / dir[0];
+  t[3] = (box.min[1] - origin[1]) / dir[1];
+  t[4] = (box.max[1] - origin[1]) / dir[1];
+  t[5] = (box.min[2] - origin[2]) / dir[2];
+  t[6] = (box.max[2] - origin[2]) / dir[2];
+  t[7] = MAX(MAX(MIN(t[1], t[2]), MIN(t[3], t[4])), MIN(t[5], t[6]));
+  t[8] = MIN(MIN(MAX(t[1], t[2]), MAX(t[3], t[4])), MAX(t[5], t[6]));
+  t[9] = (t[8] < 0 || t[7] > t[8]) ? 0 : t[7];
+  return t[9];
+}
+
+float world_raycast(vec3 origin, vec3 dir) {
+  float closest = 0;
+  int i;
+  collider_t collider;
+  vec_foreach(&colliders, collider, i) {
+    float distance = aabb_raycast(origin, dir, collider);
+    if (distance == 0) {
+      continue;
+    }
+    if (closest == 0) {
+      closest = distance;
+      continue;
+    }
+    closest = distance < closest ? distance : closest;
+  }
+  return closest;
 }
