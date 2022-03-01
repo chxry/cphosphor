@@ -1,9 +1,9 @@
 #include "player.h"
 
 vec3 player_pos = (vec3){0.0, 3.0, 3.0};
+vec3 vel = (vec3){0.0, 0.0, 0.0};
 vec3 cam_pos;
 vec3 cam_dir;
-float yvel = 0.0;
 float yaw = -90.0;
 float pitch = 0.0;
 bool ground = false;
@@ -97,42 +97,46 @@ void player_movement(mat4* view) {
   glm_vec3_normalize(cam_dir);
 
   const unsigned char* keys = SDL_GetKeyboardState(NULL);
-  vec3 new_pos;
-  glm_vec3_copy(player_pos, new_pos);
   if (SDL_GetRelativeMouseMode()) {
     if (keys[conf.binds[KEYBIND_FORWARD]]) {
-      new_pos[0] += state.player_speed * cos(glm_rad(yaw));
-      new_pos[2] += state.player_speed * sin(glm_rad(yaw));
-      test_collision(new_pos);
+      vel[0] += state.player_speed * cos(glm_rad(yaw));
+      vel[2] += state.player_speed * sin(glm_rad(yaw));
     }
     if (keys[conf.binds[KEYBIND_BACK]]) {
-      new_pos[0] -= state.player_speed * cos(glm_rad(yaw));
-      new_pos[2] -= state.player_speed * sin(glm_rad(yaw));
-      test_collision(new_pos);
+      vel[0] -= state.player_speed * cos(glm_rad(yaw));
+      vel[2] -= state.player_speed * sin(glm_rad(yaw));
     }
     if (keys[conf.binds[KEYBIND_LEFT]]) {
-      new_pos[0] -= state.player_speed * cos(glm_rad(90 + yaw));
-      new_pos[2] -= state.player_speed * sin(glm_rad(90 + yaw));
-      test_collision(new_pos);
+      vel[0] -= state.player_speed * cos(glm_rad(90 + yaw));
+      vel[2] -= state.player_speed * sin(glm_rad(90 + yaw));
     }
     if (keys[conf.binds[KEYBIND_RIGHT]]) {
-      new_pos[0] += state.player_speed * cos(glm_rad(90 + yaw));
-      new_pos[2] += state.player_speed * sin(glm_rad(90 + yaw));
-      test_collision(new_pos);
+      vel[0] += state.player_speed * cos(glm_rad(90 + yaw));
+      vel[2] += state.player_speed * sin(glm_rad(90 + yaw));
     }
     if (keys[conf.binds[KEYBIND_JUMP]] && ground) {
-      yvel = state.player_jumpheight;
+      vel[1] = state.player_jumpheight;
       ground = false;
     }
   }
-  yvel -= state.world_gravity;
-  new_pos[1] += yvel;
+  vel[1] -= state.world_gravity;
+  vec3 new_pos;
+  glm_vec3_copy(player_pos, new_pos);
+  new_pos[0] += vel[0];
+  test_collision(new_pos);
+
+  new_pos[1] += vel[1];
   if (test_collision(new_pos)) {
-    if (!ground && (ground = yvel < 0)) {
+    if (!ground && (ground = vel[1] < 0)) {
       audio_play("audio/fall.wav");
     }
-    yvel = 0.0;
+    vel[1] = 0.0;
   }
+
+  new_pos[2] += vel[2];
+  test_collision(new_pos);
+  vel[0] *= 0.9;
+  vel[2] *= 0.9;
 
   glm_vec3_add(player_pos, (vec3){0.0, HEIGHT, 0.0}, cam_pos);
   glm_look(cam_pos, cam_dir, GLM_YUP, *view);
