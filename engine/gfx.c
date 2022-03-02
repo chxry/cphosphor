@@ -165,6 +165,8 @@ unsigned int tex_load(const char* path, int mode) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, mode, GL_UNSIGNED_BYTE, data);
   } else {
     log_error("Failed to load texture \"%s\".", path);
+    glDeleteTextures(1,&tex);
+    tex = 0;
   }
   stbi_image_free(data);
   return tex;

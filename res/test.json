@@ -9,7 +9,7 @@
     },
     {
       "mesh": "mesh/bush.obj",
-      "tex": "tex/buslolh.jpg",
+      "tex": "tex/bush.jpg",
       "pos": [0,0,0],
       "rot": [0,0,0],
       "scale": [1,1,1]
