@@ -46,6 +46,9 @@ unsigned int get_tex(const char* path) {
     return *tex;
   } else {
     unsigned int tex = tex_load(path, GL_RGB);
+    if (tex) {
+      tex = get_tex("tex/missing.png");
+    }
     map_set(&textures, path, tex);
     return tex;
   }
