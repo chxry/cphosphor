@@ -103,7 +103,7 @@ bool world_test_collision(collider_t box) {
   return collides;
 }
 
-//move
+// move
 float aabb_raycast(vec3 origin, vec3 dir, collider_t box) {
   float t[10];
   t[1] = (box.min[0] - origin[0]) / dir[0];

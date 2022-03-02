@@ -15,15 +15,13 @@ int main() {
   conf_init("conf.json");
   assets_init("res.tar");
   lua_init();
+  state_bind();
   window_init(conf.width, conf.height, conf.fullscreen, "flop");
   ui_init(window, &ctx);
   audio_init(conf.volume);
   world_init();
 
   unsigned int skybox_tex = tex_load_cubemap((char* [6]){"tex/sky/right.jpg", "tex/sky/left.jpg", "tex/sky/top.jpg", "tex/sky/bottom.jpg", "tex/sky/front.jpg", "tex/sky/back.jpg"}, GL_RGB);
-  unsigned int skybox_shader = shader_init("shaders/skybox.vert", "shaders/skybox.frag");
-  basic_shader = shader_init("shaders/basic.vert", "shaders/basic.frag");
-  debug_shader = shader_init("shaders/debug.vert", "shaders/debug.frag");
 
   bool quit = false;
   frame_delay = 1000 / conf.fps;
@@ -61,7 +59,7 @@ int main() {
     glBindFramebuffer(GL_FRAMEBUFFER, gbuffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     world_render(view, projection);
-    if(state.debug_drawcolliders){
+    if (state.debug_drawcolliders) {
       world_render_colliders(view, projection);
     }
 

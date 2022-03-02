@@ -28,6 +28,7 @@ extern SDL_GLContext ctx;
 extern int frame_delay;
 extern unsigned int basic_shader;
 extern unsigned int debug_shader;
+extern unsigned int skybox_shader;
 
 void window_init(int width, int height, bool fullscreen, char* title);
 unsigned int shader_init(const char* vert_path, const char* frag_path);

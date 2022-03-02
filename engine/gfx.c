@@ -5,6 +5,7 @@ SDL_GLContext ctx;
 int frame_delay;
 unsigned int basic_shader;
 unsigned int debug_shader;
+unsigned int skybox_shader;
 
 void window_init(int width, int height, bool fullscreen, char* title) {
   if (SDL_Init(SDL_INIT_EVERYTHING)) {
@@ -23,6 +24,9 @@ void window_init(int width, int height, bool fullscreen, char* title) {
   glLineWidth(2.0);
 
   gbuffer_init(width, height);
+  basic_shader = shader_init("shaders/basic.vert", "shaders/basic.frag");
+  debug_shader = shader_init("shaders/debug.vert", "shaders/debug.frag");
+  skybox_shader = shader_init("shaders/skybox.vert", "shaders/skybox.frag");
   log_info("Loaded OpenGL %i.%i on \"%s\".", GLAD_VERSION_MAJOR(gl), GLAD_VERSION_MINOR(gl), glGetString(GL_RENDERER));
 }
 
