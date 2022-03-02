@@ -7,7 +7,7 @@ vec3 cam_dir;
 float yaw = -90.0;
 float pitch = 0.0;
 bool ground = false;
-const float HEIGHT = 1.6;
+float height = 1.6;
 const float RADIUS = 0.4;
 
 void player_processevent(SDL_Event* e) {
@@ -41,7 +41,7 @@ void player_processevent(SDL_Event* e) {
 }
 
 bool test_collision(vec3 new_pos) {
-  collider_t player_box = {{new_pos[0] - RADIUS, new_pos[1], new_pos[2] - RADIUS}, {new_pos[0] + RADIUS, new_pos[1] + HEIGHT, new_pos[2] + RADIUS}};
+  collider_t player_box = {{new_pos[0] - RADIUS, new_pos[1], new_pos[2] - RADIUS}, {new_pos[0] + RADIUS, new_pos[1] + height, new_pos[2] + RADIUS}};
   if (world_test_collision(player_box)) {
     glm_vec3_copy(player_pos, new_pos);
     return true;
@@ -58,26 +58,35 @@ void player_movement(mat4* view) {
   glm_vec3_normalize(cam_dir);
 
   const unsigned char* keys = SDL_GetKeyboardState(NULL);
+  float speed = state.player_speed;
   if (SDL_GetRelativeMouseMode()) {
+    if (keys[conf.binds[KEYBIND_SPRINT]]) {
+      speed *= 1.5;
+    }
     if (keys[conf.binds[KEYBIND_FORWARD]]) {
-      vel[0] += state.player_speed * cos(glm_rad(yaw));
-      vel[2] += state.player_speed * sin(glm_rad(yaw));
+      vel[0] += speed * cos(glm_rad(yaw));
+      vel[2] += speed * sin(glm_rad(yaw));
     }
     if (keys[conf.binds[KEYBIND_BACK]]) {
-      vel[0] -= state.player_speed * cos(glm_rad(yaw));
-      vel[2] -= state.player_speed * sin(glm_rad(yaw));
+      vel[0] -= speed * cos(glm_rad(yaw));
+      vel[2] -= speed * sin(glm_rad(yaw));
     }
     if (keys[conf.binds[KEYBIND_LEFT]]) {
-      vel[0] -= state.player_speed * cos(glm_rad(90 + yaw));
-      vel[2] -= state.player_speed * sin(glm_rad(90 + yaw));
+      vel[0] -= speed * cos(glm_rad(90 + yaw));
+      vel[2] -= speed * sin(glm_rad(90 + yaw));
     }
     if (keys[conf.binds[KEYBIND_RIGHT]]) {
-      vel[0] += state.player_speed * cos(glm_rad(90 + yaw));
-      vel[2] += state.player_speed * sin(glm_rad(90 + yaw));
+      vel[0] += speed * cos(glm_rad(90 + yaw));
+      vel[2] += speed * sin(glm_rad(90 + yaw));
     }
     if (keys[conf.binds[KEYBIND_JUMP]] && ground) {
       vel[1] = state.player_jumpheight;
       ground = false;
+    }
+    if (keys[conf.binds[KEYBIND_CROUCH]]) {
+      height = glm_lerp(height, 0.8, 0.25);
+    } else {
+      height = glm_lerp(height, 1.6, 0.25);
     }
   }
   vel[1] -= state.world_gravity;
@@ -99,6 +108,6 @@ void player_movement(mat4* view) {
   vel[0] *= 0.9;
   vel[2] *= 0.9;
 
-  glm_vec3_add(player_pos, (vec3){0.0, HEIGHT, 0.0}, cam_pos);
+  glm_vec3_add(player_pos, (vec3){0.0, height, 0.0}, cam_pos);
   glm_look(cam_pos, cam_dir, GLM_YUP, *view);
 }

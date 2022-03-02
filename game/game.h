@@ -13,10 +13,12 @@
 #define KEYBIND_LEFT 2
 #define KEYBIND_RIGHT 3
 #define KEYBIND_JUMP 4
-#define KEYBIND_MENU 5
-#define KEYBIND_CONSOLE 6
-#define KEYBIND_DEBUG 7
-#define KEYBINDS 8
+#define KEYBIND_CROUCH 5
+#define KEYBIND_SPRINT 6
+#define KEYBIND_MENU 7
+#define KEYBIND_CONSOLE 8
+#define KEYBIND_DEBUG 9
+#define KEYBINDS 10
 
 typedef struct {
   int width;

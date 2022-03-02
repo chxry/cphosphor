@@ -8,8 +8,8 @@ state_t state = {
     .player_jumpheight = 0.1,
     .debug_drawcolliders = false};
 
-const char* keybind_names[KEYBINDS] = {"forward", "back", "left", "right", "jump", "menu", "console", "debug"};
-const char* keybind_names_h[KEYBINDS] = {"Move Forward", "Move Backward", "Move Left", "Move Right", "Jump", "Open Menu", "Open console", "Show debug info"};
+const char* keybind_names[KEYBINDS] = {"forward", "back", "left", "right", "jump", "crouch", "sprint", "menu", "console", "debug"};
+const char* keybind_names_h[KEYBINDS] = {"Move Forward", "Move Backward", "Move Left", "Move Right", "Jump", "Crouch", "Sprint", "Open Menu", "Open console", "Show debug info"};
 
 void state_bind() {
   lua_bind(&state.world_gravity, "world_gravity");
