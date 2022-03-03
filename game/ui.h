@@ -15,4 +15,4 @@
 
 void ui_init();
 void ui_processevent(SDL_Event* e);
-void ui_render(SDL_Window* window);
+void ui_render();

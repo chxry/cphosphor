@@ -39,7 +39,7 @@ editor: $(EDITOR)
 	./$(EDITOR)
 
 format:
-	clang-format -i $(shell find engine/ game/ -type f -name '*.[ch]')
+	clang-format -i $(shell find engine/ game/ editor/ -type f -name '*.[ch]')
 
 clean:
 	rm -rf $(OBJS) $(GAMEOBJS) $(EDITOROBJS) $(GAME) $(EDITOR) $(RES) imgui_sdl.o imgui_opengl3.o

@@ -17,7 +17,6 @@ void window_init(int width, int height, bool fullscreen, char* title) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
   window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (fullscreen ? SDL_WINDOW_FULLSCREEN : 0));
   ctx = SDL_GL_CreateContext(window);
-  SDL_SetRelativeMouseMode(true);
 
   int gl = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
   glEnable(GL_DEPTH_TEST);
@@ -211,4 +210,18 @@ unsigned int tex_load_cubemap(char** faces, int mode) {
 void tex_use_cubemap(unsigned int tex) {
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, tex);
+}
+
+void skybox_render(mat4 view, mat4 projection, unsigned int tex) {
+  glDepthFunc(GL_LEQUAL);
+  shader_use(skybox_shader);
+  tex_use_cubemap(tex);
+  mat4 skybox_view = GLM_MAT4_ZERO;
+  mat3 view3;
+  glm_mat4_pick3(view, view3);
+  glm_mat4_ins3(view3, skybox_view);
+  shader_set_mat4(skybox_shader, "view", skybox_view);
+  shader_set_mat4(skybox_shader, "projection", projection);
+  mesh_render(get_mesh("mesh/sky.obj", pos));
+  glDepthFunc(GL_LESS);
 }

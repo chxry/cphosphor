@@ -24,7 +24,7 @@ void console_exec() {
   }
 }
 
-void ui_init(SDL_Window* window, SDL_GLContext* ctx) {
+void ui_init() {
   igCreateContext(NULL);
   ImGuiIO* io = igGetIO();
   io->IniFilename = NULL;
@@ -60,7 +60,7 @@ void ui_processevent(SDL_Event* e) {
   }
 }
 
-void ui_render(SDL_Window* window) {
+void ui_render() {
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplSDL2_NewFrame(window);
   igNewFrame();

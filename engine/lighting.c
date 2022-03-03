@@ -88,7 +88,6 @@ void gbuffer_render_shadows(mat4 light_view, mat4 light_projection, vec3 light_d
 }
 
 void gbuffer_render(mat4 light_view, mat4 light_projection, vec3 light_dir) {
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   shader_use(lighting_shader);
   shader_set_vec3(lighting_shader, "light_dir", light_dir);

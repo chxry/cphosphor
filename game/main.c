@@ -17,7 +17,7 @@ int main() {
   lua_init();
   state_bind();
   window_init(conf.width, conf.height, conf.fullscreen, "flop");
-  ui_init(window, &ctx);
+  ui_init();
   audio_init(conf.volume);
   world_init();
 
@@ -31,7 +31,6 @@ int main() {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
       switch (e.type) {
-
       case SDL_WINDOWEVENT:
         if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
           gbuffer_resize(e.window.data1, e.window.data2);
@@ -55,28 +54,18 @@ int main() {
     player_movement(&view);
     glm_perspective(glm_rad(conf.fov), (float)conf.width / (float)conf.height, 0.1, 100.0, projection);
     glViewport(0, 0, conf.width, conf.height);
-    glClearColor(0, 0, 0, 1);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
     glBindFramebuffer(GL_FRAMEBUFFER, gbuffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     world_render(view, projection);
     if (state.debug_drawcolliders) {
       world_render_colliders(view, projection);
     }
+    skybox_render(view, projection, skybox_tex);
 
-    glDepthFunc(GL_LEQUAL);
-    shader_use(skybox_shader);
-    tex_use_cubemap(skybox_tex);
-    mat4 skybox_view = GLM_MAT4_ZERO;
-    mat3 view3;
-    glm_mat4_pick3(view, view3);
-    glm_mat4_ins3(view3, skybox_view);
-    shader_set_mat4(skybox_shader, "view", skybox_view);
-    shader_set_mat4(skybox_shader, "projection", projection);
-    mesh_render(get_mesh("mesh/sky.obj", pos));
-    glDepthFunc(GL_LESS);
-
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     gbuffer_render(light_view, light_projection, state.world_lightdir);
-    ui_render(window);
+    ui_render();
     SDL_GL_SwapWindow(window);
     int frame_time = SDL_GetTicks() - frame_start;
     if (frame_delay > frame_time) {
