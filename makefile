@@ -9,7 +9,7 @@ EDITOROBJS += $(EDITORSRC:.c=.o)
 RES = res.tar
 
 CFLAGS = -Wall -O2 -DIMGUI_IMPL_API="extern \"C\"" -c
-CFLAGS += -I. -Ilib -Ilib/glad/build/include -Ilib/vec/src -Ilib/microtar/src -Ilib/map/src -Ilib/cmixer/src -Ilib/cimgui -Ilib/cimgui/imgui -Ilib/cglm/include -I/usr/include/SDL2
+CFLAGS += -I. -Iengine -Igame -Ieditor -Ilib -Ilib/glad/build/include -Ilib/vec/src -Ilib/microtar/src -Ilib/map/src -Ilib/cmixer/src -Ilib/cimgui -Ilib/cimgui/imgui -Ilib/cglm/include -I/usr/include/SDL2
 LDFLAGS = -ldl -lSDL2 -lm -llua
 
 $(GAME): $(OBJS) $(GAMEOBJS) $(RES)

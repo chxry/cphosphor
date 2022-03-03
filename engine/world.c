@@ -1,22 +1,23 @@
 #include "world.h"
 
-vec_t(gameobj_t) gameobjs;
-vec_t(collider_t) colliders;
+vec_gameobj_t gameobjs;
+vec_collider_t colliders;
 
-void world_init() {
+void world_load(const char* path) {
   vec_init(&gameobjs);
   vec_init(&colliders);
 
-  JSON_Object* root = json_object(json_parse_string(asset_load("test.json").data));
+  JSON_Object* root = json_object(json_parse_string(asset_load(path).data));
   JSON_Array* objects = json_object_get_array(root, "gameobjs");
   for (int i = 0; i < json_array_get_count(objects); i++) {
     JSON_Object* obj = json_array_get_object(objects, i);
-    const char* mesh = json_object_get_string(obj, "mesh");
-    const char* tex = json_object_get_string(obj, "tex");
+    const char* name = json_object_get_string(obj, "name");
     JSON_Array* pos = json_object_get_array(obj, "pos");
     JSON_Array* rot = json_object_get_array(obj, "rot");
     JSON_Array* scale = json_object_get_array(obj, "scale");
-    gameobj_t gameobj = {.mesh = mesh, .tex = tex, .pos = VEC3_FROM_JSON(pos), .rot = VEC3_FROM_JSON(rot), .scale = VEC3_FROM_JSON(scale)};
+    const char* mesh = json_object_get_string(obj, "mesh");
+    const char* tex = json_object_get_string(obj, "tex");
+    gameobj_t gameobj = {.name = name, .mesh = mesh, .tex = tex, .pos = VEC3_FROM_JSON(pos), .rot = VEC3_FROM_JSON(rot), .scale = VEC3_FROM_JSON(scale)};
     vec_push(&gameobjs, gameobj);
   }
   JSON_Array* acolliders = json_object_get_array(root, "colliders");

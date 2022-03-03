@@ -1,6 +1,7 @@
 {
   "gameobjs": [
     {
+      "name": "floor",
       "mesh": "mesh/floor.obj",
       "tex": "tex/grass.jpg",
       "pos": [0,0,0],
@@ -8,6 +9,7 @@
       "scale": [1,1,1]
     },
     {
+      "name": "bushes",
       "mesh": "mesh/bush.obj",
       "tex": "tex/bush.jpg",
       "pos": [0,0,0],
@@ -15,6 +17,7 @@
       "scale": [1,1,1]
     },  
     {
+      "name": "teapot",
       "mesh": "mesh/teapot.obj",
       "tex": "tex/flop.jpg",
       "pos": [14,5,-5],
@@ -22,6 +25,7 @@
       "scale": [0.5,0.5,0.5]
     },  
     {
+      "name": "cube",
       "mesh": "mesh/cube.obj",
       "tex": "tex/block.jpg",
       "pos": [5,1,4],
@@ -29,6 +33,7 @@
       "scale": [1.0,1.0,1.0]
     },    
     {
+      "name": "cube2",
       "mesh": "mesh/cube.obj",
       "tex": "tex/block.jpg",
       "pos": [2,0,4],
@@ -36,6 +41,7 @@
       "scale": [1.0,1.0,1.0]
     },    
     {
+      "name": "cube3",
       "mesh": "mesh/cube.obj",
       "tex": "tex/block.jpg",
       "pos": [8,2.3,2.5],
@@ -43,6 +49,7 @@
       "scale": [1.0,0.5,1.0]
     },    
     {
+      "name": "cube3",
       "mesh": "mesh/cube.obj",
       "tex": "tex/block.jpg",
       "pos": [12,3.1,0.2],
@@ -50,6 +57,7 @@
       "scale": [1.0,0.5,1.0]
     },
     {
+      "name": "cube4",
       "mesh": "mesh/cube.obj",
       "tex": "tex/block.jpg",
       "pos": [14,4.2,-2],
