@@ -18,7 +18,7 @@ void state_bind() {
   lua_bind(&state.debug_drawcolliders, "debug_drawcolliders");
 }
 
-void conf_init(const char* path) {
+void conf_load(const char* path) {
   JSON_Object* root = json_object(json_parse_file("conf.json"));
   JSON_Array* res = json_object_dotget_array(root, "gfx.res");
   conf.width = json_array_get_number(res, 0);
@@ -44,8 +44,8 @@ void conf_write(const char* path) {
   JSON_Object* root = json_object(rootv);
   JSON_Value* resv = json_value_init_array();
   JSON_Array* res = json_array(resv);
-  json_array_append_value(res, json_value_init_number(conf.width));
-  json_array_append_value(res, json_value_init_number(conf.height));
+  json_array_append_number(res, conf.width);
+  json_array_append_number(res, conf.height);
   json_object_dotset_value(root, "gfx.res", resv);
   json_object_dotset_boolean(root, "gfx.fullscreen", conf.fullscreen);
   json_object_dotset_number(root, "gfx.fps", conf.fps);
@@ -60,6 +60,6 @@ void conf_write(const char* path) {
   json_object_dotset_number(root, "crosshair.thickness", conf.crosshair_thickness);
   json_object_dotset_number(root, "crosshair.color", conf.crosshair_color);
 
-  json_serialize_to_file_pretty(rootv, "conf.json");
+  json_serialize_to_file_pretty(rootv, path);
   log_info("Wrote config \"%s\".", path);
 }

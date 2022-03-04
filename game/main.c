@@ -12,7 +12,7 @@
 
 int main() {
   log_init();
-  conf_init("conf.json");
+  conf_load("conf.json");
   assets_init("res.tar");
   lua_init();
   state_bind();

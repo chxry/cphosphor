@@ -11,16 +11,16 @@
     "input": {
         "sens": 0.10000000149011612,
         "keys": {
-          "forward": "W",
-          "back": "S",
-          "left": "A",
-          "right": "D",
-          "jump": "Space",
-          "crouch": "Left Ctrl",
-          "sprint": "Left Shift",
-          "menu": "Escape",
-          "console": "`",
-          "debug": "F3"
+            "forward": "W",
+            "back": "S",
+            "left": "A",
+            "right": "D",
+            "jump": "Space",
+            "crouch": "Left Ctrl",
+            "sprint": "Left Shift",
+            "menu": "Escape",
+            "console": "`",
+            "debug": "F3"
         }
     },
     "audio": {

@@ -55,10 +55,15 @@ int main() {
     igSetNextWindowSize(viewport->WorkSize, ImGuiCond_Always);
     igSetNextWindowViewport(viewport->ID);
     igPushStyleVar_Vec2(ImGuiStyleVar_WindowPadding, (ImVec2){0, 0});
+    igPushStyleVar_Float(ImGuiStyleVar_WindowRounding, 0.0);
+    igPushStyleVar_Float(ImGuiStyleVar_WindowBorderSize, 0.0);
     igBegin("##", NULL, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus);
-    igPopStyleVar(1);
+    igPopStyleVar(3);
     if (igBeginMenuBar()) {
-      if (igBeginMenu("File", false)) {
+      if (igBeginMenu("File", true)) {
+        if (igMenuItem_BoolPtr("Save", NULL, NULL, true)) {
+          world_write("test.json");
+        }
         igEndMenu();
       }
       if (igBeginMenu("Windows", true)) {

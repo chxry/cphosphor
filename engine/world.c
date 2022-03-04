@@ -1,14 +1,11 @@
 #include "world.h"
 
-vec_gameobj_t gameobjs;
-vec_collider_t colliders;
+vec_entity_t entities;
 
 void world_load(const char* path) {
-  vec_init(&gameobjs);
-  vec_init(&colliders);
+  vec_init(&entities);
 
-  JSON_Object* root = json_object(json_parse_string(asset_load(path).data));
-  JSON_Array* objects = json_object_get_array(root, "gameobjs");
+  JSON_Array* objects = json_array(json_parse_string(asset_load(path).data));
   for (int i = 0; i < json_array_get_count(objects); i++) {
     JSON_Object* obj = json_array_get_object(objects, i);
     const char* name = json_object_get_string(obj, "name");
@@ -17,17 +14,63 @@ void world_load(const char* path) {
     JSON_Array* scale = json_object_get_array(obj, "scale");
     const char* mesh = json_object_get_string(obj, "mesh");
     const char* tex = json_object_get_string(obj, "tex");
-    gameobj_t gameobj = {.name = name, .mesh = mesh, .tex = tex, .pos = VEC3_FROM_JSON(pos), .rot = VEC3_FROM_JSON(rot), .scale = VEC3_FROM_JSON(scale)};
-    vec_push(&gameobjs, gameobj);
+    JSON_Array* acolliders = json_object_get_array(obj, "colliders");
+    vec_collider_t colliders;
+    vec_init(&colliders);
+    for (int i = 0; i < json_array_get_count(acolliders); i++) {
+      JSON_Object* colobj = json_array_get_object(acolliders, i);
+      JSON_Array* min = json_object_get_array(colobj, "min");
+      JSON_Array* max = json_object_get_array(colobj, "max");
+      collider_t collider = {.min = VEC3_FROM_JSON(min), .max = VEC3_FROM_JSON(max)};
+      vec_push(&colliders, collider);
+    }
+    entity_t entity = {.name = name, .mesh = mesh, .tex = tex, .pos = VEC3_FROM_JSON(pos), .rot = VEC3_FROM_JSON(rot), .scale = VEC3_FROM_JSON(scale), .colliders = colliders};
+    vec_push(&entities, entity);
   }
-  JSON_Array* acolliders = json_object_get_array(root, "colliders");
-  for (int i = 0; i < json_array_get_count(acolliders); i++) {
-    JSON_Object* obj = json_array_get_object(acolliders, i);
-    JSON_Array* min = json_object_get_array(obj, "min");
-    JSON_Array* max = json_object_get_array(obj, "max");
-    collider_t collider = {.min = VEC3_FROM_JSON(min), .max = VEC3_FROM_JSON(max)};
-    vec_push(&colliders, collider);
+  log_info("Loaded world \"%s\".", path);
+}
+
+// move
+JSON_Value* json_vec3(vec3 vec) {
+  JSON_Value* arrv = json_value_init_array();
+  JSON_Array* arr = json_array(arrv);
+  json_array_append_number(arr, vec[0]);
+  json_array_append_number(arr, vec[1]);
+  json_array_append_number(arr, vec[2]);
+  return arrv;
+}
+
+void world_write(const char* path) {
+  JSON_Value* rootv = json_value_init_array();
+  JSON_Array* objects = json_array(rootv);
+
+  int i, j;
+  entity_t entity;
+  collider_t collider;
+  vec_foreach(&entities, entity, i) {
+    JSON_Value* objv = json_value_init_object();
+    JSON_Object* obj = json_object(objv);
+    json_object_set_string(obj, "name", entity.name);
+    json_object_set_string(obj, "mesh", entity.mesh);
+    json_object_set_string(obj, "tex", entity.tex);
+    json_object_set_value(obj, "pos", json_vec3(entity.pos));
+    json_object_set_value(obj, "rot", json_vec3(entity.rot));
+    json_object_set_value(obj, "scale", json_vec3(entity.scale));
+    JSON_Value* colsv = json_value_init_array();
+    JSON_Array* cols = json_array(colsv);
+    vec_foreach(&entity.colliders, collider, j) {
+      JSON_Value* colobjv = json_value_init_object();
+      JSON_Object* colobj = json_object(colobjv);
+      json_object_set_value(colobj, "min", json_vec3(collider.min));
+      json_object_set_value(colobj, "max", json_vec3(collider.max));
+      json_array_append_value(cols, colobjv);
+    }
+    json_object_set_value(obj, "colliders", colsv);
+    json_array_append_value(objects, objv);
   }
+
+  json_serialize_to_file(rootv, path);
+  log_info("Wrote world \"%s\".", path);
 }
 
 void world_render(mat4 view, mat4 projection) {
@@ -36,17 +79,17 @@ void world_render(mat4 view, mat4 projection) {
   shader_set_mat4(basic_shader, "projection", projection);
 
   int i;
-  gameobj_t obj;
-  vec_foreach(&gameobjs, obj, i) {
-    tex_use(get_tex(obj.tex));
+  entity_t entity;
+  vec_foreach(&entities, entity, i) {
+    tex_use(get_tex(entity.tex));
     mat4 model;
-    glm_translate_make(model, obj.pos);
-    glm_rotate_x(model, glm_rad(obj.rot[0]), model);
-    glm_rotate_y(model, glm_rad(obj.rot[1]), model);
-    glm_rotate_z(model, glm_rad(obj.rot[2]), model);
-    glm_scale(model, obj.scale);
+    glm_translate_make(model, entity.pos);
+    glm_rotate_x(model, glm_rad(entity.rot[0]), model);
+    glm_rotate_y(model, glm_rad(entity.rot[1]), model);
+    glm_rotate_z(model, glm_rad(entity.rot[2]), model);
+    glm_scale(model, entity.scale);
     shader_set_mat4(basic_shader, "model", model);
-    mesh_render(get_mesh(obj.mesh, pos_tex_norm));
+    mesh_render(get_mesh(entity.mesh, pos_tex_norm));
   }
 }
 
@@ -56,19 +99,22 @@ void world_render_colliders(mat4 view, mat4 projection) {
   shader_set_mat4(debug_shader, "view", view);
   shader_set_mat4(debug_shader, "projection", projection);
 
-  int i;
+  mat4 model;
+  vec3 center;
+  vec3 size;
+  int i, j;
+  entity_t entity;
   collider_t collider;
-  vec_foreach(&colliders, collider, i) {
-    mat4 model;
-    vec3 center;
-    vec3 size;
-    glm_vec3_center(collider.min, collider.max, center);
-    glm_vec3_sub(collider.max, collider.min, size);
-    glm_vec3_divs(size, 2, size);
-    glm_translate_make(model, center);
-    glm_scale(model, size);
-    shader_set_mat4(debug_shader, "model", model);
-    mesh_render(get_mesh("mesh/sky.obj", pos));
+  vec_foreach(&entities, entity, i) {
+    vec_foreach(&entity.colliders, collider, j) {
+      glm_vec3_center(collider.min, collider.max, center);
+      glm_vec3_sub(collider.max, collider.min, size);
+      glm_vec3_divs(size, 2, size);
+      glm_translate_make(model, center);
+      glm_scale(model, size);
+      shader_set_mat4(debug_shader, "model", model);
+      mesh_render(get_mesh("mesh/sky.obj", pos));
+    }
   }
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
@@ -79,28 +125,32 @@ void world_render_shadows(mat4 view, mat4 projection) {
   shader_set_mat4(shadow_shader, "projection", projection);
 
   int i;
-  gameobj_t obj;
-  vec_foreach(&gameobjs, obj, i) {
+  entity_t entity;
+  vec_foreach(&entities, entity, i) {
     mat4 model;
-    glm_translate_make(model, obj.pos);
-    glm_rotate_x(model, glm_rad(obj.rot[0]), model);
-    glm_rotate_y(model, glm_rad(obj.rot[1]), model);
-    glm_rotate_z(model, glm_rad(obj.rot[2]), model);
-    glm_scale(model, obj.scale);
+    glm_translate_make(model, entity.pos);
+    glm_rotate_x(model, glm_rad(entity.rot[0]), model);
+    glm_rotate_y(model, glm_rad(entity.rot[1]), model);
+    glm_rotate_z(model, glm_rad(entity.rot[2]), model);
+    glm_scale(model, entity.scale);
     shader_set_mat4(shadow_shader, "model", model);
-    mesh_render(get_mesh(obj.mesh, pos_tex_norm));
+    mesh_render(get_mesh(entity.mesh, pos_tex_norm));
   }
 }
 
 bool world_test_collision(collider_t box) {
   bool collides = false;
-  int i;
+  int i, j;
+  entity_t entity;
   collider_t collider;
-  vec_foreach(&colliders, collider, i) {
-    if ((collides = glm_aabb_aabb((vec3*)&box, (vec3*)&collider))) {
-      break;
+  vec_foreach(&entities, entity, i) {
+    vec_foreach(&entity.colliders, collider, j) {
+      if ((collides = glm_aabb_aabb((vec3*)&box, (vec3*)&collider))) {
+        goto br;
+      }
     }
   }
+br:
   return collides;
 }
 
@@ -121,18 +171,22 @@ float aabb_raycast(vec3 origin, vec3 dir, collider_t box) {
 
 float world_raycast(vec3 origin, vec3 dir) {
   float closest = 0;
-  int i;
+  int i, j;
+  entity_t entity;
   collider_t collider;
-  vec_foreach(&colliders, collider, i) {
-    float distance = aabb_raycast(origin, dir, collider);
-    if (distance == 0) {
-      continue;
+  vec_foreach(&entities, entity, i) {
+    vec_foreach(&entity.colliders, collider, j) {
+      float distance = aabb_raycast(origin, dir, collider);
+      if (distance == 0) {
+        continue;
+      }
+      if (closest == 0) {
+        closest = distance;
+        continue;
+      }
+      closest = distance < closest ? distance : closest;
     }
-    if (closest == 0) {
-      closest = distance;
-      continue;
-    }
-    closest = distance < closest ? distance : closest;
   }
+
   return closest;
 }

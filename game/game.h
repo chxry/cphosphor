@@ -47,5 +47,5 @@ extern state_t state;
 extern const char* keybind_names_h[KEYBINDS];
 
 void state_bind();
-void conf_init(const char* path);
+void conf_load(const char* path);
 void conf_write(const char* path);

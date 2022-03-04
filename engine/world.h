@@ -7,16 +7,7 @@
 #include "core.h"
 #include "gfx.h"
 #include "lighting.h"
-
-typedef struct {
-  const char* name;
-  vec3 pos;
-  vec3 rot;
-  vec3 scale;
-  const char* mesh;
-  const char* tex;
-} gameobj_t;
-typedef vec_t(gameobj_t) vec_gameobj_t;
+#include "log.h"
 
 typedef struct {
   vec3 min;
@@ -24,13 +15,23 @@ typedef struct {
 } collider_t;
 typedef vec_t(collider_t) vec_collider_t;
 
+typedef struct {
+  const char* name;
+  vec3 pos;
+  vec3 rot;
+  vec3 scale;
+  vec_collider_t colliders;
+  const char* mesh;
+  const char* tex;
+} entity_t;
+typedef vec_t(entity_t) vec_entity_t;
+
 #define VEC3_FROM_JSON(v) \
   { json_array_get_number(v, 0), json_array_get_number(v, 1), json_array_get_number(v, 2) }
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-extern vec_gameobj_t gameobjs;
-extern vec_collider_t colliders;
+extern vec_entity_t entities;
 
 void world_load(const char* path);
 void world_render(mat4 view, mat4 projection);
