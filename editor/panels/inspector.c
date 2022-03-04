@@ -1,10 +1,7 @@
 #include "inspector.h"
 
-bool inspector = true;
-
 void inspector_render() {
   if (inspector) {
-    igSetNextWindowSize((ImVec2){320, 540}, ImGuiCond_Once);
     if (igBegin("Inspector", &inspector, ImGuiWindowFlags_None)) {
       if (selected_entity >= 0) {
         igText("Transform:");

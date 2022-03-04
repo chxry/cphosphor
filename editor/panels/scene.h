@@ -7,6 +7,7 @@
 #include "engine/gfx.h"
 #include "engine/lighting.h"
 #include "engine/world.h"
+#include "editor.h"
 
 void scene_init();
 void scene_processevent(SDL_Event* e);

@@ -17,8 +17,8 @@ int main() {
 
   igCreateContext(NULL);
   ImGuiIO* io = igGetIO();
-  io->IniFilename = NULL;
   io->ConfigWindowsMoveFromTitleBarOnly = true;
+  io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   ImGuiStyle* style = igGetStyle();
   style->WindowRounding = 4.0;
   style->FrameRounding = 4.0;
@@ -50,6 +50,29 @@ int main() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame(window);
     igNewFrame();
+    ImGuiViewport* viewport = igGetMainViewport();
+    igSetNextWindowPos(viewport->WorkPos, ImGuiCond_Always, (ImVec2){0, 0});
+    igSetNextWindowSize(viewport->WorkSize, ImGuiCond_Always);
+    igSetNextWindowViewport(viewport->ID);
+    igPushStyleVar_Vec2(ImGuiStyleVar_WindowPadding, (ImVec2){0, 0});
+    igBegin("##", NULL, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus);
+    igPopStyleVar(1);
+    if (igBeginMenuBar()) {
+      if (igBeginMenu("File", false)) {
+        igEndMenu();
+      }
+      if (igBeginMenu("Windows", true)) {
+        igMenuItem_BoolPtr("Inspector", NULL, &inspector, true);
+        igMenuItem_BoolPtr("Outline", NULL, &outline, true);
+        igMenuItem_BoolPtr("Scene", NULL, &scene, true);
+        igEndMenu();
+      }
+      igEndMenuBar();
+    }
+
+    igDockSpace(igGetID_Str("##"), (ImVec2){0, 0}, ImGuiDockNodeFlags_None, NULL);
+    igEnd();
+
     scene_render();
     inspector_render();
     outline_render();

@@ -2,9 +2,6 @@
 	path = lib/glad
 	url = https://github.com/Dav1dde/glad
 	branch = glad2
-[submodule "lib/cimgui"]
-	path = lib/cimgui
-	url = https://github.com/cimgui/cimgui
 [submodule "lib/cglm"]
 	path = lib/cglm
 	url = https://github.com/recp/cglm
@@ -29,3 +26,7 @@
 [submodule "lib/cmixer"]
 	path = lib/cmixer
 	url = https://github.com/rxi/cmixer
+[submodule "lib/cimgui"]
+	path = lib/cimgui
+	url = https://github.com/cimgui/cimgui
+	branch = docking_inter

@@ -2,9 +2,8 @@
 
 unsigned int skybox_tex;
 
-bool scene = true;
 bool scene_focused = false;
-ImVec2 scene_size = (ImVec2){960, 540};
+ImVec2 scene_size = (ImVec2){0, 0};
 
 unsigned int scene_fbo;
 unsigned int scene_tex;
@@ -46,25 +45,27 @@ void scene_update() {
   cam_dir[1] = sin(glm_rad(pitch));
   cam_dir[2] = sin(glm_rad(yaw)) * cos(glm_rad(pitch));
   glm_vec3_normalize(cam_dir);
-  const unsigned char* keys = SDL_GetKeyboardState(NULL);
-  vec3 dir;
-  if (keys[SDL_SCANCODE_W]) {
-    glm_vec3_scale(cam_dir, cam_speed, dir);
-    glm_vec3_add(cam_pos, dir, cam_pos);
-  }
-  if (keys[SDL_SCANCODE_S]) {
-    glm_vec3_scale(cam_dir, cam_speed, dir);
-    glm_vec3_sub(cam_pos, dir, cam_pos);
-  }
-  if (keys[SDL_SCANCODE_A]) {
-    glm_vec3_crossn(cam_dir, GLM_YUP, dir);
-    glm_vec3_scale(dir, cam_speed, dir);
-    glm_vec3_sub(cam_pos, dir, cam_pos);
-  }
-  if (keys[SDL_SCANCODE_D]) {
-    glm_vec3_crossn(cam_dir, GLM_YUP, dir);
-    glm_vec3_scale(dir, cam_speed, dir);
-    glm_vec3_add(cam_pos, dir, cam_pos);
+  if (scene_focused) {
+    const unsigned char* keys = SDL_GetKeyboardState(NULL);
+    vec3 dir;
+    if (keys[SDL_SCANCODE_W]) {
+      glm_vec3_scale(cam_dir, cam_speed, dir);
+      glm_vec3_add(cam_pos, dir, cam_pos);
+    }
+    if (keys[SDL_SCANCODE_S]) {
+      glm_vec3_scale(cam_dir, cam_speed, dir);
+      glm_vec3_sub(cam_pos, dir, cam_pos);
+    }
+    if (keys[SDL_SCANCODE_A]) {
+      glm_vec3_crossn(cam_dir, GLM_YUP, dir);
+      glm_vec3_scale(dir, cam_speed, dir);
+      glm_vec3_sub(cam_pos, dir, cam_pos);
+    }
+    if (keys[SDL_SCANCODE_D]) {
+      glm_vec3_crossn(cam_dir, GLM_YUP, dir);
+      glm_vec3_scale(dir, cam_speed, dir);
+      glm_vec3_add(cam_pos, dir, cam_pos);
+    }
   }
 
   mat4 light_view, light_projection;
@@ -92,7 +93,6 @@ void scene_update() {
 void scene_render() {
   if (scene) {
     igPushStyleVar_Vec2(ImGuiStyleVar_WindowPadding, (ImVec2){0, 0});
-    igSetNextWindowContentSize(scene_size);
     if (igBegin("Scene", &scene, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
       igGetWindowSize(&scene_size);
       scene_focused = igIsWindowFocused(ImGuiFocusedFlags_None);
