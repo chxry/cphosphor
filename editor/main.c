@@ -20,6 +20,63 @@ int main() {
   io->ConfigWindowsMoveFromTitleBarOnly = true;
   io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   ImGuiStyle* style = igGetStyle();
+  ImVec4* colors = style->Colors;
+  colors[ImGuiCol_Text] = (ImVec4){1.00, 1.00, 1.00, 1.00};
+  colors[ImGuiCol_TextDisabled] = (ImVec4){0.50, 0.50, 0.50, 1.00};
+  colors[ImGuiCol_WindowBg] = (ImVec4){0.10, 0.10, 0.10, 1.00};
+  colors[ImGuiCol_ChildBg] = (ImVec4){0.00, 0.00, 0.00, 0.00};
+  colors[ImGuiCol_PopupBg] = (ImVec4){0.19, 0.19, 0.19, 0.92};
+  colors[ImGuiCol_Border] = (ImVec4){0.19, 0.19, 0.19, 0.29};
+  colors[ImGuiCol_BorderShadow] = (ImVec4){0.00, 0.00, 0.00, 0.24};
+  colors[ImGuiCol_FrameBg] = (ImVec4){0.05, 0.05, 0.05, 0.54};
+  colors[ImGuiCol_FrameBgHovered] = (ImVec4){0.19, 0.19, 0.19, 0.54};
+  colors[ImGuiCol_FrameBgActive] = (ImVec4){0.20, 0.22, 0.23, 1.00};
+  colors[ImGuiCol_TitleBg] = (ImVec4){0.00, 0.00, 0.00, 1.00};
+  colors[ImGuiCol_TitleBgActive] = (ImVec4){0.06, 0.06, 0.06, 1.00};
+  colors[ImGuiCol_TitleBgCollapsed] = (ImVec4){0.00, 0.00, 0.00, 1.00};
+  colors[ImGuiCol_MenuBarBg] = (ImVec4){0.14, 0.14, 0.14, 1.00};
+  colors[ImGuiCol_ScrollbarBg] = (ImVec4){0.05, 0.05, 0.05, 0.54};
+  colors[ImGuiCol_ScrollbarGrab] = (ImVec4){0.34, 0.34, 0.34, 0.54};
+  colors[ImGuiCol_ScrollbarGrabHovered] = (ImVec4){0.40, 0.40, 0.40, 0.54};
+  colors[ImGuiCol_ScrollbarGrabActive] = (ImVec4){0.56, 0.56, 0.56, 0.54};
+  colors[ImGuiCol_CheckMark] = (ImVec4){0.33, 0.67, 0.86, 1.00};
+  colors[ImGuiCol_SliderGrab] = (ImVec4){0.34, 0.34, 0.34, 0.54};
+  colors[ImGuiCol_SliderGrabActive] = (ImVec4){0.56, 0.56, 0.56, 0.54};
+  colors[ImGuiCol_Button] = (ImVec4){0.05, 0.05, 0.05, 0.54};
+  colors[ImGuiCol_ButtonHovered] = (ImVec4){0.19, 0.19, 0.19, 0.54};
+  colors[ImGuiCol_ButtonActive] = (ImVec4){0.20, 0.22, 0.23, 1.00};
+  colors[ImGuiCol_Header] = (ImVec4){0.00, 0.00, 0.00, 0.52};
+  colors[ImGuiCol_HeaderHovered] = (ImVec4){0.00, 0.00, 0.00, 0.36};
+  colors[ImGuiCol_HeaderActive] = (ImVec4){0.20, 0.22, 0.23, 0.33};
+  colors[ImGuiCol_Separator] = (ImVec4){0.28, 0.28, 0.28, 0.29};
+  colors[ImGuiCol_SeparatorHovered] = (ImVec4){0.44, 0.44, 0.44, 0.29};
+  colors[ImGuiCol_SeparatorActive] = (ImVec4){0.40, 0.44, 0.47, 1.00};
+  colors[ImGuiCol_ResizeGrip] = (ImVec4){0.28, 0.28, 0.28, 0.29};
+  colors[ImGuiCol_ResizeGripHovered] = (ImVec4){0.44, 0.44, 0.44, 0.29};
+  colors[ImGuiCol_ResizeGripActive] = (ImVec4){0.40, 0.44, 0.47, 1.00};
+  colors[ImGuiCol_Tab] = (ImVec4){0.00, 0.00, 0.00, 0.52};
+  colors[ImGuiCol_TabHovered] = (ImVec4){0.14, 0.14, 0.14, 1.00};
+  colors[ImGuiCol_TabActive] = (ImVec4){0.20, 0.20, 0.20, 0.36};
+  colors[ImGuiCol_TabUnfocused] = (ImVec4){0.00, 0.00, 0.00, 0.52};
+  colors[ImGuiCol_TabUnfocusedActive] = (ImVec4){0.14, 0.14, 0.14, 1.00};
+  colors[ImGuiCol_DockingPreview] = (ImVec4){0.33, 0.67, 0.86, 1.00};
+  colors[ImGuiCol_DockingEmptyBg] = (ImVec4){0.10, 0.10, 0.10, 1.00};
+  colors[ImGuiCol_PlotLines] = (ImVec4){1.00, 0.00, 0.00, 1.00};
+  colors[ImGuiCol_PlotLinesHovered] = (ImVec4){1.00, 0.00, 0.00, 1.00};
+  colors[ImGuiCol_PlotHistogram] = (ImVec4){1.00, 0.00, 0.00, 1.00};
+  colors[ImGuiCol_PlotHistogramHovered] = (ImVec4){1.00, 0.00, 0.00, 1.00};
+  colors[ImGuiCol_TableHeaderBg] = (ImVec4){0.00, 0.00, 0.00, 0.52};
+  colors[ImGuiCol_TableBorderStrong] = (ImVec4){0.00, 0.00, 0.00, 0.52};
+  colors[ImGuiCol_TableBorderLight] = (ImVec4){0.28, 0.28, 0.28, 0.29};
+  colors[ImGuiCol_TableRowBg] = (ImVec4){0.00, 0.00, 0.00, 0.00};
+  colors[ImGuiCol_TableRowBgAlt] = (ImVec4){1.00, 1.00, 1.00, 0.06};
+  colors[ImGuiCol_TextSelectedBg] = (ImVec4){0.20, 0.22, 0.23, 1.00};
+  colors[ImGuiCol_DragDropTarget] = (ImVec4){0.33, 0.67, 0.86, 1.00};
+  colors[ImGuiCol_NavHighlight] = (ImVec4){0.05, 0.05, 0.05, 0.54};
+  colors[ImGuiCol_NavWindowingHighlight] = (ImVec4){0.19, 0.19, 0.19, 0.54};
+  colors[ImGuiCol_NavWindowingDimBg] = (ImVec4){1.00, 0.00, 0.00, 0.20};
+  colors[ImGuiCol_ModalWindowDimBg] = (ImVec4){1.00, 0.00, 0.00, 0.35};
+
   style->WindowRounding = 4.0;
   style->FrameRounding = 4.0;
   style->PopupRounding = 4.0;
@@ -74,7 +131,6 @@ int main() {
       }
       igEndMenuBar();
     }
-
     igDockSpace(igGetID_Str("##"), (ImVec2){0, 0}, ImGuiDockNodeFlags_None, NULL);
     igEnd();
 
