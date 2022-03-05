@@ -1,5 +1,4 @@
 #version 460 core
-#define ambient 0.3
 out vec4 FragColor;
 
 in vec2 texcoord;
@@ -8,6 +7,7 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedospec;
 uniform sampler2D shadowmap;
+uniform float light_ambient;
 uniform mat4 light_view;
 uniform mat4 light_projection;
 uniform vec3 light_dir;
@@ -35,7 +35,7 @@ void main() {
     }
     shadow /= 9.0;
 
-    vec3 light = vec3(ambient + (1-shadow) * diffuse) * light_color;
+    vec3 light = vec3(light_ambient + (1-shadow) * diffuse) * light_color;
     FragColor = vec4(light * albedo,1.0);
   } else{
     FragColor = vec4(albedo,1.0);

@@ -2,11 +2,10 @@
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui.h>
 #include <iconfonts/IconsFontAwesome4.h>
-#include <vec.h>
 
 #include "engine/world.h"
 #include "editor.h"
 
-#define OUTLINE_TITLE ICON_FA_LIST " Outline"
+#define LIGHTING_TITLE ICON_FA_LIGHTBULB_O " Lighting"
 
-void outline_render();
+void lighting_render();

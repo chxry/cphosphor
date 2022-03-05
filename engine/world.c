@@ -1,13 +1,17 @@
 #include "world.h"
 
-vec_entity_t entities;
+world_t world;
 
 void world_load(const char* path) {
-  vec_init(&entities);
+  vec_init(&world.entities);
 
-  JSON_Array* objects = json_array(json_parse_string(asset_load(path).data));
-  for (int i = 0; i < json_array_get_count(objects); i++) {
-    JSON_Object* obj = json_array_get_object(objects, i);
+  JSON_Object* root = json_object(json_parse_string(asset_load(path).data));
+  world.light_ambient = json_object_dotget_number(root, "light.ambient");
+  glm_vec3_copy((vec3)VEC3_FROM_JSON(json_object_dotget_array(root, "light.dir")), world.light_dir);
+  glm_vec3_copy((vec3)VEC3_FROM_JSON(json_object_dotget_array(root, "light.color")), world.light_color);
+  JSON_Array* entities = json_object_get_array(root, "entities");
+  for (int i = 0; i < json_array_get_count(entities); i++) {
+    JSON_Object* obj = json_array_get_object(entities, i);
     const char* name = json_object_get_string(obj, "name");
     JSON_Array* pos = json_object_get_array(obj, "pos");
     JSON_Array* rot = json_object_get_array(obj, "rot");
@@ -25,7 +29,7 @@ void world_load(const char* path) {
       vec_push(&colliders, collider);
     }
     entity_t entity = {.name = name, .mesh = mesh, .tex = tex, .pos = VEC3_FROM_JSON(pos), .rot = VEC3_FROM_JSON(rot), .scale = VEC3_FROM_JSON(scale), .colliders = colliders};
-    vec_push(&entities, entity);
+    vec_push(&world.entities, entity);
   }
   log_info("Loaded world \"%s\".", path);
 }
@@ -41,13 +45,18 @@ JSON_Value* json_vec3(vec3 vec) {
 }
 
 void world_write(const char* path) {
-  JSON_Value* rootv = json_value_init_array();
-  JSON_Array* objects = json_array(rootv);
+  JSON_Value* rootv = json_value_init_object();
+  JSON_Object* root = json_object(rootv);
+  JSON_Value* entitiesv = json_value_init_array();
+  JSON_Array* entities = json_array(entitiesv);
+  json_object_dotset_number(root, "light.ambient", world.light_ambient);
+  json_object_dotset_value(root, "light.dir", json_vec3(world.light_dir));
+  json_object_dotset_value(root, "light.color", json_vec3(world.light_color));
 
   int i, j;
   entity_t entity;
   collider_t collider;
-  vec_foreach(&entities, entity, i) {
+  vec_foreach(&world.entities, entity, i) {
     JSON_Value* objv = json_value_init_object();
     JSON_Object* obj = json_object(objv);
     json_object_set_string(obj, "name", entity.name);
@@ -66,9 +75,9 @@ void world_write(const char* path) {
       json_array_append_value(cols, colobjv);
     }
     json_object_set_value(obj, "colliders", colsv);
-    json_array_append_value(objects, objv);
+    json_array_append_value(entities, objv);
   }
-
+  json_object_set_value(root, "entities", entitiesv);
   json_serialize_to_file(rootv, path);
   log_info("Wrote world \"%s\".", path);
 }
@@ -80,7 +89,7 @@ void world_render(mat4 view, mat4 projection) {
 
   int i;
   entity_t entity;
-  vec_foreach(&entities, entity, i) {
+  vec_foreach(&world.entities, entity, i) {
     tex_use(get_tex(entity.tex));
     mat4 model;
     glm_translate_make(model, entity.pos);
@@ -105,7 +114,7 @@ void world_render_colliders(mat4 view, mat4 projection) {
   int i, j;
   entity_t entity;
   collider_t collider;
-  vec_foreach(&entities, entity, i) {
+  vec_foreach(&world.entities, entity, i) {
     vec_foreach(&entity.colliders, collider, j) {
       glm_vec3_center(collider.min, collider.max, center);
       glm_vec3_sub(collider.max, collider.min, size);
@@ -126,7 +135,7 @@ void world_render_shadows(mat4 view, mat4 projection) {
 
   int i;
   entity_t entity;
-  vec_foreach(&entities, entity, i) {
+  vec_foreach(&world.entities, entity, i) {
     mat4 model;
     glm_translate_make(model, entity.pos);
     glm_rotate_x(model, glm_rad(entity.rot[0]), model);
@@ -143,7 +152,7 @@ bool world_test_collision(collider_t box) {
   int i, j;
   entity_t entity;
   collider_t collider;
-  vec_foreach(&entities, entity, i) {
+  vec_foreach(&world.entities, entity, i) {
     vec_foreach(&entity.colliders, collider, j) {
       if ((collides = glm_aabb_aabb((vec3*)&box, (vec3*)&collider))) {
         goto br;
@@ -174,7 +183,7 @@ float world_raycast(vec3 origin, vec3 dir) {
   int i, j;
   entity_t entity;
   collider_t collider;
-  vec_foreach(&entities, entity, i) {
+  vec_foreach(&world.entities, entity, i) {
     vec_foreach(&entity.colliders, collider, j) {
       float distance = aabb_raycast(origin, dir, collider);
       if (distance == 0) {

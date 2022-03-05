@@ -47,7 +47,7 @@ int main() {
     }
 
     mat4 light_view, light_projection;
-    gbuffer_render_shadows(light_view, light_projection, state.world_lightdir);
+    gbuffer_render_shadows(light_view, light_projection);
     world_render_shadows(light_view, light_projection);
 
     mat4 view, projection;
@@ -64,7 +64,7 @@ int main() {
     skybox_render(view, projection, skybox_tex);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    gbuffer_render(light_view, light_projection, state.world_lightdir);
+    gbuffer_render(light_view, light_projection);
     ui_render();
     SDL_GL_SwapWindow(window);
     int frame_time = SDL_GetTicks() - frame_start;

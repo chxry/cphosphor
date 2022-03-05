@@ -36,7 +36,6 @@ typedef struct {
 
 typedef struct {
   float world_gravity;
-  vec3 world_lightdir;
   float player_speed;
   float player_jumpheight;
   bool debug_drawcolliders;

@@ -8,7 +8,6 @@ ImVec2 scene_size = (ImVec2){0, 0};
 unsigned int scene_fbo;
 unsigned int scene_tex;
 
-vec3 light_dir = (vec3){-2, 6, -5};
 vec3 cam_pos = (vec3){0.0, 3.0, 0.0};
 const float cam_speed = 0.25;
 float yaw = -90.0;
@@ -69,7 +68,7 @@ void scene_update() {
   }
 
   mat4 light_view, light_projection;
-  gbuffer_render_shadows(light_view, light_projection, light_dir);
+  gbuffer_render_shadows(light_view, light_projection);
   world_render_shadows(light_view, light_projection);
 
   glBindFramebuffer(GL_FRAMEBUFFER, gbuffer);
@@ -86,14 +85,14 @@ void scene_update() {
   skybox_render(view, projection, skybox_tex);
 
   glBindFramebuffer(GL_FRAMEBUFFER, scene_fbo);
-  gbuffer_render(light_view, light_projection, light_dir);
+  gbuffer_render(light_view, light_projection);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void scene_render() {
   if (scene) {
     igPushStyleVar_Vec2(ImGuiStyleVar_WindowPadding, (ImVec2){0, 0});
-    if (igBegin("Scene", &scene, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
+    if (igBegin(SCENE_TITLE, &scene, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
       igGetWindowSize(&scene_size);
       scene_focused = igIsWindowFocused(ImGuiFocusedFlags_None);
       igImage((void*)(intptr_t)scene_tex, scene_size, (ImVec2){0, 1}, (ImVec2){1, 0}, (ImVec4){1, 1, 1, 1}, (ImVec4){0, 0, 0, 0});

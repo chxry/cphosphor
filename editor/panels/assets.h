@@ -2,11 +2,9 @@
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui.h>
 #include <iconfonts/IconsFontAwesome4.h>
-#include <vec.h>
 
-#include "engine/world.h"
 #include "editor.h"
 
-#define OUTLINE_TITLE ICON_FA_LIST " Outline"
+#define ASSETS_TITLE ICON_FA_FOLDER " Assets"
 
-void outline_render();
+void assets_render();

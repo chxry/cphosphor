@@ -30,3 +30,6 @@
 	path = lib/cimgui
 	url = https://github.com/cimgui/cimgui
 	branch = docking_inter
+[submodule "lib/iconfonts"]
+	path = lib/iconfonts
+	url = https://github.com/juliettef/IconFontCppHeaders

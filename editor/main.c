@@ -2,12 +2,16 @@
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui.h>
 #include <cglm/cglm.h>
+#include <iconfonts/IconsFontAwesome4.h>
 
 #include "engine/core.h"
+#include "engine/world.h"
 #include "engine/log.h"
 #include "panels/scene.h"
 #include "panels/inspector.h"
 #include "panels/outline.h"
+#include "panels/assets.h"
+#include "panels/lighting.h"
 
 int main() {
   log_init();
@@ -76,12 +80,18 @@ int main() {
   colors[ImGuiCol_NavWindowingHighlight] = (ImVec4){0.19, 0.19, 0.19, 0.54};
   colors[ImGuiCol_NavWindowingDimBg] = (ImVec4){1.00, 0.00, 0.00, 0.20};
   colors[ImGuiCol_ModalWindowDimBg] = (ImVec4){1.00, 0.00, 0.00, 0.35};
-
   style->WindowRounding = 4.0;
-  style->FrameRounding = 4.0;
   style->PopupRounding = 4.0;
-  asset_t font = asset_load("roboto.ttf");
-  ImFontAtlas_AddFontFromMemoryTTF(io->Fonts, font.data, font.len, 16, NULL, NULL);
+  style->FrameRounding = 2.0;
+
+  asset_t roboto = asset_load("roboto.ttf");
+  asset_t fa = asset_load("fontawesome.ttf");
+  ImFontConfig config = *ImFontConfig_ImFontConfig();
+  ImFontAtlas_AddFontFromMemoryTTF(io->Fonts, roboto.data, roboto.len, 16, &config, NULL);
+  config.MergeMode = true;
+  static const ImWchar icon_ranges[] = {ICON_MIN_FA, ICON_MAX_FA, 0};
+  ImFontAtlas_AddFontFromMemoryTTF(io->Fonts, fa.data, fa.len, 12, &config, icon_ranges);
+  ImFontAtlas_Build(io->Fonts);
   ImGui_ImplSDL2_InitForOpenGL(window, ctx);
   ImGui_ImplOpenGL3_Init("#version 460");
 
@@ -118,15 +128,17 @@ int main() {
     igPopStyleVar(3);
     if (igBeginMenuBar()) {
       if (igBeginMenu("File", true)) {
-        if (igMenuItem_BoolPtr("Save", NULL, NULL, true)) {
+        if (igMenuItem_BoolPtr(ICON_FA_FILE " Save", NULL, NULL, true)) {
           world_write("test.json");
         }
         igEndMenu();
       }
       if (igBeginMenu("Windows", true)) {
-        igMenuItem_BoolPtr("Inspector", NULL, &inspector, true);
-        igMenuItem_BoolPtr("Outline", NULL, &outline, true);
-        igMenuItem_BoolPtr("Scene", NULL, &scene, true);
+        igMenuItem_BoolPtr(INSPECTOR_TITLE, NULL, &inspector, true);
+        igMenuItem_BoolPtr(OUTLINE_TITLE, NULL, &outline, true);
+        igMenuItem_BoolPtr(SCENE_TITLE, NULL, &scene, true);
+        igMenuItem_BoolPtr(ASSETS_TITLE, NULL, &assets, true);
+        igMenuItem_BoolPtr(LIGHTING_TITLE, NULL, &lighting, true);
         igEndMenu();
       }
       igEndMenuBar();
@@ -137,6 +149,8 @@ int main() {
     scene_render();
     inspector_render();
     outline_render();
+    assets_render();
+    lighting_render();
 
     igRender();
     ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());
