@@ -10,19 +10,22 @@
 #include "log.h"
 
 typedef struct {
+  const char* mesh;
+  const char* tex;
+} model_t;
+
+typedef struct {
   vec3 min;
   vec3 max;
 } collider_t;
-typedef vec_t(collider_t) vec_collider_t;
 
 typedef struct {
   const char* name;
   vec3 pos;
   vec3 rot;
   vec3 scale;
-  vec_collider_t colliders;
-  const char* mesh;
-  const char* tex;
+  model_t* model;
+  collider_t* collider;
 } entity_t;
 typedef vec_t(entity_t) vec_entity_t;
 
@@ -44,6 +47,7 @@ void world_load(const char* path);
 void world_write(const char* path);
 void world_render(mat4 view, mat4 projection);
 void world_render_colliders(mat4 view, mat4 projection);
+void world_render_collider(mat4 view, mat4 projection, int entity);
 void world_render_shadows(mat4 view, mat4 projection);
 bool world_test_collision(collider_t box);
 float aabb_raycast(vec3 origin, vec3 dir, collider_t box);

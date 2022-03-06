@@ -82,6 +82,9 @@ void scene_update() {
   glm_look(cam_pos, cam_dir, GLM_YUP, view);
   glm_perspective(glm_rad(90), scene_size.x / scene_size.y, 0.1, 100.0, projection);
   world_render(view, projection);
+  if (selected_entity >= 0) {
+    world_render_collider(view, projection, selected_entity);
+  }
   skybox_render(view, projection, skybox_tex);
 
   glBindFramebuffer(GL_FRAMEBUFFER, scene_fbo);

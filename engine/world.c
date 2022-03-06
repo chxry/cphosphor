@@ -16,19 +16,23 @@ void world_load(const char* path) {
     JSON_Array* pos = json_object_get_array(obj, "pos");
     JSON_Array* rot = json_object_get_array(obj, "rot");
     JSON_Array* scale = json_object_get_array(obj, "scale");
-    const char* mesh = json_object_get_string(obj, "mesh");
-    const char* tex = json_object_get_string(obj, "tex");
-    JSON_Array* acolliders = json_object_get_array(obj, "colliders");
-    vec_collider_t colliders;
-    vec_init(&colliders);
-    for (int i = 0; i < json_array_get_count(acolliders); i++) {
-      JSON_Object* colobj = json_array_get_object(acolliders, i);
-      JSON_Array* min = json_object_get_array(colobj, "min");
-      JSON_Array* max = json_object_get_array(colobj, "max");
-      collider_t collider = {.min = VEC3_FROM_JSON(min), .max = VEC3_FROM_JSON(max)};
-      vec_push(&colliders, collider);
+    model_t* model = NULL;
+    if (json_object_get_object(obj, "model")) {
+      const char* mesh = json_object_dotget_string(obj, "model.mesh");
+      const char* tex = json_object_dotget_string(obj, "model.tex");
+      model = malloc(sizeof(model_t));
+      model->mesh = mesh;
+      model->tex = tex;
     }
-    entity_t entity = {.name = name, .mesh = mesh, .tex = tex, .pos = VEC3_FROM_JSON(pos), .rot = VEC3_FROM_JSON(rot), .scale = VEC3_FROM_JSON(scale), .colliders = colliders};
+    collider_t* collider = NULL;
+    if (json_object_get_object(obj, "collider")) {
+      JSON_Array* min = json_object_dotget_array(obj, "collider.min");
+      JSON_Array* max = json_object_dotget_array(obj, "collider.max");
+      collider = malloc(sizeof(collider_t));
+      glm_vec3_copy((vec3)VEC3_FROM_JSON(min), collider->min);
+      glm_vec3_copy((vec3)VEC3_FROM_JSON(max), collider->max);
+    }
+    entity_t entity = {.name = name, .pos = VEC3_FROM_JSON(pos), .rot = VEC3_FROM_JSON(rot), .scale = VEC3_FROM_JSON(scale), .model = model, .collider = collider};
     vec_push(&world.entities, entity);
   }
   log_info("Loaded world \"%s\".", path);
@@ -53,28 +57,23 @@ void world_write(const char* path) {
   json_object_dotset_value(root, "light.dir", json_vec3(world.light_dir));
   json_object_dotset_value(root, "light.color", json_vec3(world.light_color));
 
-  int i, j;
+  int i;
   entity_t entity;
-  collider_t collider;
   vec_foreach(&world.entities, entity, i) {
     JSON_Value* objv = json_value_init_object();
     JSON_Object* obj = json_object(objv);
     json_object_set_string(obj, "name", entity.name);
-    json_object_set_string(obj, "mesh", entity.mesh);
-    json_object_set_string(obj, "tex", entity.tex);
     json_object_set_value(obj, "pos", json_vec3(entity.pos));
     json_object_set_value(obj, "rot", json_vec3(entity.rot));
     json_object_set_value(obj, "scale", json_vec3(entity.scale));
-    JSON_Value* colsv = json_value_init_array();
-    JSON_Array* cols = json_array(colsv);
-    vec_foreach(&entity.colliders, collider, j) {
-      JSON_Value* colobjv = json_value_init_object();
-      JSON_Object* colobj = json_object(colobjv);
-      json_object_set_value(colobj, "min", json_vec3(collider.min));
-      json_object_set_value(colobj, "max", json_vec3(collider.max));
-      json_array_append_value(cols, colobjv);
+    if (entity.collider) {
+      json_object_dotset_string(obj, "model.mesh", entity.model->mesh);
+      json_object_dotset_string(obj, "model.tex", entity.model->tex);
     }
-    json_object_set_value(obj, "colliders", colsv);
+    if (entity.collider) {
+      json_object_dotset_value(obj, "collider.min", json_vec3(entity.collider->min));
+      json_object_dotset_value(obj, "collider.max", json_vec3(entity.collider->max));
+    }
     json_array_append_value(entities, objv);
   }
   json_object_set_value(root, "entities", entitiesv);
@@ -90,7 +89,10 @@ void world_render(mat4 view, mat4 projection) {
   int i;
   entity_t entity;
   vec_foreach(&world.entities, entity, i) {
-    tex_use(get_tex(entity.tex));
+    if (!entity.model) {
+      continue;
+    }
+    tex_use(get_tex(entity.model->tex));
     mat4 model;
     glm_translate_make(model, entity.pos);
     glm_rotate_x(model, glm_rad(entity.rot[0]), model);
@@ -98,7 +100,7 @@ void world_render(mat4 view, mat4 projection) {
     glm_rotate_z(model, glm_rad(entity.rot[2]), model);
     glm_scale(model, entity.scale);
     shader_set_mat4(basic_shader, "model", model);
-    mesh_render(get_mesh(entity.mesh, pos_tex_norm));
+    mesh_render(get_mesh(entity.model->mesh, pos_tex_norm));
   }
 }
 
@@ -111,20 +113,43 @@ void world_render_colliders(mat4 view, mat4 projection) {
   mat4 model;
   vec3 center;
   vec3 size;
-  int i, j;
+  int i;
   entity_t entity;
-  collider_t collider;
   vec_foreach(&world.entities, entity, i) {
-    vec_foreach(&entity.colliders, collider, j) {
-      glm_vec3_center(collider.min, collider.max, center);
-      glm_vec3_sub(collider.max, collider.min, size);
-      glm_vec3_divs(size, 2, size);
-      glm_translate_make(model, center);
-      glm_scale(model, size);
-      shader_set_mat4(debug_shader, "model", model);
-      mesh_render(get_mesh("mesh/sky.obj", pos));
+    if (!entity.collider) {
+      continue;
     }
+    glm_vec3_center(entity.collider->min, entity.collider->max, center);
+    glm_vec3_sub(entity.collider->max, entity.collider->min, size);
+    glm_vec3_divs(size, 2, size);
+    glm_translate_make(model, center);
+    glm_scale(model, size);
+    shader_set_mat4(debug_shader, "model", model);
+    mesh_render(get_mesh("mesh/sky.obj", pos));
   }
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void world_render_collider(mat4 view, mat4 projection, int entity) {
+  collider_t* collider = world.entities.data[entity].collider;
+  if (!collider) {
+    return;
+  }
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  shader_use(debug_shader);
+  shader_set_mat4(debug_shader, "view", view);
+  shader_set_mat4(debug_shader, "projection", projection);
+
+  mat4 model;
+  vec3 center;
+  vec3 size;
+  glm_vec3_center(collider->min, collider->max, center);
+  glm_vec3_sub(collider->max, collider->min, size);
+  glm_vec3_divs(size, 2, size);
+  glm_translate_make(model, center);
+  glm_scale(model, size);
+  shader_set_mat4(debug_shader, "model", model);
+  mesh_render(get_mesh("mesh/sky.obj", pos));
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
@@ -136,6 +161,9 @@ void world_render_shadows(mat4 view, mat4 projection) {
   int i;
   entity_t entity;
   vec_foreach(&world.entities, entity, i) {
+    if (!entity.model) {
+      continue;
+    }
     mat4 model;
     glm_translate_make(model, entity.pos);
     glm_rotate_x(model, glm_rad(entity.rot[0]), model);
@@ -143,24 +171,22 @@ void world_render_shadows(mat4 view, mat4 projection) {
     glm_rotate_z(model, glm_rad(entity.rot[2]), model);
     glm_scale(model, entity.scale);
     shader_set_mat4(shadow_shader, "model", model);
-    mesh_render(get_mesh(entity.mesh, pos_tex_norm));
+    mesh_render(get_mesh(entity.model->mesh, pos_tex_norm));
   }
 }
 
 bool world_test_collision(collider_t box) {
-  bool collides = false;
-  int i, j;
+  int i;
   entity_t entity;
-  collider_t collider;
   vec_foreach(&world.entities, entity, i) {
-    vec_foreach(&entity.colliders, collider, j) {
-      if ((collides = glm_aabb_aabb((vec3*)&box, (vec3*)&collider))) {
-        goto br;
-      }
+    if (!entity.collider) {
+      continue;
+    }
+    if (glm_aabb_aabb((vec3*)&box, (vec3*)entity.collider)) {
+      return true;
     }
   }
-br:
-  return collides;
+  return false;
 }
 
 // move
@@ -180,20 +206,18 @@ float aabb_raycast(vec3 origin, vec3 dir, collider_t box) {
 
 float world_raycast(vec3 origin, vec3 dir) {
   float closest = 0;
-  int i, j;
+  int i;
   entity_t entity;
-  collider_t collider;
   vec_foreach(&world.entities, entity, i) {
-    vec_foreach(&entity.colliders, collider, j) {
-      float distance = aabb_raycast(origin, dir, collider);
-      if (distance == 0) {
-        continue;
-      }
-      if (closest == 0) {
-        closest = distance;
-        continue;
-      }
-      closest = distance < closest ? distance : closest;
+    if (!entity.collider) {
+      continue;
+    }
+    float distance = aabb_raycast(origin, dir, *entity.collider);
+    if (distance == 0) {
+      continue;
+    }
+    if (closest == 0 || closest > distance) {
+      closest = distance;
     }
   }
 

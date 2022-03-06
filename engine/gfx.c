@@ -216,7 +216,7 @@ void skybox_render(mat4 view, mat4 projection, unsigned int tex) {
   glDepthFunc(GL_LEQUAL);
   shader_use(skybox_shader);
   tex_use_cubemap(tex);
-  mat4 skybox_view = GLM_MAT4_ZERO;
+  mat4 skybox_view = GLM_MAT4_ZERO_INIT;
   mat3 view3;
   glm_mat4_pick3(view, view3);
   glm_mat4_ins3(view3, skybox_view);

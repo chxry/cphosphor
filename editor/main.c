@@ -147,10 +147,10 @@ int main() {
     igEnd();
 
     scene_render();
+    lighting_render();
     inspector_render();
     outline_render();
     assets_render();
-    lighting_render();
 
     igRender();
     ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());
