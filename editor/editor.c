@@ -17,7 +17,7 @@ void set_selected_entity(int i) {
     entity_t entity = world.entities.data[selected_entity];
     if (entity.model) {
       strcpy(mesh_mesh_buf, entity.model->mesh);
-      strcpy(mesh_tex_buf, world.entities.data[selected_entity].model->tex);
+      strcpy(mesh_tex_buf, entity.model->tex);
     }
   }
 }

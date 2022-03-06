@@ -32,7 +32,7 @@ void world_load(const char* path) {
       glm_vec3_copy((vec3)VEC3_FROM_JSON(min), collider->min);
       glm_vec3_copy((vec3)VEC3_FROM_JSON(max), collider->max);
     }
-    entity_t entity = {.name = name, .pos = VEC3_FROM_JSON(pos), .rot = VEC3_FROM_JSON(rot), .scale = VEC3_FROM_JSON(scale), .model = model, .collider = collider};
+    entity_t entity = {.name = realloc((void*)name, 256), .pos = VEC3_FROM_JSON(pos), .rot = VEC3_FROM_JSON(rot), .scale = VEC3_FROM_JSON(scale), .model = model, .collider = collider};
     vec_push(&world.entities, entity);
   }
   log_info("Loaded world \"%s\".", path);
@@ -66,7 +66,7 @@ void world_write(const char* path) {
     json_object_set_value(obj, "pos", json_vec3(entity.pos));
     json_object_set_value(obj, "rot", json_vec3(entity.rot));
     json_object_set_value(obj, "scale", json_vec3(entity.scale));
-    if (entity.collider) {
+    if (entity.model) {
       json_object_dotset_string(obj, "model.mesh", entity.model->mesh);
       json_object_dotset_string(obj, "model.tex", entity.model->tex);
     }
@@ -120,6 +120,7 @@ void world_render_colliders(mat4 view, mat4 projection) {
       continue;
     }
     glm_vec3_center(entity.collider->min, entity.collider->max, center);
+    glm_vec3_add(entity.pos, center, center);
     glm_vec3_sub(entity.collider->max, entity.collider->min, size);
     glm_vec3_divs(size, 2, size);
     glm_translate_make(model, center);
@@ -144,6 +145,7 @@ void world_render_collider(mat4 view, mat4 projection, int entity) {
   vec3 center;
   vec3 size;
   glm_vec3_center(collider->min, collider->max, center);
+  glm_vec3_add(world.entities.data[entity].pos, center, center);
   glm_vec3_sub(collider->max, collider->min, size);
   glm_vec3_divs(size, 2, size);
   glm_translate_make(model, center);
@@ -182,7 +184,10 @@ bool world_test_collision(collider_t box) {
     if (!entity.collider) {
       continue;
     }
-    if (glm_aabb_aabb((vec3*)&box, (vec3*)entity.collider)) {
+    collider_t local;
+    glm_vec3_add(entity.pos, entity.collider->min, local.min);
+    glm_vec3_add(entity.pos, entity.collider->max, local.max);
+    if (glm_aabb_aabb((vec3*)&box, (vec3*)&local)) {
       return true;
     }
   }
@@ -212,7 +217,10 @@ float world_raycast(vec3 origin, vec3 dir) {
     if (!entity.collider) {
       continue;
     }
-    float distance = aabb_raycast(origin, dir, *entity.collider);
+    collider_t local;
+    glm_vec3_add(entity.pos, entity.collider->min, local.min);
+    glm_vec3_add(entity.pos, entity.collider->max, local.max);
+    float distance = aabb_raycast(origin, dir, local);
     if (distance == 0) {
       continue;
     }
