@@ -6,6 +6,6 @@
 #include "engine/world.h"
 #include "editor.h"
 
-#define LIGHTING_TITLE ICON_FA_LIGHTBULB_O " Lighting"
+#define ENVIRONMENT_TITLE ICON_FA_GLOBE " Environment"
 
-void lighting_render();
+void environment_render();

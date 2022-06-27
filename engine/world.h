@@ -29,11 +29,17 @@ typedef struct {
 } entity_t;
 typedef vec_t(entity_t) vec_entity_t;
 
+typedef enum {
+  skybox,
+  atmosphere
+} sky_mode_t;
+
 typedef struct {
   vec_entity_t entities;
   float light_ambient;
   vec3 light_dir;
   vec3 light_color;
+  sky_mode_t sky_mode;
 } world_t;
 
 #define VEC3_FROM_JSON(v) \

@@ -1,7 +1,5 @@
 #include "scene.h"
 
-unsigned int skybox_tex;
-
 bool scene_focused = false;
 ImVec2 scene_size = (ImVec2){0, 0};
 
@@ -14,7 +12,6 @@ float yaw = -90.0;
 float pitch = 0.0;
 
 void scene_init() {
-  skybox_tex = tex_load_cubemap((char* [6]){"tex/sky/right.jpg", "tex/sky/left.jpg", "tex/sky/top.jpg", "tex/sky/bottom.jpg", "tex/sky/front.jpg", "tex/sky/back.jpg"}, GL_RGB);
   glGenFramebuffers(1, &scene_fbo);
   glBindFramebuffer(GL_FRAMEBUFFER, scene_fbo);
   glGenTextures(1, &scene_tex);
@@ -85,7 +82,6 @@ void scene_update() {
   if (selected_entity >= 0) {
     world_render_collider(view, projection, selected_entity);
   }
-  skybox_render(view, projection, skybox_tex);
 
   glBindFramebuffer(GL_FRAMEBUFFER, scene_fbo);
   gbuffer_render(light_view, light_projection);

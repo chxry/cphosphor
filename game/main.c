@@ -21,8 +21,6 @@ int main() {
   audio_init(conf.volume);
   world_load("test.json");
 
-  unsigned int skybox_tex = tex_load_cubemap((char* [6]){"tex/sky/right.jpg", "tex/sky/left.jpg", "tex/sky/top.jpg", "tex/sky/bottom.jpg", "tex/sky/front.jpg", "tex/sky/back.jpg"}, GL_RGB);
-
   bool quit = false;
   frame_delay = 1000 / conf.fps;
   while (!quit) {
@@ -61,7 +59,6 @@ int main() {
     if (state.debug_drawcolliders) {
       world_render_colliders(view, projection);
     }
-    skybox_render(view, projection, skybox_tex);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     gbuffer_render(light_view, light_projection);

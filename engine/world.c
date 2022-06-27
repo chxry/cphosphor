@@ -1,6 +1,7 @@
 #include "world.h"
 
 world_t world;
+unsigned int skybox_tex;
 
 void world_load(const char* path) {
   vec_init(&world.entities);
@@ -9,6 +10,7 @@ void world_load(const char* path) {
   world.light_ambient = json_object_dotget_number(root, "light.ambient");
   glm_vec3_copy((vec3)VEC3_FROM_JSON(json_object_dotget_array(root, "light.dir")), world.light_dir);
   glm_vec3_copy((vec3)VEC3_FROM_JSON(json_object_dotget_array(root, "light.color")), world.light_color);
+  world.sky_mode = json_object_dotget_number(root, "sky.mode");
   JSON_Array* entities = json_object_get_array(root, "entities");
   for (int i = 0; i < json_array_get_count(entities); i++) {
     JSON_Object* obj = json_array_get_object(entities, i);
@@ -36,6 +38,8 @@ void world_load(const char* path) {
     vec_push(&world.entities, entity);
   }
   log_info("Loaded world \"%s\".", path);
+  // grab from file
+  skybox_tex = tex_load_cubemap((char* [6]){"tex/sky/right.jpg", "tex/sky/left.jpg", "tex/sky/top.jpg", "tex/sky/bottom.jpg", "tex/sky/front.jpg", "tex/sky/back.jpg"}, GL_RGB);
 }
 
 // move
@@ -56,6 +60,7 @@ void world_write(const char* path) {
   json_object_dotset_number(root, "light.ambient", world.light_ambient);
   json_object_dotset_value(root, "light.dir", json_vec3(world.light_dir));
   json_object_dotset_value(root, "light.color", json_vec3(world.light_color));
+  json_object_dotset_number(root, "sky.mode", world.sky_mode);
 
   int i;
   entity_t entity;
@@ -102,6 +107,29 @@ void world_render(mat4 view, mat4 projection) {
     shader_set_mat4(basic_shader, "model", model);
     mesh_render(get_mesh(entity.model->mesh, pos_tex_norm));
   }
+
+  glDepthFunc(GL_LEQUAL);
+  mat4 skybox_view = GLM_MAT4_ZERO_INIT;
+  mat3 view3;
+  glm_mat4_pick3(view, view3);
+  glm_mat4_ins3(view3, skybox_view);
+  switch (world.sky_mode) {
+  case skybox:
+    shader_use(skybox_shader);
+    tex_use_cubemap(skybox_tex);
+    shader_set_mat4(skybox_shader, "view", skybox_view);
+    shader_set_mat4(skybox_shader, "projection", projection);
+    shader_set_vec3(skybox_shader, "light_dir", world.light_dir);
+    break;
+  case atmosphere:
+    shader_use(atmosphere_shader);
+    shader_set_mat4(atmosphere_shader, "view", skybox_view);
+    shader_set_mat4(atmosphere_shader, "projection", projection);
+    shader_set_vec3(atmosphere_shader, "light_dir", world.light_dir);
+    break;
+  }
+  mesh_render(get_mesh("mesh/sky.obj", pos));
+  glDepthFunc(GL_LESS);
 }
 
 void world_render_colliders(mat4 view, mat4 projection) {

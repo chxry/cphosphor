@@ -19,7 +19,7 @@
             "crouch": "Left Ctrl",
             "sprint": "Left Shift",
             "menu": "Escape",
-            "console": "`",
+            "console": "\\",
             "debug": "F3"
         }
     },

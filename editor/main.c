@@ -11,7 +11,7 @@
 #include "panels/inspector.h"
 #include "panels/outline.h"
 #include "panels/assets.h"
-#include "panels/lighting.h"
+#include "panels/environment.h"
 
 int main() {
   log_init();
@@ -138,7 +138,7 @@ int main() {
         igMenuItem_BoolPtr(OUTLINE_TITLE, NULL, &outline, true);
         igMenuItem_BoolPtr(SCENE_TITLE, NULL, &scene, true);
         igMenuItem_BoolPtr(ASSETS_TITLE, NULL, &assets, true);
-        igMenuItem_BoolPtr(LIGHTING_TITLE, NULL, &lighting, true);
+        igMenuItem_BoolPtr(ENVIRONMENT_TITLE, NULL, &environment, true);
         igEndMenu();
       }
       igEndMenuBar();
@@ -147,11 +147,12 @@ int main() {
     igEnd();
 
     scene_render();
-    lighting_render();
+    environment_render();
     inspector_render();
     outline_render();
     assets_render();
 
+    // igShowDemoWindow(0);
     igRender();
     ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());
     SDL_GL_SwapWindow(window);

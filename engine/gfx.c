@@ -6,6 +6,7 @@ int frame_delay;
 unsigned int basic_shader;
 unsigned int debug_shader;
 unsigned int skybox_shader;
+unsigned int atmosphere_shader;
 
 void window_init(int width, int height, bool fullscreen, char* title) {
   if (SDL_Init(SDL_INIT_EVERYTHING)) {
@@ -26,6 +27,7 @@ void window_init(int width, int height, bool fullscreen, char* title) {
   basic_shader = shader_init("shaders/basic.vert", "shaders/basic.frag");
   debug_shader = shader_init("shaders/debug.vert", "shaders/debug.frag");
   skybox_shader = shader_init("shaders/skybox.vert", "shaders/skybox.frag");
+  atmosphere_shader = shader_init("shaders/skybox.vert", "shaders/atmosphere.frag");
   log_info("Loaded OpenGL %i.%i on \"%s\".", GLAD_VERSION_MAJOR(gl), GLAD_VERSION_MINOR(gl), glGetString(GL_RENDERER));
 }
 
@@ -210,18 +212,4 @@ unsigned int tex_load_cubemap(char** faces, int mode) {
 void tex_use_cubemap(unsigned int tex) {
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, tex);
-}
-
-void skybox_render(mat4 view, mat4 projection, unsigned int tex) {
-  glDepthFunc(GL_LEQUAL);
-  shader_use(skybox_shader);
-  tex_use_cubemap(tex);
-  mat4 skybox_view = GLM_MAT4_ZERO_INIT;
-  mat3 view3;
-  glm_mat4_pick3(view, view3);
-  glm_mat4_ins3(view3, skybox_view);
-  shader_set_mat4(skybox_shader, "view", skybox_view);
-  shader_set_mat4(skybox_shader, "projection", projection);
-  mesh_render(get_mesh("mesh/sky.obj", pos));
-  glDepthFunc(GL_LESS);
 }
