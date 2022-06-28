@@ -11,12 +11,14 @@ void outline_render() {
         char buf[32];
         sprintf(buf, "%s##%i", entity.name, i);
         if (igSelectable_Bool(buf, selected_entity == i, ImGuiSelectableFlags_None, (ImVec2){0, 0})) {
-          set_selected_entity(i);
+          selected_entity = i;
         }
       }
       igSeparator();
       if (igButton(ICON_FA_PLUS " Add Entity", (ImVec2){size.x, 0})) {
-        entity_t entity = {.name = "new", .pos = GLM_VEC3_ZERO_INIT, .rot = GLM_VEC3_ZERO_INIT, .scale = GLM_VEC3_ONE_INIT, .model = NULL, .collider = NULL};
+        char* new = malloc(256);
+        strcpy(new, "new");
+        entity_t entity = {.name = new, .pos = GLM_VEC3_ZERO_INIT, .rot = GLM_VEC3_ZERO_INIT, .scale = GLM_VEC3_ONE_INIT};
         vec_push(&world.entities, entity);
       }
     }

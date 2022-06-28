@@ -5,7 +5,7 @@
 #include <iconfonts/IconsFontAwesome4.h>
 #include <vec.h>
 
-#include "engine/world.h"
+#include "engine/ecs/world.h"
 #include "editor.h"
 
 #define OUTLINE_TITLE ICON_FA_LIST " Outline"

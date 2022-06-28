@@ -20,7 +20,7 @@ typedef enum {
 } mesh_attr;
 
 #include "lighting.h"
-#include "core.h"
+#include "engine.h"
 #include "log.h"
 
 extern SDL_Window* window;

@@ -3,7 +3,7 @@
 #include <cimgui.h>
 #include <iconfonts/IconsFontAwesome4.h>
 
-#include "engine/world.h"
+#include "engine/ecs/world.h"
 #include "editor.h"
 
 #define ENVIRONMENT_TITLE ICON_FA_GLOBE " Environment"

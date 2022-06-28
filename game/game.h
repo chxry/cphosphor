@@ -5,7 +5,7 @@
 #include <parson/parson.h>
 #include <cglm/cglm.h>
 
-#include "engine/core.h"
+#include "engine/engine.h"
 #include "engine/log.h"
 
 #define KEYBIND_FORWARD 0

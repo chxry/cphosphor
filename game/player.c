@@ -41,7 +41,7 @@ void player_processevent(SDL_Event* e) {
 }
 
 bool test_collision(vec3 new_pos) {
-  collider_t player_box = {{new_pos[0] - RADIUS, new_pos[1], new_pos[2] - RADIUS}, {new_pos[0] + RADIUS, new_pos[1] + height, new_pos[2] + RADIUS}};
+  aabb_t player_box = {{new_pos[0] - RADIUS, new_pos[1], new_pos[2] - RADIUS}, {new_pos[0] + RADIUS, new_pos[1] + height, new_pos[2] + RADIUS}};
   if (world_test_collision(player_box)) {
     glm_vec3_copy(player_pos, new_pos);
     return true;

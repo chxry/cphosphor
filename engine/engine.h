@@ -9,7 +9,7 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
-#include "gfx.h"
+#include "core/gfx.h"
 #include "log.h"
 
 typedef struct {

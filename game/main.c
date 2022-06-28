@@ -1,10 +1,10 @@
 #include <SDL2/SDL.h>
 #include <cglm/cglm.h>
 
-#include "engine/core.h"
-#include "engine/gfx.h"
-#include "engine/audio.h"
-#include "engine/world.h"
+#include "engine/core/gfx.h"
+#include "engine/core/audio.h"
+#include "engine/ecs/world.h"
+#include "engine/engine.h"
 #include "engine/log.h"
 #include "game.h"
 #include "ui.h"

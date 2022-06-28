@@ -5,9 +5,9 @@
 #include <iconfonts/IconsFontAwesome4.h>
 #include <cglm/cglm.h>
 
-#include "engine/gfx.h"
-#include "engine/lighting.h"
-#include "engine/world.h"
+#include "engine/core/gfx.h"
+#include "engine/core/lighting.h"
+#include "engine/ecs/world.h"
 #include "editor.h"
 
 #define SCENE_TITLE ICON_FA_PICTURE_O " Scene"

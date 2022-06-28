@@ -4,8 +4,8 @@
 #include <cglm/cglm.h>
 #include <iconfonts/IconsFontAwesome4.h>
 
-#include "engine/core.h"
-#include "engine/world.h"
+#include "engine/ecs/world.h"
+#include "engine/engine.h"
 #include "engine/log.h"
 #include "panels/scene.h"
 #include "panels/inspector.h"

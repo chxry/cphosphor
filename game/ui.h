@@ -5,8 +5,8 @@
 #include <cimgui.h>
 #include <lua.h>
 
-#include "engine/gfx.h"
-#include "engine/audio.h"
+#include "engine/core/gfx.h"
+#include "engine/core/audio.h"
 #include "game/player.h"
 #include "game/game.h"
 

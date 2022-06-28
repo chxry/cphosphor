@@ -3,7 +3,7 @@
 #include <cmixer.h>
 #include <map.h>
 
-#include "core.h"
+#include "engine.h"
 #include "log.h"
 
 void audio_init(float volume);

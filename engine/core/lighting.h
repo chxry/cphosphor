@@ -2,7 +2,7 @@
 #include <glad/gl.h>
 #include <cglm/cglm.h>
 
-#include "world.h"
+#include "ecs/world.h"
 #include "gfx.h"
 
 #define SHADOW_RES 8192
