@@ -11,9 +11,8 @@ void inspector_render() {
         igInputText("##", entity->name, 256, ImGuiInputTextFlags_None, NULL, NULL);
         igSameLine(0, 4);
         if (igButton(ICON_FA_TRASH, (ImVec2){20, 20})) {
-          vec_splice(&world.entities, selected_entity, 1); // WONT WORK WITH IDS
+          entity_delete(selected_entity);
           selected_entity = -1;
-          // free
         }
         if (igCollapsingHeader_BoolPtr(TRANSFORM_COMPONENT, NULL, ImGuiTreeNodeFlags_DefaultOpen)) {
           igDragFloat3("Position", entity->pos, 0.01, 0, 0, "%.5g", ImGuiSliderFlags_None);

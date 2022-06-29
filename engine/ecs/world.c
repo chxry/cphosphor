@@ -52,6 +52,18 @@ entity_t* get_entity(int id) {
   return 0;
 }
 
+void entity_delete(int id) {
+  int i;
+  entity_t* entity;
+  vec_foreach_ptr(&world.entities, entity, i) {
+    if (entity->id == id) {
+      vec_splice(&world.entities, i, 1);
+      // free
+      return;
+    }
+  }
+}
+
 void world_write(const char* path) {
   JSON_Value* rootv = json_value_init_object();
   JSON_Object* root = json_object(rootv);

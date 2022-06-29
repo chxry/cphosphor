@@ -42,6 +42,7 @@ extern world_t world;
 void world_load(const char* path);
 void world_write(const char* path);
 entity_t* get_entity(int id);
+void entity_delete(int id);
 void world_render(mat4 view, mat4 projection);
 void world_render_colliders(mat4 view, mat4 projection);
 void world_render_collider(mat4 view, mat4 projection, int entity);
