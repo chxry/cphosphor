@@ -10,6 +10,7 @@ extern bool outline;
 extern bool scene;
 extern bool assets;
 extern bool environment;
+extern bool about;
 
 extern int selected_entity;
 extern vec3 light_dir;

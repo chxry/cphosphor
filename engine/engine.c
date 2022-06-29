@@ -6,6 +6,11 @@ mtar_t tar;
 map_t(mesh_t) meshes;
 map_t(unsigned int) textures;
 
+void engine_init() {
+  srand(time(NULL));
+  log_info("Floppa Engine version " VERSION ".");
+}
+
 void assets_init(const char* path) {
   map_init(&meshes);
   map_init(&textures);

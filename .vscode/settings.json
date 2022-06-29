@@ -1,6 +1,0 @@
-{
-  "files.associations": {
-    "*.asm": "asm",
-    "string_view": "cpp"
-  }
-}

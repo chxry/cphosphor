@@ -25,17 +25,7 @@ void console_exec() {
 }
 
 void ui_init() {
-  igCreateContext(NULL);
-  ImGuiIO* io = igGetIO();
-  io->IniFilename = NULL;
-  ImGuiStyle* style = igGetStyle();
-  style->WindowRounding = 4.0;
-  style->FrameRounding = 4.0;
-  style->PopupRounding = 4.0;
-  asset_t font = asset_load("roboto.ttf");
-  ImFontAtlas_AddFontFromMemoryTTF(io->Fonts, font.data, font.len, 16, NULL, NULL);
-  ImGui_ImplSDL2_InitForOpenGL(window, ctx);
-  ImGui_ImplOpenGL3_Init("#version 460");
+  imgui_init(false);
   options_reset();
 }
 

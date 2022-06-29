@@ -1,5 +1,6 @@
 #pragma once
 #include <stdlib.h>
+#include <time.h>
 #include <string.h>
 #include <cglm/cglm.h>
 #include <microtar.h>
@@ -17,6 +18,7 @@ typedef struct {
   int len;
 } asset_t;
 
+void engine_init();
 void assets_init(const char* path);
 asset_t asset_load(const char* path);
 mesh_t get_mesh(const char* path, mesh_attr attr);

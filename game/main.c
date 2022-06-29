@@ -12,6 +12,7 @@
 
 int main() {
   log_init();
+  engine_init();
   conf_load("conf.json");
   assets_init("res.tar");
   lua_init();

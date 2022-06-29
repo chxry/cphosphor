@@ -1,3 +1,5 @@
+VERSION = "0.1"
+
 SRC = $(shell find engine/ lib/cglm/src/ -type f -name '*.c') lib/glad/build/src/gl.c lib/vec/src/vec.c lib/microtar/src/microtar.c lib/map/src/map.c lib/cmixer/src/cmixer.c lib/parson/parson.c
 OBJS = $(SRC:.c=.o)
 GAME = game.o
@@ -8,7 +10,7 @@ EDITORSRC = $(shell find editor/ -type f -name '*.c')
 EDITOROBJS += $(EDITORSRC:.c=.o)
 RES = res.tar
 
-CFLAGS = -Wall -O2 -DIMGUI_IMPL_API="extern \"C\"" -c
+CFLAGS = -Wall -O2 -DIMGUI_IMPL_API="extern \"C\"" -c -DVERSION=\"$(VERSION)\"
 CFLAGS += -I. -Iengine -Igame -Ieditor -Ilib -Ilib/glad/build/include -Ilib/vec/src -Ilib/microtar/src -Ilib/map/src -Ilib/cmixer/src -Ilib/cimgui -Ilib/cimgui/imgui -Ilib/cglm/include -I/usr/include/SDL2
 LDFLAGS = -ldl -lSDL2 -lm -llua
 

@@ -6,6 +6,9 @@
 #include <vec.h>
 #include <stb/stb_image.h>
 #include <tinyobj/tinyobj_loader_c.h>
+#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
+#include <cimgui.h>
+#include <iconfonts/IconsFontAwesome4.h>
 
 typedef struct {
   unsigned int VBO;
@@ -30,6 +33,7 @@ extern unsigned int basic_shader;
 extern unsigned int debug_shader;
 extern unsigned int skybox_shader;
 extern unsigned int atmosphere_shader;
+extern ImFont* display_font;
 
 void window_init(int width, int height, bool fullscreen, char* title);
 unsigned int shader_init(const char* vert_path, const char* frag_path);
@@ -45,3 +49,4 @@ unsigned int tex_load(const char* path, int mode);
 void tex_use(unsigned int tex);
 unsigned int tex_load_cubemap(char** faces, int mode);
 void tex_use_cubemap(unsigned int tex);
+void imgui_init(bool docking);
