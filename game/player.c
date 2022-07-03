@@ -21,14 +21,11 @@ void player_processevent(SDL_Event* e) {
     break;
   case SDL_MOUSEBUTTONDOWN:
     if (e->button.button == SDL_BUTTON_LEFT) {
-      vec3 hit;
-      float distance = world_raycast(cam_pos, cam_dir);
-      if (distance == 0) {
+      collision_t collision = world_raycast(cam_pos, cam_dir);
+      if (collision.distance == 0) {
         break;
       }
-      glm_vec3_scale(cam_dir, distance, hit);
-      glm_vec3_add(cam_pos, hit, hit);
-      log_info("%f %f %f", hit[0], hit[1], hit[2]);
+      log_info("%s %i - %f %f %f", collision.entity->name, collision.entity->id, collision.hit[0], collision.hit[1], collision.hit[2]);
     }
     break;
   }
