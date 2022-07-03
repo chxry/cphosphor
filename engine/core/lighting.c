@@ -91,6 +91,7 @@ void gbuffer_render(mat4 light_view, mat4 light_projection) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   shader_use(lighting_shader);
   shader_set_float(lighting_shader, "light_ambient", world.light_ambient);
+  shader_set_float(lighting_shader, "light_diffuse", world.light_diffuse);
   shader_set_vec3(lighting_shader, "light_dir", world.light_dir);
   shader_set_vec3(lighting_shader, "light_color", world.light_color);
   shader_set_mat4(lighting_shader, "light_view", light_view);

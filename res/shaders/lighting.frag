@@ -8,6 +8,7 @@ uniform sampler2D gNormal;
 uniform sampler2D gAlbedospec;
 uniform sampler2D shadowmap;
 uniform float light_ambient;
+uniform float light_diffuse;
 uniform mat4 light_view;
 uniform mat4 light_projection;
 uniform vec3 light_dir;
@@ -20,7 +21,7 @@ void main() {
     vec3 fragpos = texture(gPosition, texcoord).rgb;
     vec3 normal = texture(gNormal, texcoord).rgb;
 
-    float diffuse = max(dot(normal, normalize(light_dir)), 0.0);
+    float diffuse = max(dot(normal, normalize(light_dir)), 0.0)*light_diffuse;
 
     vec4 lightspace = light_projection * light_view * vec4(fragpos,1.0);
     lightspace = lightspace * 0.5 + 0.5;

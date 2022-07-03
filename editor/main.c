@@ -12,7 +12,7 @@
 #include "panels/outline.h"
 #include "panels/assets.h"
 #include "panels/environment.h"
-#include "panels/about.h"
+#include "panels/info.h"
 
 int main() {
   log_init();
@@ -58,6 +58,9 @@ int main() {
         if (igMenuItem_BoolPtr(ICON_FA_FILE " Save", NULL, NULL, true)) {
           world_write("test.json");
         }
+        if (igMenuItem_BoolPtr(ICON_FA_TIMES " Exit", NULL, NULL, true)) {
+          return 0;
+        }
         igEndMenu();
       }
       if (igBeginMenu("Windows", true)) {
@@ -68,7 +71,7 @@ int main() {
         igMenuItem_BoolPtr(ENVIRONMENT_TITLE, NULL, &environment, true);
         igEndMenu();
       }
-      igMenuItem_BoolPtr("About", NULL, &about, true);
+      igMenuItem_BoolPtr("Info", NULL, &info, true);
       igEndMenuBar();
     }
     igDockSpace(igGetID_Str("##"), (ImVec2){0, 0}, ImGuiDockNodeFlags_None, NULL);
@@ -79,7 +82,7 @@ int main() {
     inspector_render();
     outline_render();
     assets_render();
-    about_render();
+    info_render();
 
     // igShowDemoWindow(0);
     igRender();

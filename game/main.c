@@ -48,10 +48,10 @@ int main() {
     mat4 light_view, light_projection;
     gbuffer_render_shadows(light_view, light_projection);
     world_render_shadows(light_view, light_projection);
-
     mat4 view, projection;
     player_movement(&view);
     glm_perspective(glm_rad(conf.fov), (float)conf.width / (float)conf.height, 0.1, 100.0, projection);
+
     glViewport(0, 0, conf.width, conf.height);
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glBindFramebuffer(GL_FRAMEBUFFER, gbuffer);

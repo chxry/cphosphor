@@ -6,11 +6,13 @@ unsigned int skybox_tex;
 void world_load(const char* path) {
   vec_init(&world.entities);
   map_init(&world.components);
-  component_register(model);
-  component_register(collider);
+  component_register("model", model);
+  component_register("boxcollider", boxcollider);
+  component_register("text", text);
 
   JSON_Object* root = json_object(json_parse_string(asset_load(path).data));
   world.light_ambient = json_object_dotget_number(root, "light.ambient");
+  world.light_diffuse = json_object_dotget_number(root, "light.diffuse");
   glm_vec3_copy((vec3)VEC3_FROM_JSON(json_object_dotget_array(root, "light.dir")), world.light_dir);
   glm_vec3_copy((vec3)VEC3_FROM_JSON(json_object_dotget_array(root, "light.color")), world.light_color);
   world.sky_mode = json_object_dotget_number(root, "sky.mode");
@@ -30,25 +32,29 @@ void world_load(const char* path) {
 
   JSON_Object* comps = json_object_get_object(root, "components");
   for (int i = 0; i < json_object_get_count(comps); i++) {
-    char* name = json_object_get_name(comps, i);
     JSON_Array* arr = json_value_get_array(json_object_get_value_at(comps, i));
-    int i;
-    component_t component;
-    vec_foreach(&components, component, i) {
-      if (strcmp(component.name, name) == 0) {
-        vec_void_t* v = calloc(sizeof(vec_void_t), 0);
-        for (int i = 0; i < json_array_get_count(arr); i++) {
-          vec_push(v, component.load(json_array_get_object(arr, i)));
-        }
-        map_set(&world.components, name, v);
-        break;
-      }
+    component_t* component = get_component(json_object_get_name(comps, i));
+    for (int i = 0; i < json_array_get_count(arr); i++) {
+      vec_push(&component->components, component->load(json_array_get_object(arr, i)));
     }
   }
 
   log_info("Loaded world \"%s\".", path);
   // grab from file
   skybox_tex = tex_load_cubemap((char* [6]){"tex/sky/right.jpg", "tex/sky/left.jpg", "tex/sky/top.jpg", "tex/sky/bottom.jpg", "tex/sky/front.jpg", "tex/sky/back.jpg"}, GL_RGB);
+}
+
+void component_register(char* name, component_t component) {
+  vec_init(&component.components);
+  map_set(&world.components, name, component);
+}
+
+void component_iter(void (*f)(component_t* c, char* name)) {
+  char* key;
+  map_iter_t iter = map_iter(&world.components);
+  while ((key = map_next(&world.components, &iter))) {
+    f(get_component(key), key);
+  }
 }
 
 entity_t* get_entity(int id) {
@@ -62,8 +68,8 @@ entity_t* get_entity(int id) {
   return 0;
 }
 
-vec_void_t* get_components(char* name) {
-  return *map_get(&world.components, name);
+component_t* get_component(char* name) {
+  return map_get(&world.components, name);
 }
 
 void entity_delete(int id) {
@@ -72,28 +78,29 @@ void entity_delete(int id) {
   vec_foreach_ptr(&world.entities, entity, i) {
     if (entity->id == id) {
       vec_splice(&world.entities, i, 1);
-      // free
+      // free and delete related components
       return;
     }
   }
 }
 
 JSON_Object* comps;
-void write_component(component_t component) {
+void write_component(component_t* component, char* name) {
   int i;
   void* c;
   JSON_Value* csv = json_value_init_array();
   JSON_Array* cs = json_array(csv);
-  vec_foreach(get_components(component.name), c, i) {
-    json_array_append_value(cs, component.save(c));
+  vec_foreach(&component->components, c, i) {
+    json_array_append_value(cs, component->save(c));
   }
-  json_object_set_value(comps, component.name, csv);
+  json_object_set_value(comps, name, csv);
 }
 
 void world_write(const char* path) {
   JSON_Value* rootv = json_value_init_object();
   JSON_Object* root = json_object(rootv);
   json_object_dotset_number(root, "light.ambient", world.light_ambient);
+  json_object_dotset_number(root, "light.diffuse", world.light_diffuse);
   json_object_dotset_value(root, "light.dir", json_vec3(world.light_dir));
   json_object_dotset_value(root, "light.color", json_vec3(world.light_color));
   json_object_dotset_number(root, "sky.mode", world.sky_mode);
@@ -130,7 +137,7 @@ void world_render(mat4 view, mat4 projection) {
 
   int i;
   model_t* model;
-  vec_foreach(get_components("model"), model, i) {
+  vec_foreach(&get_component("model")->components, model, i) {
     entity_t* entity = get_entity(model->entity);
     tex_use(get_tex(model->tex));
     mat4 modelm;
@@ -177,8 +184,8 @@ void world_render_colliders(mat4 view, mat4 projection) {
   vec3 center;
   vec3 size;
   int i;
-  collider_t* collider;
-  vec_foreach(get_components("collider"), collider, i) {
+  boxcollider_t* collider;
+  vec_foreach(&get_component("boxcollder")->components, collider, i) {
     entity_t* entity = get_entity(collider->entity);
     glm_vec3_center(collider->b.min, collider->b.max, center);
     glm_vec3_add(entity->pos, center, center);
@@ -202,8 +209,8 @@ void world_render_collider(mat4 view, mat4 projection, int entity) {
   vec3 center;
   vec3 size;
   int i;
-  collider_t* collider;
-  vec_foreach(get_components("collider"), collider, i) {
+  boxcollider_t* collider;
+  vec_foreach(&get_component("boxcollider")->components, collider, i) {
     if (collider->entity == entity) {
       entity_t* entity = get_entity(collider->entity);
       glm_vec3_center(collider->b.min, collider->b.max, center);
@@ -226,7 +233,7 @@ void world_render_shadows(mat4 view, mat4 projection) {
 
   int i;
   model_t* model;
-  vec_foreach(get_components("model"), model, i) {
+  vec_foreach(&get_component("model")->components, model, i) {
     entity_t* entity = get_entity(model->entity);
     mat4 modelm;
     glm_translate_make(modelm, entity->pos);
@@ -241,8 +248,8 @@ void world_render_shadows(mat4 view, mat4 projection) {
 
 bool world_test_collision(aabb_t box) {
   int i;
-  collider_t* collider;
-  vec_foreach(get_components("collider"), collider, i) {
+  boxcollider_t* collider;
+  vec_foreach(&get_component("boxcollider")->components, collider, i) {
     entity_t* entity = get_entity(collider->entity);
     aabb_t global;
     glm_vec3_add(entity->pos, collider->b.min, global.min);
@@ -257,8 +264,8 @@ bool world_test_collision(aabb_t box) {
 collision_t world_raycast(vec3 origin, vec3 dir) {
   collision_t collision = {.distance = 0};
   int i;
-  collider_t* collider;
-  vec_foreach(get_components("collider"), collider, i) {
+  boxcollider_t* collider;
+  vec_foreach(&get_component("boxcollider")->components, collider, i) {
     entity_t* entity = get_entity(collider->entity);
     aabb_t global;
     glm_vec3_add(entity->pos, collider->b.min, global.min);

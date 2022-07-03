@@ -1,6 +1,6 @@
 #include "player.h"
 
-vec3 player_pos = (vec3){0.0, 3.0, 3.0};
+vec3 player_pos = (vec3){27.0, 3.0, -16.0};
 vec3 vel = (vec3){0.0, 0.0, 0.0};
 vec3 cam_pos;
 vec3 cam_dir;

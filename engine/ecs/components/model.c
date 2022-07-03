@@ -19,12 +19,15 @@ JSON_Value* model_save(model_t* model) {
   return objv;
 }
 
-void model_inspector(model_t* model) {
-  if (igInputText("Mesh", model->mesh_buf, 256, ImGuiInputTextFlags_EnterReturnsTrue, NULL, NULL)) {
+void model_inspector(model_t* model, int i) {
+  char buf[32];
+  sprintf(buf, "Mesh##model%i", i);
+  if (igInputText(buf, model->mesh_buf, 256, ImGuiInputTextFlags_EnterReturnsTrue, NULL, NULL)) {
     model->mesh = realloc(model->mesh, strlen(model->mesh_buf));
     strcpy(model->mesh, model->mesh_buf);
   }
-  if (igInputText("Texture", model->tex_buf, 256, ImGuiInputTextFlags_EnterReturnsTrue, NULL, NULL)) {
+  sprintf(buf, "Texture##model%i", i);
+  if (igInputText(buf, model->tex_buf, 256, ImGuiInputTextFlags_EnterReturnsTrue, NULL, NULL)) {
     model->tex = realloc(model->tex, strlen(model->tex_buf));
     strcpy(model->tex, model->tex_buf);
   }
@@ -36,14 +39,13 @@ model_t* model_create(int entity) {
   model->mesh = malloc(14);
   strcpy(model->mesh, "mesh/cube.obj");
   strcpy(model->mesh_buf, "mesh/cube.obj");
-  model->tex = malloc(13);
-  strcpy(model->tex, "tex/flop.jpg");
-  strcpy(model->tex_buf, "tex/flop.jpg");
+  model->tex = malloc(14);
+  strcpy(model->tex, "tex/white.jpg");
+  strcpy(model->tex_buf, "tex/white.jpg");
   return model;
 }
 
 component_t model = {
-    .name = "model",
     .load = model_load,
     .save = model_save,
     .inspector = model_inspector,

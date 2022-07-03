@@ -1,15 +1,15 @@
 #include "inspector.h"
 
-void inspector_panel(component_t component) {
+void inspector_panel(component_t* component, char* name) {
   char buf[32];
   int i;
   void* c;
-  vec_foreach(get_components(component.name), c, i) {
+  vec_foreach(&component->components, c, i) {
     if (*((int*)c) == selected_entity) {
       bool o = true;
-      sprintf(buf, "%s##%i", component.inspector_label, i);
+      sprintf(buf, "%s##%i", component->inspector_label, i);
       if (igCollapsingHeader_BoolPtr(buf, &o, ImGuiTreeNodeFlags_DefaultOpen)) {
-        component.inspector(c);
+        component->inspector(c, i);
       }
       if (!o) {
         // delete
@@ -18,10 +18,16 @@ void inspector_panel(component_t component) {
   }
 }
 
+ImVec2 size;
+void component_create(component_t* component, char* name) {
+  if (igSelectable_Bool(component->inspector_label, false, ImGuiSelectableFlags_None, (ImVec2){size.x, 0})) {
+    vec_push(&component->components, component->create(selected_entity));
+  }
+}
+
 void inspector_render() {
   if (inspector) {
     if (igBegin(INSPECTOR_TITLE, &inspector, ImGuiWindowFlags_None)) {
-      ImVec2 size;
       igGetContentRegionAvail(&size);
       if (selected_entity >= 0) {
         entity_t* entity = get_entity(selected_entity);
@@ -32,7 +38,7 @@ void inspector_render() {
           entity_delete(selected_entity);
           selected_entity = -1;
         }
-        if (igCollapsingHeader_BoolPtr(TRANSFORM_COMPONENT, NULL, ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (igCollapsingHeader_BoolPtr(ICON_FA_ARROWS " Transform", NULL, ImGuiTreeNodeFlags_DefaultOpen)) {
           igDragFloat3("Position", entity->pos, 0.01, 0, 0, "%.5g", ImGuiSliderFlags_None);
           igDragFloat3("Rotation", entity->rot, 0.01, 0, 0, "%.5g", ImGuiSliderFlags_None);
           igDragFloat3("Scale", entity->scale, 0.01, 0, 0, "%.5g", ImGuiSliderFlags_None);
@@ -43,6 +49,7 @@ void inspector_render() {
           igOpenPopup_Str("addcomponent", ImGuiPopupFlags_None);
         }
         if (igBeginPopup("addcomponent", ImGuiWindowFlags_None)) {
+          component_iter(component_create);
           igEndPopup();
         }
       } else {

@@ -6,13 +6,9 @@
 #include <iconfonts/IconsFontAwesome4.h>
 #include <map.h>
 
-#include "engine/ecs/components/model.h"
-#include "engine/ecs/components/collider.h"
-#include "engine/ecs/ecs.h"
 #include "engine/ecs/world.h"
 #include "editor.h"
 
 #define INSPECTOR_TITLE ICON_FA_INFO_CIRCLE " Inspector"
-#define TRANSFORM_COMPONENT ICON_FA_ARROWS " Transform"
 
 void inspector_render();

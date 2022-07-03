@@ -8,7 +8,7 @@ map_t(unsigned int) textures;
 
 void engine_init() {
   srand(time(NULL));
-  log_info("Floppa Engine version " VERSION ".");
+  log_info("Floppa Engine v" VERSION ".");
 }
 
 void assets_init(const char* path) {
