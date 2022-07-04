@@ -1,7 +1,6 @@
 #include <SDL2/SDL.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui.h>
-#include <cglm/cglm.h>
 #include <iconfonts/IconsFontAwesome4.h>
 
 #include "engine/ecs/world.h"

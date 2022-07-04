@@ -3,7 +3,6 @@
 #include <string.h>
 #include <SDL2/SDL.h>
 #include <parson/parson.h>
-#include <cglm/cglm.h>
 
 #include "engine/engine.h"
 #include "engine/log.h"

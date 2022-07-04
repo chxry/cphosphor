@@ -4,7 +4,6 @@
 #include <string.h>
 #include <cglm/cglm.h>
 #include <microtar.h>
-#include <vec.h>
 #include <map.h>
 #include <lua.h>
 #include <lauxlib.h>

@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <cglm/cglm.h>
-#include <vec.h>
 
 #include "engine/core/audio.h"
 #include "engine/ecs/world.h"

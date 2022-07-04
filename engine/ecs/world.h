@@ -4,7 +4,6 @@
 #include <parson/parson.h>
 #include <vec.h>
 #include <map.h>
-#include <string.h>
 
 #include "core/gfx.h"
 #include "core/lighting.h"

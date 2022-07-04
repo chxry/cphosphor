@@ -5,7 +5,6 @@
 #include <iconfonts/IconsFontAwesome4.h>
 
 #include "ecs/world.h"
-#include "util/math.h"
 #include "util/json.h"
 
 typedef struct {

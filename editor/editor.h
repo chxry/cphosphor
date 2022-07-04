@@ -1,9 +1,5 @@
 #pragma once
-#include <string.h>
 #include <stdbool.h>
-#include <cglm/cglm.h>
-
-#include "engine/ecs/world.h"
 
 extern bool inspector;
 extern bool outline;
