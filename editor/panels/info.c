@@ -11,8 +11,8 @@ void info_init() {
   size_t i = 0;
   while (getline(&cpu_name, &i, cpuinfo) > 0) {
     if (strstr(cpu_name, "model name")) {
-      strtok(cpu_name,":");
-      cpu_name = strtok(NULL,":")+1;
+      strtok(cpu_name, ":");
+      cpu_name = strtok(NULL, ":") + 1;
       break;
     }
   }
@@ -48,7 +48,7 @@ void info_render() {
           igTreePop();
         }
         if (igTreeNode_Str("System")) {
-          igText("%s", cpu_name?cpu_name:"Unknown CPU.");
+          igText("%s", cpu_name ? cpu_name : "Unknown CPU.");
           igText("%s", glGetString(GL_RENDERER));
           igTreePop();
         }
