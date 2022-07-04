@@ -2,6 +2,7 @@
 
 bool scene_focused = false;
 ImVec2 scene_size = (ImVec2){0, 0};
+bool first_frame = true;
 
 unsigned int scene_fbo;
 unsigned int scene_tex;
@@ -36,6 +37,7 @@ void scene_processevent(SDL_Event* e) {
 }
 
 void scene_update() {
+  int frame_start = SDL_GetTicks();
   vec3 cam_dir;
   cam_dir[0] = cos(glm_rad(yaw)) * cos(glm_rad(pitch));
   cam_dir[1] = sin(glm_rad(pitch));
@@ -86,6 +88,10 @@ void scene_update() {
   glBindFramebuffer(GL_FRAMEBUFFER, scene_fbo);
   gbuffer_render(light_view, light_projection);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  if (first_frame) {
+    log_info("First render took %ims.", SDL_GetTicks() - frame_start);
+    first_frame = false;
+  }
 }
 
 void scene_render() {

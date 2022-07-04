@@ -23,6 +23,7 @@ int main() {
   world_load("test.json");
 
   bool quit = false;
+  bool first_frame = true;
   frame_delay = 1000 / conf.fps;
   while (!quit) {
     int frame_start = SDL_GetTicks();
@@ -66,6 +67,10 @@ int main() {
     ui_render();
     SDL_GL_SwapWindow(window);
     int frame_time = SDL_GetTicks() - frame_start;
+    if (first_frame) {
+      log_info("First render took %ims.", frame_time);
+      first_frame = false;
+    }
     if (frame_delay > frame_time) {
       SDL_Delay(frame_delay - frame_time);
     }
