@@ -5,6 +5,7 @@
 
 #include "engine/ecs/world.h"
 #include "engine/engine.h"
+#include "engine/assets.h"
 #include "engine/log.h"
 #include "panels/scene.h"
 #include "panels/inspector.h"
@@ -16,10 +17,11 @@
 int main() {
   log_init();
   engine_init();
-  assets_init("res.tar");
   window_init(1280, 720, false, "editor");
   imgui_init(true);
-  world_load("test.json");
+  assets_init("res.zip");
+  shaders_init();
+  world_load("res/test.json");
 
   scene_init();
   info_init();
@@ -64,14 +66,14 @@ int main() {
         igEndMenu();
       }
       if (igBeginMenu("Windows", true)) {
-        igMenuItem_BoolPtr(INSPECTOR_TITLE, NULL, &inspector, true);
-        igMenuItem_BoolPtr(OUTLINE_TITLE, NULL, &outline, true);
-        igMenuItem_BoolPtr(SCENE_TITLE, NULL, &scene, true);
-        igMenuItem_BoolPtr(ASSETS_TITLE, NULL, &assets, true);
-        igMenuItem_BoolPtr(ENVIRONMENT_TITLE, NULL, &environment, true);
+        igMenuItem_BoolPtr(INSPECTOR_TITLE, NULL, &inspector_open, true);
+        igMenuItem_BoolPtr(OUTLINE_TITLE, NULL, &outline_open, true);
+        igMenuItem_BoolPtr(SCENE_TITLE, NULL, &scene_open, true);
+        igMenuItem_BoolPtr(ASSETS_TITLE, NULL, &assets_open, true);
+        igMenuItem_BoolPtr(ENVIRONMENT_TITLE, NULL, &environment_open, true);
         igEndMenu();
       }
-      igMenuItem_BoolPtr("Info", NULL, &info, true);
+      igMenuItem_BoolPtr("Info", NULL, &info_open, true);
       igEndMenuBar();
     }
     igDockSpace(igGetID_Str("##"), (ImVec2){0, 0}, ImGuiDockNodeFlags_None, NULL);

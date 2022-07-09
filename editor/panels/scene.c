@@ -37,7 +37,6 @@ void scene_processevent(SDL_Event* e) {
 }
 
 void scene_update() {
-  int frame_start = SDL_GetTicks();
   vec3 cam_dir;
   cam_dir[0] = cos(glm_rad(yaw)) * cos(glm_rad(pitch));
   cam_dir[1] = sin(glm_rad(pitch));
@@ -88,16 +87,12 @@ void scene_update() {
   glBindFramebuffer(GL_FRAMEBUFFER, scene_fbo);
   gbuffer_render(light_view, light_projection);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  if (first_frame) {
-    log_info("First render took %ims.", SDL_GetTicks() - frame_start);
-    first_frame = false;
-  }
 }
 
 void scene_render() {
-  if (scene) {
+  if (scene_open) {
     igPushStyleVar_Vec2(ImGuiStyleVar_WindowPadding, (ImVec2){0, 0});
-    if (igBegin(SCENE_TITLE, &scene, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
+    if (igBegin(SCENE_TITLE, &scene_open, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
       igGetWindowSize(&scene_size);
       scene_focused = igIsWindowFocused(ImGuiFocusedFlags_None);
       igImage((void*)(intptr_t)scene_tex, scene_size, (ImVec2){0, 1}, (ImVec2){1, 0}, (ImVec4){1, 1, 1, 1}, (ImVec4){0, 0, 0, 0});

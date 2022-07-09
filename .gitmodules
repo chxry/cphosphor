@@ -11,9 +11,6 @@
 [submodule "lib/vec"]
 	path = lib/vec
 	url = https://github.com/rxi/vec
-[submodule "lib/microtar"]
-	path = lib/microtar
-	url = https://github.com/rxi/microtar
 [submodule "lib/tinyobj"]
 	path = lib/tinyobj
 	url = https://github.com/syoyo/tinyobjloader-c/
@@ -33,3 +30,6 @@
 [submodule "lib/iconfonts"]
 	path = lib/iconfonts
 	url = https://github.com/juliettef/IconFontCppHeaders
+[submodule "lib/physfs"]
+	path = lib/physfs
+	url = https://github.com/icculus/physfs

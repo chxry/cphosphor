@@ -1,62 +1,10 @@
 #include "engine.h"
 
 lua_State* lua;
-mtar_t tar;
-
-map_t(mesh_t) meshes;
-map_t(unsigned int) textures;
 
 void engine_init() {
   srand(time(NULL));
   log_info("Floppa Engine v" VERSION ".");
-}
-
-void assets_init(const char* path) {
-  map_init(&meshes);
-  map_init(&textures);
-  if (mtar_open(&tar, path, "r")) {
-    log_error("Could not load \"%s\".", path);
-    exit(-1);
-  }
-  log_info("Loaded \"%s\".", path);
-}
-
-asset_t asset_load(const char* path) {
-  asset_t asset;
-  mtar_header_t h;
-  char base[64] = "res/";
-  mtar_find(&tar, strcat(base, path), &h);
-  asset.len = h.size;
-  asset.data = calloc(1, h.size + 1);
-  if (mtar_read_data(&tar, asset.data, h.size)) {
-    log_error("Failed to load asset \"%s\".", path);
-  }
-  return asset;
-}
-
-mesh_t get_mesh(const char* path, mesh_attr attr) {
-  mesh_t* mesh;
-  if ((mesh = map_get(&meshes, path))) {
-    return *mesh;
-  } else {
-    mesh_t mesh = mesh_load_obj(path, attr);
-    map_set(&meshes, path, mesh);
-    return mesh;
-  }
-}
-
-unsigned int get_tex(const char* path) {
-  unsigned int* tex;
-  if ((tex = map_get(&textures, path))) {
-    return *tex;
-  } else {
-    unsigned int tex = tex_load(path, GL_RGB);
-    if (!tex) {
-      tex = get_tex("tex/missing.jpg");
-    }
-    map_set(&textures, path, tex);
-    return tex;
-  }
 }
 
 int lua_set(lua_State* l) {

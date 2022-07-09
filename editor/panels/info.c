@@ -21,8 +21,8 @@ void info_init() {
 
 void info_render() {
   igPushStyleVar_Vec2(ImGuiStyleVar_WindowPadding, (ImVec2){20, 20});
-  if (info) {
-    if (igBegin(INFO_TITLE, &info, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize)) {
+  if (info_open) {
+    if (igBegin(INFO_TITLE, &info_open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize)) {
       ImVec2 size;
       igGetContentRegionAvail(&size);
       igPushFont(display_font);

@@ -26,8 +26,8 @@ void component_create(component_t* component, char* name) {
 }
 
 void inspector_render() {
-  if (inspector) {
-    if (igBegin(INSPECTOR_TITLE, &inspector, ImGuiWindowFlags_None)) {
+  if (inspector_open) {
+    if (igBegin(INSPECTOR_TITLE, &inspector_open, ImGuiWindowFlags_None)) {
       igGetContentRegionAvail(&size);
       if (selected_entity >= 0) {
         entity_t* entity = get_entity(selected_entity);

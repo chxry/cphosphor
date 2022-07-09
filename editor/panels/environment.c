@@ -1,8 +1,8 @@
 #include "environment.h"
 
 void environment_render() {
-  if (environment) {
-    if (igBegin(ENVIRONMENT_TITLE, &environment, ImGuiWindowFlags_None)) {
+  if (environment_open) {
+    if (igBegin(ENVIRONMENT_TITLE, &environment_open, ImGuiWindowFlags_None)) {
       igText(ICON_FA_LIGHTBULB_O " Lighting:");
       igDragFloat("Ambient", &world.light_ambient, 0.01, 0, 10, "%.2f", ImGuiSliderFlags_None);
       igDragFloat("Diffuse", &world.light_diffuse, 0.01, 0, 10, "%.2f", ImGuiSliderFlags_None);

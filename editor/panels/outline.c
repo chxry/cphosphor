@@ -1,8 +1,8 @@
 #include "outline.h"
 
 void outline_render() {
-  if (outline) {
-    if (igBegin(OUTLINE_TITLE, &outline, ImGuiWindowFlags_None)) {
+  if (outline_open) {
+    if (igBegin(OUTLINE_TITLE, &outline_open, ImGuiWindowFlags_None)) {
       ImVec2 size;
       igGetWindowSize(&size);
       int i;

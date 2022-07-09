@@ -5,6 +5,7 @@
 #include "engine/core/audio.h"
 #include "engine/ecs/world.h"
 #include "engine/engine.h"
+#include "engine/assets.h"
 #include "engine/log.h"
 #include "game.h"
 #include "ui.h"
@@ -14,16 +15,16 @@ int main() {
   log_init();
   engine_init();
   conf_load("conf.json");
-  assets_init("res.tar");
   lua_init();
   state_bind();
   window_init(conf.width, conf.height, conf.fullscreen, "flop");
   ui_init();
   audio_init(conf.volume);
-  world_load("test.json");
+  assets_init("res.zip");
+  shaders_init();
+  world_load("res/test.json");
 
   bool quit = false;
-  bool first_frame = true;
   frame_delay = 1000 / conf.fps;
   while (!quit) {
     int frame_start = SDL_GetTicks();
@@ -67,10 +68,6 @@ int main() {
     ui_render();
     SDL_GL_SwapWindow(window);
     int frame_time = SDL_GetTicks() - frame_start;
-    if (first_frame) {
-      log_info("First render took %ims.", frame_time);
-      first_frame = false;
-    }
     if (frame_delay > frame_time) {
       SDL_Delay(frame_delay - frame_time);
     }

@@ -1,0 +1,5 @@
+{
+  "tex": [{"path":"res\/tex\/terrain.jpg"},{"path":"res\/tex\/tree.jpg"}],
+  "mesh": [{"path":"res\/mesh\/sky.obj","attr":3},{"path":"res\/mesh\/terrain.obj","attr":8},{"path":"res\/mesh\/tree.obj","attr":8}],
+  "shader":[{"id":1391274353,"vert":"res\/shaders\/basic.vert","frag":"res\/shaders\/basic.frag"},{"id":1583569869,"vert":"res\/shaders\/debug.vert","frag":"res\/shaders\/debug.frag"},{"id":2083617856,"vert":"res\/shaders\/skybox.vert","frag":"res\/shaders\/skybox.frag"},{"id":765834938,"vert":"res\/shaders\/skybox.vert","frag":"res\/shaders\/atmosphere.frag"},{"id":1246522299,"vert":"res\/shaders\/shadow.vert","frag":"res\/shaders\/shadow.frag"},{"id":1334256266,"vert":"res\/shaders\/lighting.vert","frag":"res\/shaders\/lighting.frag"}]
+}

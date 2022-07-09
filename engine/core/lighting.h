@@ -3,12 +3,12 @@
 #include <cglm/cglm.h>
 
 #include "ecs/world.h"
+#include "assets.h"
 #include "gfx.h"
 
 #define SHADOW_RES 8192
 
 extern unsigned int gbuffer;
-extern unsigned int shadow_shader;
 
 void gbuffer_init(int width, int height);
 void gbuffer_resize(int width, int height);

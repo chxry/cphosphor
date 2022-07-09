@@ -1,11 +1,11 @@
 #pragma once
 #include <stdbool.h>
 
-extern bool inspector;
-extern bool outline;
-extern bool scene;
-extern bool assets;
-extern bool environment;
-extern bool info;
+extern bool inspector_open;
+extern bool outline_open;
+extern bool scene_open;
+extern bool assets_open;
+extern bool environment_open;
+extern bool info_open;
 
 extern int selected_entity;

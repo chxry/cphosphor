@@ -10,7 +10,7 @@ void world_load(const char* path) {
   component_register("boxcollider", boxcollider);
   component_register("text", text);
 
-  JSON_Object* root = json_object(json_parse_string(asset_load(path).data));
+  JSON_Object* root = json_object(json_parse_file(path)); // use asset system
   world.light_ambient = json_object_dotget_number(root, "light.ambient");
   world.light_diffuse = json_object_dotget_number(root, "light.diffuse");
   glm_vec3_copy((vec3)VEC3_FROM_JSON(json_object_dotget_array(root, "light.dir")), world.light_dir);
@@ -41,7 +41,7 @@ void world_load(const char* path) {
 
   log_info("Loaded world \"%s\".", path);
   // grab from file
-  skybox_tex = tex_load_cubemap((char* [6]){"tex/sky/right.jpg", "tex/sky/left.jpg", "tex/sky/top.jpg", "tex/sky/bottom.jpg", "tex/sky/front.jpg", "tex/sky/back.jpg"}, GL_RGB);
+  // skybox_tex = tex_load_cubemap((char* [6]){"tex/sky/right.jpg", "tex/sky/left.jpg", "tex/sky/top.jpg", "tex/sky/bottom.jpg", "tex/sky/front.jpg", "tex/sky/back.jpg"}, GL_RGB);
 }
 
 void component_register(char* name, component_t component) {
@@ -139,7 +139,7 @@ void world_render(mat4 view, mat4 projection) {
   model_t* model;
   vec_foreach(&get_component("model")->components, model, i) {
     entity_t* entity = get_entity(model->entity);
-    tex_use(get_tex(model->tex));
+    tex_use(get_tex(model->tex)->tex);
     mat4 modelm;
     glm_translate_make(modelm, entity->pos);
     glm_rotate_x(modelm, glm_rad(entity->rot[0]), modelm);
@@ -147,7 +147,7 @@ void world_render(mat4 view, mat4 projection) {
     glm_rotate_z(modelm, glm_rad(entity->rot[2]), modelm);
     glm_scale(modelm, entity->scale);
     shader_set_mat4(basic_shader, "model", modelm);
-    mesh_render(get_mesh(model->mesh, pos_tex_norm));
+    mesh_render(*get_mesh(model->mesh));
   }
 
   glDepthFunc(GL_LEQUAL);
@@ -170,7 +170,7 @@ void world_render(mat4 view, mat4 projection) {
     shader_set_vec3(atmosphere_shader, "light_dir", world.light_dir);
     break;
   }
-  mesh_render(get_mesh("mesh/sky.obj", pos));
+  mesh_render(*get_mesh("res/mesh/sky.obj"));
   glDepthFunc(GL_LESS);
 }
 
@@ -194,7 +194,7 @@ void world_render_colliders(mat4 view, mat4 projection) {
     glm_translate_make(model, center);
     glm_scale(model, size);
     shader_set_mat4(debug_shader, "model", model);
-    mesh_render(get_mesh("mesh/sky.obj", pos));
+    mesh_render(*get_mesh("res/mesh/sky.obj"));
   }
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
@@ -220,7 +220,7 @@ void world_render_collider(mat4 view, mat4 projection, int entity) {
       glm_translate_make(model, center);
       glm_scale(model, size);
       shader_set_mat4(debug_shader, "model", model);
-      mesh_render(get_mesh("mesh/sky.obj", pos));
+      mesh_render(*get_mesh("res/mesh/sky.obj"));
     }
   }
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -242,7 +242,7 @@ void world_render_shadows(mat4 view, mat4 projection) {
     glm_rotate_z(modelm, glm_rad(entity->rot[2]), modelm);
     glm_scale(modelm, entity->scale);
     shader_set_mat4(shadow_shader, "model", modelm);
-    mesh_render(get_mesh(model->mesh, pos_tex_norm));
+    mesh_render(*get_mesh(model->mesh));
   }
 }
 

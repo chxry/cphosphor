@@ -9,7 +9,6 @@
 #include "core/lighting.h"
 #include "util/math.h"
 #include "util/json.h"
-#include "engine.h"
 #include "log.h"
 
 typedef struct {

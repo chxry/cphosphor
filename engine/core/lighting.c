@@ -1,7 +1,5 @@
 #include "lighting.h"
 
-unsigned int shadow_shader;
-unsigned int lighting_shader;
 mesh_t quad;
 unsigned int gbuffer, gposition, gnormal, galbedospec, depthbuffer;
 unsigned int shadowbuffer, shadowmap;
@@ -48,14 +46,6 @@ void gbuffer_init(int width, int height) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glBindFramebuffer(GL_FRAMEBUFFER, shadowbuffer);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowmap, 0);
-
-  shadow_shader = shader_init("shaders/shadow.vert", "shaders/shadow.frag");
-  lighting_shader = shader_init("shaders/lighting.vert", "shaders/lighting.frag");
-  shader_use(lighting_shader);
-  shader_set_int(lighting_shader, "gPosition", 0);
-  shader_set_int(lighting_shader, "gNormal", 1);
-  shader_set_int(lighting_shader, "gAlbedospec", 2);
-  shader_set_int(lighting_shader, "shadowmap", 3);
 
   float verts[] = {
       1, 1, 0, 1, 1,

@@ -29,10 +29,10 @@ void audio_play(const char* name) {
     cm_stop(*src);
     cm_play(*src);
   } else {
-    asset_t asset = asset_load(name);
-    cm_Source* src = cm_new_source_from_mem(asset.data, asset.len);
-    cm_play(src);
-    map_set(&sounds, name, src);
+    // asset_t asset = asset_load(name);
+    // cm_Source* src = cm_new_source_from_mem(asset.data, asset.len);
+    // cm_play(src);
+    // map_set(&sounds, name, src);
   }
 }
 

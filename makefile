@@ -1,6 +1,6 @@
 VERSION = "0.1"
 
-SRC = $(shell find engine/ lib/cglm/src/ -type f -name '*.c') lib/glad/build/src/gl.c lib/vec/src/vec.c lib/microtar/src/microtar.c lib/map/src/map.c lib/cmixer/src/cmixer.c lib/parson/parson.c
+SRC = $(shell find engine/ lib/cglm/src/ lib/physfs/src/ -type f -name '*.c') lib/glad/build/src/gl.c lib/vec/src/vec.c lib/map/src/map.c lib/cmixer/src/cmixer.c lib/parson/parson.c
 OBJS = $(SRC:.c=.o)
 GAME = game.o
 GAMESRC = $(shell find game/ -type f -name '*.c')
@@ -8,11 +8,11 @@ GAMEOBJS += $(GAMESRC:.c=.o)
 EDITOR = editor.o
 EDITORSRC = $(shell find editor/ -type f -name '*.c')
 EDITOROBJS += $(EDITORSRC:.c=.o)
-RES = res.tar
+RES = res.zip
 
 CFLAGS = -Wall -O2 -DIMGUI_IMPL_API="extern \"C\"" -c -DVERSION=\"$(VERSION)\"
 CFLAGS += -g
-CFLAGS += -I. -Iengine -Igame -Ieditor -Ilib -Ilib/glad/build/include -Ilib/vec/src -Ilib/microtar/src -Ilib/map/src -Ilib/cmixer/src -Ilib/cimgui -Ilib/cimgui/imgui -Ilib/cglm/include -I/usr/include/SDL2
+CFLAGS += -I. -Iengine -Igame -Ieditor -Ilib -Ilib/glad/build/include -Ilib/vec/src -Ilib/map/src -Ilib/cmixer/src -Ilib/cimgui -Ilib/cimgui/imgui -Ilib/cglm/include -Ilib/physfs/src -I/usr/include/SDL2
 LDFLAGS = -ldl -lSDL2 -lm -llua
 MAKEFLAGS += --silent
 ECHO = echo -e "\033[1m$(1) \033[0m$(2)"
@@ -39,7 +39,7 @@ glad:
 
 $(RES): res
 	$(call ECHO,"packaging",$(RES))
-	tar -cf $(RES) res
+	zip -r $(RES) res
 
 %.o: %.c
 	$(call ECHO,"clang",$<)
