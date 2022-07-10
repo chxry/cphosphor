@@ -1,13 +1,13 @@
 #include "assets.h"
 
-map_t(asset_t) assets;
+map_asset_t assets;
 
 filedata_t load_file(char* path) {
   filedata_t file;
   PHYSFS_file* f = PHYSFS_openRead(path);
   file.len = PHYSFS_fileLength(f);
   file.data = malloc(file.len + 1);
-  PHYSFS_read(f, file.data, 1, file.len);
+  PHYSFS_readBytes(f, file.data, file.len);
   ((char*)file.data)[file.len] = 0;
   return file;
 }
@@ -131,7 +131,7 @@ void assets_init(char* path) {
   asset_register("mesh", mesh);
   asset_register("shader", shader);
   PHYSFS_init(NULL);
-  PHYSFS_addToSearchPath(path, 0);
+  PHYSFS_mount(path, "", 0);
   JSON_Object* root = json_object(json_parse_file("res/assets.json"));
   for (int i = 0; i < json_object_get_count(root); i++) {
     JSON_Array* arr = json_value_get_array(json_object_get_value_at(root, i));

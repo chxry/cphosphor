@@ -11,7 +11,7 @@ void outline_render() {
         char buf[32];
         sprintf(buf, "%s##%i", entity.name, i);
         if (igSelectable_Bool(buf, selected_entity == entity.id, ImGuiSelectableFlags_None, (ImVec2){0, 0})) {
-          selected_entity = entity.id;
+          set_selected_entity(entity.id);
         }
       }
       igSeparator();

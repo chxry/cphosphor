@@ -24,7 +24,6 @@ int main() {
   world_load("res/test.json");
 
   scene_init();
-  info_init();
 
   bool quit = false;
   while (!quit) {

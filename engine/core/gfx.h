@@ -24,6 +24,7 @@ extern unsigned int atmosphere_shader;
 extern unsigned int shadow_shader;
 extern unsigned int lighting_shader;
 extern ImFont* display_font;
+extern ImFont* large_icons;
 
 void window_init(int width, int height, bool fullscreen, char* title);
 void shaders_init();

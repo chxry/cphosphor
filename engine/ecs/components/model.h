@@ -5,14 +5,12 @@
 #include <iconfonts/IconsFontAwesome4.h>
 
 #include "ecs/world.h"
+#include "util/ui.h"
 
 typedef struct {
   int entity;
   const char* mesh;
   const char* tex;
-  // todo only in editor mode
-  char mesh_buf[256];
-  char tex_buf[256];
 } model_t;
 
 extern component_t model;

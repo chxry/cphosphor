@@ -10,6 +10,7 @@ unsigned int atmosphere_shader;
 unsigned int shadow_shader;
 unsigned int lighting_shader;
 ImFont* display_font;
+ImFont* large_icons;
 
 void window_init(int width, int height, bool fullscreen, char* title) {
   if (SDL_Init(SDL_INIT_EVERYTHING)) {
@@ -141,6 +142,8 @@ void imgui_init(bool docking) {
   if (docking) {
     io->ConfigWindowsMoveFromTitleBarOnly = true;
     io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+  } else {
+    io->IniFilename = NULL;
   }
   ImGuiStyle* style = igGetStyle();
   ImVec4* colors = style->Colors;
@@ -210,6 +213,7 @@ void imgui_init(bool docking) {
   ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/fontawesome.ttf", 12, &config, icon_ranges);
   config.MergeMode = false;
   display_font = ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/clashdisplay.ttf", 54, &config, NULL);
+  large_icons = ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/fontawesome.ttf", 54, &config, icon_ranges);
   ImFontAtlas_Build(io->Fonts);
   ImGui_ImplSDL2_InitForOpenGL(window, ctx);
   ImGui_ImplOpenGL3_Init("#version 460");

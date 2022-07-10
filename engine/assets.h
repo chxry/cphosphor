@@ -15,6 +15,7 @@ typedef struct {
   vec_void_t assets;
   void* (*load)(JSON_Object* obj);
 } asset_t;
+typedef map_t(asset_t) map_asset_t;
 
 typedef struct {
   void* data;
@@ -45,6 +46,8 @@ typedef struct {
 } shader_t;
 
 #include "core/gfx.h"
+
+extern map_asset_t assets;
 
 void assets_init(char* path);
 void asset_register(char* name, asset_t asset);

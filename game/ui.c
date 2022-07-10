@@ -101,6 +101,10 @@ void ui_render() {
           igColorEdit4("Color", (float*)&options_color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha);
           igEndTabItem();
         }
+        if (igBeginTabItem("Info", NULL, ImGuiTabItemFlags_NoCloseButton)) {
+          ui_info(36);
+          igEndTabItem();
+        }
         igEndTabBar();
       }
       igEndChild();

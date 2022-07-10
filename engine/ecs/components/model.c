@@ -4,9 +4,7 @@ model_t* model_load(JSON_Object* obj) {
   model_t* model = malloc(sizeof(model_t));
   model->entity = json_object_get_number(obj, "e");
   model->mesh = json_object_get_string(obj, "mesh");
-  strcpy(model->mesh_buf, model->mesh);
   model->tex = json_object_get_string(obj, "tex");
-  strcpy(model->tex_buf, model->tex);
   return model;
 }
 
@@ -22,15 +20,9 @@ JSON_Value* model_save(model_t* model) {
 void model_inspector(model_t* model, int i) {
   char buf[32];
   sprintf(buf, "Mesh##model%i", i);
-  if (igInputText(buf, model->mesh_buf, 256, ImGuiInputTextFlags_EnterReturnsTrue, NULL, NULL)) {
-    model->mesh = realloc(model->mesh, strlen(model->mesh_buf));
-    strcpy(model->mesh, model->mesh_buf);
-  }
+  asset_selector(buf, model->mesh, "mesh");
   sprintf(buf, "Texture##model%i", i);
-  if (igInputText(buf, model->tex_buf, 256, ImGuiInputTextFlags_EnterReturnsTrue, NULL, NULL)) {
-    model->tex = realloc(model->tex, strlen(model->tex_buf));
-    strcpy(model->tex, model->tex_buf);
-  }
+  asset_selector(buf, model->tex, "tex");
 }
 
 model_t* model_create(int entity) {
@@ -38,10 +30,8 @@ model_t* model_create(int entity) {
   model->entity = entity;
   model->mesh = malloc(14);
   strcpy(model->mesh, "mesh/cube.obj");
-  strcpy(model->mesh_buf, "mesh/cube.obj");
   model->tex = malloc(14);
   strcpy(model->tex, "tex/white.jpg");
-  strcpy(model->tex_buf, "tex/white.jpg");
   return model;
 }
 

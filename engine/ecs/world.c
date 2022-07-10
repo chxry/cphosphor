@@ -25,8 +25,7 @@ void world_load(const char* path) {
     JSON_Array* pos = json_object_get_array(obj, "pos");
     JSON_Array* rot = json_object_get_array(obj, "rot");
     JSON_Array* scale = json_object_get_array(obj, "scale");
-    // todo dont realloc name
-    entity_t entity = {.name = realloc((void*)name, 256), .id = id, .pos = VEC3_FROM_JSON(pos), .rot = VEC3_FROM_JSON(rot), .scale = VEC3_FROM_JSON(scale)};
+    entity_t entity = {.name = name, .id = id, .pos = VEC3_FROM_JSON(pos), .rot = VEC3_FROM_JSON(rot), .scale = VEC3_FROM_JSON(scale)};
     vec_push(&world.entities, entity);
   }
 
@@ -72,13 +71,25 @@ component_t* get_component(char* name) {
   return map_get(&world.components, name);
 }
 
+int delete_id;
+void delete_components(component_t* component, char* name) {
+  int i;
+  void* c;
+  vec_foreach(&component->components, c, i) {
+    if (*((int*)c) == delete_id) {
+      vec_splice(&component->components, i, 1);
+    }
+  }
+}
+
 void entity_delete(int id) {
   int i;
   entity_t* entity;
   vec_foreach_ptr(&world.entities, entity, i) {
     if (entity->id == id) {
       vec_splice(&world.entities, i, 1);
-      // free and delete related components
+      delete_id = id;
+      component_iter(delete_components);
       return;
     }
   }
@@ -170,7 +181,7 @@ void world_render(mat4 view, mat4 projection) {
     shader_set_vec3(atmosphere_shader, "light_dir", world.light_dir);
     break;
   }
-  mesh_render(*get_mesh("res/mesh/sky.obj"));
+  mesh_render(*get_mesh("mesh/sky.obj"));
   glDepthFunc(GL_LESS);
 }
 
@@ -194,7 +205,7 @@ void world_render_colliders(mat4 view, mat4 projection) {
     glm_translate_make(model, center);
     glm_scale(model, size);
     shader_set_mat4(debug_shader, "model", model);
-    mesh_render(*get_mesh("res/mesh/sky.obj"));
+    mesh_render(*get_mesh("mesh/sky.obj"));
   }
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
@@ -220,7 +231,7 @@ void world_render_collider(mat4 view, mat4 projection, int entity) {
       glm_translate_make(model, center);
       glm_scale(model, size);
       shader_set_mat4(debug_shader, "model", model);
-      mesh_render(*get_mesh("res/mesh/sky.obj"));
+      mesh_render(*get_mesh("mesh/sky.obj"));
     }
   }
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

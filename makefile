@@ -37,9 +37,9 @@ glad:
 	$(call ECHO,"generating","glad")
 	cd lib/glad && python -m glad --extensions='' --api="gl:core" --out-path=build --reproducible c
 
-$(RES): res
+$(RES): $(shell find res/ -type f)
 	$(call ECHO,"packaging",$(RES))
-	zip -r $(RES) res
+	cd res && zip -r ../$(RES) $(shell cd res && find . -type f)
 
 %.o: %.c
 	$(call ECHO,"clang",$<)

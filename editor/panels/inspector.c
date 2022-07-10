@@ -12,7 +12,7 @@ void inspector_panel(component_t* component, char* name) {
         component->inspector(c, i);
       }
       if (!o) {
-        // delete
+        vec_splice(&component->components, i, 1);
       }
     }
   }
@@ -32,11 +32,14 @@ void inspector_render() {
       if (selected_entity >= 0) {
         entity_t* entity = get_entity(selected_entity);
         igSetNextItemWidth(size.x - 24);
-        igInputText("##", entity->name, 256, ImGuiInputTextFlags_None, NULL, NULL);
+        if (igInputText("##", name_buf, 256, ImGuiInputTextFlags_EnterReturnsTrue, NULL, NULL)) {
+          entity->name = realloc(entity->name, strlen(name_buf));
+          strcpy(entity->name, name_buf);
+        }
         igSameLine(0, 4);
         if (igButton(ICON_FA_TRASH, (ImVec2){20, 20})) {
           entity_delete(selected_entity);
-          selected_entity = -1;
+          set_selected_entity(-1);
         }
         if (igCollapsingHeader_BoolPtr(ICON_FA_ARROWS " Transform", NULL, ImGuiTreeNodeFlags_DefaultOpen)) {
           igDragFloat3("Position", entity->pos, 0.01, 0, 0, "%.5g", ImGuiSliderFlags_None);
