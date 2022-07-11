@@ -1,10 +1,10 @@
-#include "lighting.h"
+#include "renderer.h"
 
 mesh_t quad;
 unsigned int gbuffer, gposition, gnormal, galbedospec, depthbuffer;
 unsigned int shadowbuffer, shadowmap;
 
-void gbuffer_init(int width, int height) {
+void renderer_init(int width, int height) {
   glGenFramebuffers(1, &gbuffer);
   glBindFramebuffer(GL_FRAMEBUFFER, gbuffer);
 
@@ -57,7 +57,7 @@ void gbuffer_init(int width, int height) {
   quad = mesh_init(verts, 6, pos_tex);
 }
 
-void gbuffer_resize(int width, int height) {
+void renderer_resize(int width, int height) {
   glBindFramebuffer(GL_FRAMEBUFFER, gbuffer);
   glBindTexture(GL_TEXTURE_2D, gposition);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
@@ -69,15 +69,20 @@ void gbuffer_resize(int width, int height) {
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
 }
 
-void gbuffer_render_shadows(mat4 light_view, mat4 light_projection) {
+void renderer_render(unsigned int fbo, mat4 view, mat4 projection, int x, int y) {
+  mat4 light_view, light_projection;
   glm_lookat(world.light_dir, (vec3){0, 0, 0}, GLM_YUP, light_view);
   glm_ortho(-50, 50, -50, 50, 0.01, 50, light_projection);
   glViewport(0, 0, SHADOW_RES, SHADOW_RES);
   glBindFramebuffer(GL_FRAMEBUFFER, shadowbuffer);
   glClear(GL_DEPTH_BUFFER_BIT);
-}
-
-void gbuffer_render(mat4 light_view, mat4 light_projection) {
+  world_render_shadows(light_view, light_projection);
+  glViewport(0, 0, x, y);
+  glClearColor(0.0, 0.0, 0.0, 1.0);
+  glBindFramebuffer(GL_FRAMEBUFFER, gbuffer);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  world_render(view, projection);
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   shader_use(lighting_shader);
   shader_set_float(lighting_shader, "light_ambient", world.light_ambient);

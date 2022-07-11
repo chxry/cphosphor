@@ -10,7 +10,7 @@
 #include <cimgui.h>
 #include <iconfonts/IconsFontAwesome4.h>
 
-#include "lighting.h"
+#include "renderer.h"
 #include "assets.h"
 #include "log.h"
 

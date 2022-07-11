@@ -34,7 +34,7 @@ int main() {
       switch (e.type) {
       case SDL_WINDOWEVENT:
         if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-          gbuffer_resize(e.window.data1, e.window.data2);
+          renderer_resize(e.window.data1, e.window.data2);
           conf.width = e.window.data1;
           conf.height = e.window.data2;
         }
@@ -47,24 +47,11 @@ int main() {
       player_processevent(&e);
     }
 
-    mat4 light_view, light_projection;
-    gbuffer_render_shadows(light_view, light_projection);
-    world_render_shadows(light_view, light_projection);
     mat4 view, projection;
     player_movement(&view);
     glm_perspective(glm_rad(conf.fov), (float)conf.width / (float)conf.height, 0.1, 100.0, projection);
 
-    glViewport(0, 0, conf.width, conf.height);
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    glBindFramebuffer(GL_FRAMEBUFFER, gbuffer);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    world_render(view, projection);
-    if (state.debug_drawcolliders) {
-      world_render_colliders(view, projection);
-    }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    gbuffer_render(light_view, light_projection);
+    renderer_render(0, view, projection, conf.width, conf.height);
     ui_render();
     SDL_GL_SwapWindow(window);
     int frame_time = SDL_GetTicks() - frame_start;

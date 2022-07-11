@@ -65,27 +65,15 @@ void scene_update() {
     }
   }
 
-  mat4 light_view, light_projection;
-  gbuffer_render_shadows(light_view, light_projection);
-  world_render_shadows(light_view, light_projection);
-
-  glBindFramebuffer(GL_FRAMEBUFFER, gbuffer);
-  gbuffer_resize(scene_size.x, scene_size.y);
   glBindTexture(GL_TEXTURE_2D, scene_tex);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scene_size.x, scene_size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-  glViewport(0, 0, scene_size.x, scene_size.y);
-  glClearColor(0.0, 0.0, 0.0, 1.0);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
   mat4 view, projection;
   glm_look(cam_pos, cam_dir, GLM_YUP, view);
   glm_perspective(glm_rad(90), scene_size.x / scene_size.y, 0.1, 100.0, projection);
-  world_render(view, projection);
-  if (selected_entity >= 0) {
-    world_render_collider(view, projection, selected_entity);
-  }
 
-  glBindFramebuffer(GL_FRAMEBUFFER, scene_fbo);
-  gbuffer_render(light_view, light_projection);
+  renderer_resize(scene_size.x, scene_size.y);
+  renderer_render(scene_fbo, view, projection, scene_size.x, scene_size.y);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

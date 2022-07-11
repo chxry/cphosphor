@@ -27,7 +27,7 @@ void window_init(int width, int height, bool fullscreen, char* title) {
   glEnable(GL_DEPTH_TEST);
   glLineWidth(2.0);
 
-  gbuffer_init(width, height);
+  renderer_init(width, height);
   log_info("Loaded OpenGL %i.%i on \"%s\".", GLAD_VERSION_MAJOR(gl), GLAD_VERSION_MINOR(gl), glGetString(GL_RENDERER));
 }
 

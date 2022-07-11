@@ -6,7 +6,7 @@
 #include <map.h>
 
 #include "core/gfx.h"
-#include "core/lighting.h"
+#include "core/renderer.h"
 #include "util/math.h"
 #include "util/json.h"
 #include "log.h"

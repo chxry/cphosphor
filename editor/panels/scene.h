@@ -6,7 +6,7 @@
 #include <cglm/cglm.h>
 
 #include "engine/core/gfx.h"
-#include "engine/core/lighting.h"
+#include "engine/core/renderer.h"
 #include "engine/ecs/world.h"
 #include "editor.h"
 
