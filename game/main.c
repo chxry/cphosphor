@@ -3,6 +3,7 @@
 
 #include "engine/core/gfx.h"
 #include "engine/core/audio.h"
+#include "engine/core/physics.h"
 #include "engine/ecs/world.h"
 #include "engine/engine.h"
 #include "engine/assets.h"
@@ -23,6 +24,7 @@ int main() {
   assets_init("res.zip");
   shaders_init();
   world_load("res/test.json");
+  physics_init();
 
   bool quit = false;
   frame_delay = 1000 / conf.fps;
@@ -50,6 +52,7 @@ int main() {
     mat4 view, projection;
     player_movement(&view);
     glm_perspective(glm_rad(conf.fov), (float)conf.width / (float)conf.height, 0.1, 100.0, projection);
+    physics_update();
 
     renderer_render(0, view, projection, conf.width, conf.height);
     ui_render();

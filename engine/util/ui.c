@@ -57,16 +57,24 @@ void ui_info(int offset) {
       igTextWrapped("Copyright (c) 2001-2022 Ryan C. Gordon <icculus@icculus.org> and others.\n\n" ZLIB_LICENSE);
       igTreePop();
     }
-    if (igTreeNode_Str("glad")) {
-      igTextWrapped("Copyright (c) 2013-2022 David Herberth.\n\n" MIT_LICENSE);
+    if (igTreeNode_Str("Dear ImGui")) {
+      igTextWrapped("Copyright (c) 2014-2022 Omar Cornut.\n\n" MIT_LICENSE);
       igTreePop();
     }
     if (igTreeNode_Str("cimgui")) {
       igTextWrapped("Copyright (c) 2015 Stephan Dilly.\n\n" MIT_LICENSE);
       igTreePop();
     }
-    if (igTreeNode_Str("Dear ImGui")) {
-      igTextWrapped("Copyright (c) 2014-2022 Omar Cornut.\n\n" MIT_LICENSE);
+    if (igTreeNode_Str("Bullet Physics")) {
+      igTextWrapped("Copyright (c) 2005-2014 Erwin Coumans.\n\n" ZLIB_LICENSE);
+      igTreePop();
+    }
+    if (igTreeNode_Str("bulletCapi")) {
+      igTextWrapped("Copyright (c) chriscamacho.\n\n" GPL_LICENSE);
+      igTreePop();
+    }
+    if (igTreeNode_Str("stb")) {
+      igTextWrapped("Copyright (c) 2017 Sean Barrett.\n\n" MIT_LICENSE);
       igTreePop();
     }
     if (igTreeNode_Str("cglm")) {
@@ -79,6 +87,10 @@ void ui_info(int offset) {
     }
     if (igTreeNode_Str("vec, map & cmixer")) {
       igTextWrapped("Copyright (c) 2014,2017 rxi.\n\n" MIT_LICENSE);
+      igTreePop();
+    }
+    if (igTreeNode_Str("glad")) {
+      igTextWrapped("Copyright (c) 2013-2022 David Herberth.\n\n" MIT_LICENSE);
       igTreePop();
     }
     if (igTreeNode_Str("IconFontCppHeaders")) {

@@ -33,3 +33,9 @@
 [submodule "lib/physfs"]
 	path = lib/physfs
 	url = https://github.com/icculus/physfs
+[submodule "lib/bulletcapi"]
+	path = lib/bulletcapi
+	url = https://github.com/chriscamacho/bulletCapi
+[submodule "lib/bullet3"]
+	path = lib/bullet3
+	url = https://github.com/bulletphysics/bullet3

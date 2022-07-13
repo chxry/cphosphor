@@ -1,7 +1,6 @@
 #include "world.h"
 
 world_t world;
-unsigned int skybox_tex;
 
 void world_load(const char* path) {
   vec_init(&world.entities);
@@ -9,6 +8,7 @@ void world_load(const char* path) {
   component_register("model", model);
   component_register("boxcollider", boxcollider);
   component_register("text", text);
+  component_register("rigidbody", rigidbody);
 
   JSON_Object* root = json_object(json_parse_file(path)); // use asset system
   world.light_ambient = json_object_dotget_number(root, "light.ambient");
@@ -141,50 +141,6 @@ void world_write(const char* path) {
   log_info("Wrote world \"%s\".", path);
 }
 
-void world_render(mat4 view, mat4 projection) {
-  shader_use(basic_shader);
-  shader_set_mat4(basic_shader, "view", view);
-  shader_set_mat4(basic_shader, "projection", projection);
-
-  int i;
-  model_t* model;
-  vec_foreach(&get_component("model")->components, model, i) {
-    entity_t* entity = get_entity(model->entity);
-    tex_use(get_tex(model->tex)->tex);
-    mat4 modelm;
-    glm_translate_make(modelm, entity->pos);
-    glm_rotate_x(modelm, glm_rad(entity->rot[0]), modelm);
-    glm_rotate_y(modelm, glm_rad(entity->rot[1]), modelm);
-    glm_rotate_z(modelm, glm_rad(entity->rot[2]), modelm);
-    glm_scale(modelm, entity->scale);
-    shader_set_mat4(basic_shader, "model", modelm);
-    mesh_render(*get_mesh(model->mesh));
-  }
-
-  glDepthFunc(GL_LEQUAL);
-  mat4 skybox_view = GLM_MAT4_ZERO_INIT;
-  mat3 view3;
-  glm_mat4_pick3(view, view3);
-  glm_mat4_ins3(view3, skybox_view);
-  switch (world.sky_mode) {
-  case skybox:
-    shader_use(skybox_shader);
-    tex_use_cubemap(skybox_tex);
-    shader_set_mat4(skybox_shader, "view", skybox_view);
-    shader_set_mat4(skybox_shader, "projection", projection);
-    shader_set_vec3(skybox_shader, "light_dir", world.light_dir);
-    break;
-  case atmosphere:
-    shader_use(atmosphere_shader);
-    shader_set_mat4(atmosphere_shader, "view", skybox_view);
-    shader_set_mat4(atmosphere_shader, "projection", projection);
-    shader_set_vec3(atmosphere_shader, "light_dir", world.light_dir);
-    break;
-  }
-  mesh_render(*get_mesh("mesh/sky.obj"));
-  glDepthFunc(GL_LESS);
-}
-
 void world_render_colliders(mat4 view, mat4 projection) {
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   shader_use(debug_shader);
@@ -235,26 +191,6 @@ void world_render_collider(mat4 view, mat4 projection, int entity) {
     }
   }
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
-
-void world_render_shadows(mat4 view, mat4 projection) {
-  shader_use(shadow_shader);
-  shader_set_mat4(shadow_shader, "view", view);
-  shader_set_mat4(shadow_shader, "projection", projection);
-
-  int i;
-  model_t* model;
-  vec_foreach(&get_component("model")->components, model, i) {
-    entity_t* entity = get_entity(model->entity);
-    mat4 modelm;
-    glm_translate_make(modelm, entity->pos);
-    glm_rotate_x(modelm, glm_rad(entity->rot[0]), modelm);
-    glm_rotate_y(modelm, glm_rad(entity->rot[1]), modelm);
-    glm_rotate_z(modelm, glm_rad(entity->rot[2]), modelm);
-    glm_scale(modelm, entity->scale);
-    shader_set_mat4(shadow_shader, "model", modelm);
-    mesh_render(*get_mesh(model->mesh));
-  }
 }
 
 bool world_test_collision(aabb_t box) {

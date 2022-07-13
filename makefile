@@ -8,24 +8,28 @@ GAMEOBJS += $(GAMESRC:.c=.o)
 EDITOR = editor.o
 EDITORSRC = $(shell find editor/ -type f -name '*.c')
 EDITOROBJS += $(EDITORSRC:.c=.o)
+BULLETSRC=$(shell find lib/bullet3/src/BulletCollision lib/bullet3/src/BulletDynamics lib/bullet3/src/LinearMath -type f -name '*.cpp')
+BULLETOBJS=$(BULLETSRC:.cpp=.o)
 RES = res.zip
 
 CFLAGS = -Wall -O2 -DIMGUI_IMPL_API="extern \"C\"" -c -DVERSION=\"$(VERSION)\"
 CFLAGS += -g
-CFLAGS += -I. -Iengine -Igame -Ieditor -Ilib -Ilib/glad/build/include -Ilib/vec/src -Ilib/map/src -Ilib/cmixer/src -Ilib/cimgui -Ilib/cimgui/imgui -Ilib/cglm/include -Ilib/physfs/src -I/usr/include/SDL2
+CFLAGS += -I. -Iengine -Igame -Ieditor -Ilib -Ilib/glad/build/include -Ilib/vec/src -Ilib/map/src -Ilib/cmixer/src -Ilib/cimgui -Ilib/cimgui/imgui -Ilib/cglm/include -Ilib/physfs/src -I/usr/include/SDL2 -Ilib/bulletcapi
 LDFLAGS = -ldl -lSDL2 -lm -llua
 MAKEFLAGS += --silent
 ECHO = echo -e "\033[1m$(1) \033[0m$(2)"
+.SUFFIXES:
+.PHONY: game editor
 
-setup: glad cimgui
+setup: glad cimgui bullet
 
 $(GAME): $(OBJS) $(GAMEOBJS) $(RES)
 	$(call ECHO,"linking",$(GAME))
-	clang++ $(LDFLAGS) $(OBJS) $(GAMEOBJS) lib/cimgui/libcimgui.a imgui_sdl.o imgui_opengl3.o -o $(GAME)
+	clang++ $(LDFLAGS) $(OBJS) $(GAMEOBJS) $(BULLETOBJS) lib/cimgui/libcimgui.a imgui_sdl.o imgui_opengl3.o bulletcapi.o -o $(GAME)
 
 $(EDITOR): $(OBJS) $(EDITOROBJS) $(RES)
 	$(call ECHO,"linking",$(EDITOR))
-	clang++ $(LDFLAGS) $(OBJS) $(EDITOROBJS) lib/cimgui/libcimgui.a imgui_sdl.o imgui_opengl3.o -o $(EDITOR)
+	clang++ $(LDFLAGS) $(OBJS) $(EDITOROBJS) $(BULLETOBJS) lib/cimgui/libcimgui.a imgui_sdl.o imgui_opengl3.o bulletcapi.o -o $(EDITOR)
 
 cimgui:
 	$(call ECHO,"compiling","cimgui")
@@ -37,6 +41,10 @@ glad:
 	$(call ECHO,"generating","glad")
 	cd lib/glad && python -m glad --extensions='' --api="gl:core" --out-path=build --reproducible c
 
+bullet: $(BULLETOBJS)
+	$(call ECHO,"compiling","bullet3")
+	clang++ $(CFLAGS) -Ilib/bullet3/src lib/bulletcapi/capi/capi.cpp -o bulletcapi.o
+
 $(RES): $(shell find res/ -type f)
 	$(call ECHO,"packaging",$(RES))
 	cd res && zip -r ../$(RES) $(shell cd res && find . -type f)
@@ -45,9 +53,14 @@ $(RES): $(shell find res/ -type f)
 	$(call ECHO,"clang",$<)
 	clang $(CFLAGS) $< -o $@
 
-.PHONY: game editor
+vpath %.c lib/bullet3
+%.o: %.cpp
+	$(call ECHO,"clang++",$<)
+	clang++ $(CFLAGS) -Ilib/bullet3/src $< -o $@
+
 game: $(GAME)
 	./$(GAME)
+
 editor: $(EDITOR)
 	./$(EDITOR)
 
@@ -57,4 +70,4 @@ format:
 
 clean:
 	$(call ECHO,"clean","removing objects")
-	rm -rf $(OBJS) $(GAMEOBJS) $(EDITOROBJS) $(GAME) $(EDITOR) $(RES)
+	rm -rf $(OBJS) $(GAMEOBJS) $(EDITOROBJS) $(BULLETOBJS) $(GAME) $(EDITOR) $(RES)

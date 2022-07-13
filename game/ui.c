@@ -96,8 +96,8 @@ void ui_render() {
           igEndTabItem();
         }
         if (igBeginTabItem("Crosshair", NULL, ImGuiTabItemFlags_NoCloseButton)) {
-          igSliderInt("Size", &options_conf.crosshair_size, 1, 100, "%i", ImGuiInputTextFlags_None);
-          igSliderInt("Thickness", &options_conf.crosshair_thickness, 1, 10, "%i", ImGuiInputTextFlags_None);
+          igSliderInt("Size", &options_conf.crosshair_size, 1, 100, "%i", ImGuiSliderFlags_None);
+          igSliderInt("Thickness", &options_conf.crosshair_thickness, 1, 10, "%i", ImGuiSliderFlags_None);
           igColorEdit4("Color", (float*)&options_color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha);
           igEndTabItem();
         }

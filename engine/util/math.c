@@ -13,3 +13,23 @@ float aabb_raycast(vec3 origin, vec3 dir, aabb_t box) {
   t[9] = (t[8] < 0 || t[7] > t[8]) ? 0 : t[7];
   return t[9];
 }
+
+void quat_to_euler(vec4 q, vec3 e) {
+  // x
+  float sinr_cosp = 2 * (q[3] * q[0] + q[1] * q[2]);
+  float cosr_cosp = 1 - 2 * (q[0] * q[0] + q[1] * q[1]);
+  e[0] = atan2(sinr_cosp, cosr_cosp);
+
+  // y
+  float sinp = 2 * (q[3] * q[1] - q[2] * q[0]);
+  if (fabs(sinp) >= 1) {
+    e[1] = copysign(M_PI / 2, sinp);
+  } else {
+    e[1] = asin(sinp);
+  }
+
+  // z
+  float siny_cosp = 2 * (q[3] * q[2] + q[0] * q[1]);
+  float cosy_cosp = 1 - 2 * (q[1] * q[1] + q[2] * q[2]);
+  e[2] = atan2(siny_cosp, cosy_cosp);
+}

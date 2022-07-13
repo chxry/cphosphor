@@ -3,6 +3,7 @@
 mesh_t quad;
 unsigned int gbuffer, gposition, gnormal, galbedospec, depthbuffer;
 unsigned int shadowbuffer, shadowmap;
+unsigned int skybox_tex;
 
 void renderer_init(int width, int height) {
   glGenFramebuffers(1, &gbuffer);
@@ -76,12 +77,68 @@ void renderer_render(unsigned int fbo, mat4 view, mat4 projection, int x, int y)
   glViewport(0, 0, SHADOW_RES, SHADOW_RES);
   glBindFramebuffer(GL_FRAMEBUFFER, shadowbuffer);
   glClear(GL_DEPTH_BUFFER_BIT);
-  world_render_shadows(light_view, light_projection);
+  shader_use(shadow_shader);
+  shader_set_mat4(shadow_shader, "view", light_view);
+  shader_set_mat4(shadow_shader, "projection", light_projection);
+
+  int i;
+  model_t* model;
+  vec_foreach(&get_component("model")->components, model, i) {
+    entity_t* entity = get_entity(model->entity);
+    mat4 modelm;
+    glm_translate_make(modelm, entity->pos);
+    glm_rotate_x(modelm, glm_rad(entity->rot[0]), modelm);
+    glm_rotate_y(modelm, glm_rad(entity->rot[1]), modelm);
+    glm_rotate_z(modelm, glm_rad(entity->rot[2]), modelm);
+    glm_scale(modelm, entity->scale);
+    shader_set_mat4(shadow_shader, "model", modelm);
+    mesh_render(*get_mesh(model->mesh));
+  }
+
   glViewport(0, 0, x, y);
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glBindFramebuffer(GL_FRAMEBUFFER, gbuffer);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  world_render(view, projection);
+  shader_use(basic_shader);
+  shader_set_mat4(basic_shader, "view", view);
+  shader_set_mat4(basic_shader, "projection", projection);
+
+  vec_foreach(&get_component("model")->components, model, i) {
+    entity_t* entity = get_entity(model->entity);
+    tex_use(get_tex(model->tex)->tex);
+    mat4 modelm;
+    glm_translate_make(modelm, entity->pos);
+    glm_rotate_x(modelm, glm_rad(entity->rot[0]), modelm);
+    glm_rotate_y(modelm, glm_rad(entity->rot[1]), modelm);
+    glm_rotate_z(modelm, glm_rad(entity->rot[2]), modelm);
+    glm_scale(modelm, entity->scale);
+    shader_set_mat4(basic_shader, "model", modelm);
+    mesh_render(*get_mesh(model->mesh));
+  }
+
+  glDepthFunc(GL_LEQUAL);
+  mat4 skybox_view = GLM_MAT4_ZERO_INIT;
+  mat3 view3;
+  glm_mat4_pick3(view, view3);
+  glm_mat4_ins3(view3, skybox_view);
+  switch (world.sky_mode) {
+  case skybox:
+    shader_use(skybox_shader);
+    tex_use_cubemap(skybox_tex);
+    shader_set_mat4(skybox_shader, "view", skybox_view);
+    shader_set_mat4(skybox_shader, "projection", projection);
+    shader_set_vec3(skybox_shader, "light_dir", world.light_dir);
+    break;
+  case atmosphere:
+    shader_use(atmosphere_shader);
+    shader_set_mat4(atmosphere_shader, "view", skybox_view);
+    shader_set_mat4(atmosphere_shader, "projection", projection);
+    shader_set_vec3(atmosphere_shader, "light_dir", world.light_dir);
+    break;
+  }
+  mesh_render(*get_mesh("mesh/sky.obj"));
+  glDepthFunc(GL_LESS);
+
   glBindFramebuffer(GL_FRAMEBUFFER, fbo);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   shader_use(lighting_shader);
