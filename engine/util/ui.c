@@ -106,3 +106,15 @@ void ui_info(int offset) {
   }
   igPopTextWrapPos();
 }
+
+void ui_helpmarker(char* info) {
+  igSameLine(0, 4);
+  igTextDisabled(ICON_FA_QUESTION_CIRCLE);
+  if (igIsItemHovered(ImGuiHoveredFlags_None)) {
+    igBeginTooltip();
+    igPushTextWrapPos(400);
+    igText(info);
+    igPopTextWrapPos();
+    igEndTooltip();
+  }
+}

@@ -64,7 +64,5 @@ void component_iter(void (*f)(component_t* c, char* name));
 entity_t* get_entity(int id);
 component_t* get_component(char* name);
 void entity_delete(int id);
-void world_render_colliders(mat4 view, mat4 projection);
-void world_render_collider(mat4 view, mat4 projection, int entity);
 bool world_test_collision(aabb_t box);
 collision_t world_raycast(vec3 origin, vec3 dir);

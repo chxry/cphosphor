@@ -207,13 +207,13 @@ void imgui_init(bool docking) {
   style->FrameRounding = 2.0;
 
   ImFontConfig config = *ImFontConfig_ImFontConfig();
-  ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/roboto.ttf", 16, &config, NULL);
+  ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/fonts/roboto.ttf", 16, &config, NULL);
   config.MergeMode = true;
   static const ImWchar icon_ranges[] = {ICON_MIN_FA, ICON_MAX_FA, 0};
-  ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/fontawesome.ttf", 12, &config, icon_ranges);
+  ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/fonts/fontawesome.ttf", 12, &config, icon_ranges);
   config.MergeMode = false;
-  display_font = ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/clashdisplay.ttf", 54, &config, NULL);
-  large_icons = ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/fontawesome.ttf", 54, &config, icon_ranges);
+  display_font = ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/fonts/clashdisplay.ttf", 54, &config, NULL);
+  large_icons = ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/fonts/fontawesome.ttf", 54, &config, icon_ranges);
   ImFontAtlas_Build(io->Fonts);
   ImGui_ImplSDL2_InitForOpenGL(window, ctx);
   ImGui_ImplOpenGL3_Init("#version 460");

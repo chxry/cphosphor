@@ -10,9 +10,22 @@ void physics_init() {
   rigidbody_t* rb;
   vec_foreach(&get_component("rigidbody")->components, rb, i) {
     entity_t* entity = get_entity(rb->entity);
-    void* shape = shapeCreateBox(physics_universe, entity->scale[0], entity->scale[1], entity->scale[2]);
+    void* shape;
+    switch (rb->collider) {
+    case collider_cube:
+      shape = shapeCreateBox(physics_universe, entity->scale[0], entity->scale[1], entity->scale[2]);
+      break;
+    case collider_sphere:
+      shape = shapeCreateSphere(physics_universe, (entity->scale[0] + entity->scale[1] + entity->scale[2]) / 3);
+      break;
+    case collider_cylinder:
+      shape = shapeCreateCylinderY(physics_universe, (entity->scale[0] + entity->scale[2]) / 2, entity->scale[1]);
+      break;
+    }
     rb->body = bodyCreate(physics_universe, shape, rb->mass, entity->pos[0], entity->pos[1], entity->pos[2]);
     bodySetRotationEular(rb->body, glm_rad(entity->rot[0]), glm_rad(entity->rot[1]), glm_rad(entity->rot[2]));
+    bodySetFriction(rb->body, rb->friction);
+    bodySetRestitution(rb->body, rb->bounciness);
   }
 }
 

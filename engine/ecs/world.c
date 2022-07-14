@@ -141,58 +141,6 @@ void world_write(const char* path) {
   log_info("Wrote world \"%s\".", path);
 }
 
-void world_render_colliders(mat4 view, mat4 projection) {
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  shader_use(debug_shader);
-  shader_set_mat4(debug_shader, "view", view);
-  shader_set_mat4(debug_shader, "projection", projection);
-
-  mat4 model;
-  vec3 center;
-  vec3 size;
-  int i;
-  boxcollider_t* collider;
-  vec_foreach(&get_component("boxcollder")->components, collider, i) {
-    entity_t* entity = get_entity(collider->entity);
-    glm_vec3_center(collider->b.min, collider->b.max, center);
-    glm_vec3_add(entity->pos, center, center);
-    glm_vec3_sub(collider->b.max, collider->b.min, size);
-    glm_vec3_divs(size, 2, size);
-    glm_translate_make(model, center);
-    glm_scale(model, size);
-    shader_set_mat4(debug_shader, "model", model);
-    mesh_render(*get_mesh("mesh/sky.obj"));
-  }
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
-
-void world_render_collider(mat4 view, mat4 projection, int entity) {
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  shader_use(debug_shader);
-  shader_set_mat4(debug_shader, "view", view);
-  shader_set_mat4(debug_shader, "projection", projection);
-
-  mat4 model;
-  vec3 center;
-  vec3 size;
-  int i;
-  boxcollider_t* collider;
-  vec_foreach(&get_component("boxcollider")->components, collider, i) {
-    if (collider->entity == entity) {
-      entity_t* entity = get_entity(collider->entity);
-      glm_vec3_center(collider->b.min, collider->b.max, center);
-      glm_vec3_add(entity->pos, center, center);
-      glm_vec3_sub(collider->b.max, collider->b.min, size);
-      glm_vec3_divs(size, 2, size);
-      glm_translate_make(model, center);
-      glm_scale(model, size);
-      shader_set_mat4(debug_shader, "model", model);
-      mesh_render(*get_mesh("mesh/sky.obj"));
-    }
-  }
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
-
 bool world_test_collision(aabb_t box) {
   int i;
   boxcollider_t* collider;

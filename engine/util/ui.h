@@ -1,6 +1,7 @@
 #pragma once
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui.h>
+#include <iconfonts/IconsFontAwesome4.h>
 #include <map.h>
 #include <vec.h>
 
@@ -13,3 +14,4 @@
 
 void asset_selector(char* label, char* selected, char* type);
 void ui_info(int offset);
+void ui_helpmarker(char* info);

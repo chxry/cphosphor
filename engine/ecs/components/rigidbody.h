@@ -4,11 +4,16 @@
 #include <cimgui.h>
 #include <iconfonts/IconsFontAwesome4.h>
 
+#include "core/physics.h"
 #include "ecs/world.h"
+#include "util/ui.h"
 
 typedef struct {
   int entity;
+  collider_t collider;
   float mass;
+  float friction;
+  float bounciness;
   void* body;
 } rigidbody_t;
 

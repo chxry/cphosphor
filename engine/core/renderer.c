@@ -70,7 +70,7 @@ void renderer_resize(int width, int height) {
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
 }
 
-void renderer_render(unsigned int fbo, mat4 view, mat4 projection, int x, int y) {
+void renderer_render(unsigned int fbo, mat4 view, mat4 projection, int x, int y, int colliders) {
   mat4 light_view, light_projection;
   glm_lookat(world.light_dir, (vec3){0, 0, 0}, GLM_YUP, light_view);
   glm_ortho(-50, 50, -50, 50, 0.01, 50, light_projection);
@@ -116,6 +116,42 @@ void renderer_render(unsigned int fbo, mat4 view, mat4 projection, int x, int y)
     mesh_render(*get_mesh(model->mesh));
   }
 
+  shader_use(debug_shader);
+  shader_set_mat4(debug_shader, "view", view);
+  shader_set_mat4(debug_shader, "projection", projection);
+
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  rigidbody_t* rb;
+  vec_foreach(&get_component("rigidbody")->components, rb, i) {
+    entity_t* entity = get_entity(rb->entity);
+    if (colliders < 0 || entity->id == colliders) {
+      mat4 modelm;
+      mesh_t mesh;
+      glm_translate_make(modelm, entity->pos);
+      glm_rotate_x(modelm, glm_rad(entity->rot[0]), modelm);
+      glm_rotate_y(modelm, glm_rad(entity->rot[1]), modelm);
+      glm_rotate_z(modelm, glm_rad(entity->rot[2]), modelm);
+      switch (rb->collider) {
+      case collider_cube:
+        mesh = *get_mesh("mesh/cube.obj");
+        glm_scale(modelm, entity->scale);
+        break;
+      case collider_sphere:
+        mesh = *get_mesh("mesh/sphere.obj");
+        glm_scale_uni(modelm, (entity->scale[0] + entity->scale[1] + entity->scale[2]) / 3);
+        break;
+      case collider_cylinder:
+        mesh = *get_mesh("mesh/cylinder.obj");
+        float r = (entity->scale[0] + entity->scale[2]) / 2;
+        glm_scale(modelm, (vec3){r, entity->scale[1], r});
+        break;
+      }
+      shader_set_mat4(debug_shader, "model", modelm);
+      mesh_render(mesh);
+    }
+  }
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
   glDepthFunc(GL_LEQUAL);
   mat4 skybox_view = GLM_MAT4_ZERO_INIT;
   mat3 view3;
@@ -136,7 +172,7 @@ void renderer_render(unsigned int fbo, mat4 view, mat4 projection, int x, int y)
     shader_set_vec3(atmosphere_shader, "light_dir", world.light_dir);
     break;
   }
-  mesh_render(*get_mesh("mesh/sky.obj"));
+  mesh_render(*get_mesh("mesh/cube.obj"));
   glDepthFunc(GL_LESS);
 
   glBindFramebuffer(GL_FRAMEBUFFER, fbo);

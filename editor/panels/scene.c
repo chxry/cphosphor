@@ -73,7 +73,7 @@ void scene_update() {
   glm_perspective(glm_rad(90), scene_size.x / scene_size.y, 0.1, 100.0, projection);
 
   renderer_resize(scene_size.x, scene_size.y);
-  renderer_render(scene_fbo, view, projection, scene_size.x, scene_size.y);
+  renderer_render(scene_fbo, view, projection, scene_size.x, scene_size.y, selected_entity);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
