@@ -4,6 +4,7 @@
 #include <iconfonts/IconsFontAwesome4.h>
 
 #include "engine/ecs/world.h"
+#include "engine/util/ui.h"
 #include "engine/engine.h"
 #include "engine/assets.h"
 #include "engine/log.h"
@@ -19,9 +20,10 @@ int main() {
   engine_init();
   window_init(1280, 720, false, "editor");
   imgui_init(true);
+  splash_render(1280, 720);
   assets_init("res.zip");
   shaders_init();
-  world_load("res/test.json");
+  world_load("res/scene.json");
 
   scene_init();
 
@@ -57,7 +59,7 @@ int main() {
     if (igBeginMenuBar()) {
       if (igBeginMenu("File", true)) {
         if (igMenuItem_BoolPtr(ICON_FA_FILE " Save", NULL, NULL, true)) {
-          world_write("test.json");
+          world_write("scene.json");
         }
         if (igMenuItem_BoolPtr(ICON_FA_TIMES " Exit", NULL, NULL, true)) {
           return 0;

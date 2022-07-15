@@ -56,6 +56,7 @@ void renderer_init(int width, int height) {
       -1, -1, 0, 0, 0,
       -1, 1, 0, 0, 1};
   quad = mesh_init(verts, 6, pos_tex);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void renderer_resize(int width, int height) {

@@ -4,6 +4,7 @@
 #include <iconfonts/IconsFontAwesome4.h>
 #include <map.h>
 #include <vec.h>
+#include <glad/gl.h>
 
 #include "engine.h"
 #include "assets.h"
@@ -15,3 +16,4 @@
 void asset_selector(char* label, char* selected, char* type);
 void ui_info(int offset);
 void ui_helpmarker(char* info);
+void splash_render(int x, int y);

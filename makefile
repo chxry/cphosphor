@@ -1,4 +1,5 @@
-VERSION = "0.1"
+ENGINE_NAME = "Phosphor"
+ENGINE_VER = "0.2"
 
 SRC = $(shell find engine/ lib/cglm/src/ lib/physfs/src/ -type f -name '*.c') lib/glad/build/src/gl.c lib/vec/src/vec.c lib/map/src/map.c lib/cmixer/src/cmixer.c lib/parson/parson.c
 OBJS = $(SRC:.c=.o)
@@ -12,7 +13,7 @@ BULLETSRC=$(shell find lib/bullet3/src/BulletCollision lib/bullet3/src/BulletDyn
 BULLETOBJS=$(BULLETSRC:.cpp=.o)
 RES = res.zip
 
-CFLAGS = -Wall -O2 -DIMGUI_IMPL_API="extern \"C\"" -c -DVERSION=\"$(VERSION)\"
+CFLAGS = -Wall -O2 -DIMGUI_IMPL_API="extern \"C\"" -c -DENGINE_VER=\"$(ENGINE_VER)\" -DENGINE_NAME=\"$(ENGINE_NAME)\"
 CFLAGS += -g
 CFLAGS += -I. -Iengine -Igame -Ieditor -Ilib -Ilib/glad/build/include -Ilib/vec/src -Ilib/map/src -Ilib/cmixer/src -Ilib/cimgui -Ilib/cimgui/imgui -Ilib/cglm/include -Ilib/physfs/src -I/usr/include/SDL2 -Ilib/bulletcapi
 LDFLAGS = -ldl -lSDL2 -lm -llua

@@ -19,7 +19,7 @@ void engine_init() {
     }
   }
   fclose(cpuinfo);
-  log_info("Floppa Engine v" VERSION ".");
+  log_info("Phosphor v" ENGINE_VER ".");
 }
 
 int lua_set(lua_State* l) {

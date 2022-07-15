@@ -212,7 +212,7 @@ void imgui_init(bool docking) {
   static const ImWchar icon_ranges[] = {ICON_MIN_FA, ICON_MAX_FA, 0};
   ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/fonts/fontawesome.ttf", 12, &config, icon_ranges);
   config.MergeMode = false;
-  display_font = ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/fonts/clashdisplay.ttf", 54, &config, NULL);
+  display_font = ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/fonts/comfortaa.ttf", 54, &config, NULL);
   large_icons = ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/fonts/fontawesome.ttf", 54, &config, icon_ranges);
   ImFontAtlas_Build(io->Fonts);
   ImGui_ImplSDL2_InitForOpenGL(window, ctx);

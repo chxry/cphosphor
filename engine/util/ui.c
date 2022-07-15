@@ -24,11 +24,11 @@ void ui_info(int offset) {
   ImVec2 size;
   igGetContentRegionAvail(&size);
   igPushFont(display_font);
-  igText("Floppa Engine");
+  igText(ENGINE_NAME);
   igPopFont();
-  igText("github.com/chxry/tester");
+  igText("github.com/chxry/phosphor");
   igSameLine(size.x - offset, 0);
-  igText("v" VERSION);
+  igText("v" ENGINE_VER);
   igSeparator();
   igPushTextWrapPos(size.x);
   if (igTreeNode_Str("Debug Info")) {
@@ -117,4 +117,34 @@ void ui_helpmarker(char* info) {
     igPopTextWrapPos();
     igEndTooltip();
   }
+}
+
+void splash_render(int x, int y) {
+  glViewport(0, 0, x, y);
+  glClearColor(0.0, 0.0, 0.0, 1.0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  ImGui_ImplOpenGL3_NewFrame();
+  ImGui_ImplSDL2_NewFrame(window);
+  igNewFrame();
+  ImGuiIO* io = igGetIO();
+  igSetNextWindowPos((ImVec2){0, 0}, ImGuiCond_Always, (ImVec2){0, 0});
+  igSetNextWindowSize((ImVec2){x, y}, ImGuiCond_Always);
+  igBegin("splash", NULL, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground);
+
+  igPushFont(display_font);
+  igSetWindowFontScale(1.5);
+  ImVec2 size;
+  igCalcTextSize(&size, ENGINE_NAME, 0, 0, 0);
+  igSetCursorPosX((x - size.x) / 2);
+  igSetCursorPosY((y - size.y) / 2);
+  igText(ENGINE_NAME);
+  igSetWindowFontScale(0.4);
+  igSetCursorPosX((x - size.x) / 2);
+  igText("Loading v" ENGINE_VER ".");
+  igPopFont();
+  igEnd();
+
+  igRender();
+  ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());
+  SDL_GL_SwapWindow(window);
 }

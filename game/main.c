@@ -5,6 +5,7 @@
 #include "engine/core/audio.h"
 #include "engine/core/physics.h"
 #include "engine/ecs/world.h"
+#include "engine/util/ui.h"
 #include "engine/engine.h"
 #include "engine/assets.h"
 #include "engine/log.h"
@@ -20,12 +21,12 @@ int main() {
   state_bind();
   window_init(conf.width, conf.height, conf.fullscreen, "flop");
   ui_init();
+  splash_render(conf.width, conf.height);
   audio_init(conf.volume);
   assets_init("res.zip");
   shaders_init();
-  world_load("res/test.json");
+  world_load("res/scene.json");
   physics_init();
-
   bool quit = false;
   frame_delay = 1000 / conf.fps;
   while (!quit) {

@@ -28,9 +28,9 @@ void text_inspector(text_t* text, int i) {
 text_t* text_create(int entity) {
   text_t* text = malloc(sizeof(text_t));
   text->entity = entity;
-  text->text = malloc(14);
-  strcpy(text->text, "Floppa Engine");
-  strcpy(text->text_buf, "Floppa Engine");
+  text->text = malloc(5);
+  strcpy(text->text, "text");
+  strcpy(text->text_buf, "text");
   return text;
 }
 
