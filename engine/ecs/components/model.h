@@ -11,6 +11,7 @@ typedef struct {
   int entity;
   const char* mesh;
   const char* tex;
+  float spec;
 } model_t;
 
 extern component_t model;

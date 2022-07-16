@@ -46,6 +46,7 @@ typedef struct {
   float light_diffuse;
   vec3 light_dir;
   vec3 light_color;
+  int shadow_softness;
   sky_mode_t sky_mode;
 } world_t;
 

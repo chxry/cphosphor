@@ -23,10 +23,10 @@ JSON_Value* rigidbody_save(rigidbody_t* rb) {
 
 void rigidbody_inspector(rigidbody_t* rb, int i) {
   igCombo_Str("Collider", &rb->collider, "Cube\0Sphere\0Cylinder\0\0", 0);
-  igDragFloat("Mass", &rb->mass, 0.1, 0, 0, "%.5g", ImGuiInputTextFlags_None);
-  igDragFloat("Friction", &rb->friction, 0.1, 0, 0, "%.5g", ImGuiInputTextFlags_None);
+  igDragFloat("Mass", &rb->mass, 0.1, 0, 0, "%.5g", ImGuiSliderFlags_None);
+  igDragFloat("Friction", &rb->friction, 0.1, 0, 0, "%.5g", ImGuiSliderFlags_None);
   ui_helpmarker("Best results using friction > 0.");
-  igDragFloat("Bounciness", &rb->bounciness, 0.1, 0, 0, "%.5g", ImGuiInputTextFlags_None);
+  igDragFloat("Bounciness", &rb->bounciness, 0.1, 0, 0, "%.5g", ImGuiSliderFlags_None);
   ui_helpmarker("Best results using 0 bounciness.");
 }
 

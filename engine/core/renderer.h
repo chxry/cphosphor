@@ -12,4 +12,4 @@ extern unsigned int gbuffer;
 
 void renderer_init(int width, int height);
 void renderer_resize(int width, int height);
-void renderer_render(unsigned int fbo, mat4 view, mat4 projection, int x, int y, int colliders);
+void renderer_render(unsigned int fbo, vec3 cam_dir, mat4 view, mat4 projection, int x, int y, int colliders);

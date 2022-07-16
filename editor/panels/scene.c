@@ -8,6 +8,7 @@ unsigned int scene_fbo;
 unsigned int scene_tex;
 
 vec3 cam_pos = (vec3){0.0, 3.0, 0.0};
+vec3 cam_dir;
 const float cam_speed = 0.25;
 float yaw = -90.0;
 float pitch = 0.0;
@@ -37,7 +38,6 @@ void scene_processevent(SDL_Event* e) {
 }
 
 void scene_update() {
-  vec3 cam_dir;
   cam_dir[0] = cos(glm_rad(yaw)) * cos(glm_rad(pitch));
   cam_dir[1] = sin(glm_rad(pitch));
   cam_dir[2] = sin(glm_rad(yaw)) * cos(glm_rad(pitch));
@@ -73,7 +73,7 @@ void scene_update() {
   glm_perspective(glm_rad(90), scene_size.x / scene_size.y, 0.1, 100.0, projection);
 
   renderer_resize(scene_size.x, scene_size.y);
-  renderer_render(scene_fbo, view, projection, scene_size.x, scene_size.y, selected_entity);
+  renderer_render(scene_fbo, cam_dir, view, projection, scene_size.x, scene_size.y, selected_entity);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -84,6 +84,13 @@ void scene_render() {
       igGetWindowSize(&scene_size);
       scene_focused = igIsWindowFocused(ImGuiFocusedFlags_None);
       igImage((void*)(intptr_t)scene_tex, scene_size, (ImVec2){0, 1}, (ImVec2){1, 0}, (ImVec4){1, 1, 1, 1}, (ImVec4){0, 0, 0, 0});
+      igSetCursorPos((ImVec2){16, 32});
+      if (selected_entity >= 0) {
+        entity_t* e = get_entity(selected_entity);
+        igText("%s (%i)", e->name, e->id);
+      } else {
+        igText("No entity selected.");
+      }
     }
     igEnd();
     igPopStyleVar(1);

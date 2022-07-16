@@ -8,10 +8,11 @@ in vec2 texcoord;
 in vec3 normal;
 
 uniform sampler2D tex;
+uniform float spec;
 
 void main() {
   gPosition = fragpos;
   gNormal = normalize(normal);
   gAlbedospec.rgb = texture(tex, texcoord).rgb;
-  gAlbedospec.a = 1.0;
+  gAlbedospec.a = spec;
 }

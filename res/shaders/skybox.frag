@@ -6,5 +6,5 @@ uniform samplerCube skybox;
 
 void main() {
   gAlbedospec.rgb = texture(skybox, texcoord).rgb;
-  gAlbedospec.a = -1.0;
+  gAlbedospec.a = -1;
 }

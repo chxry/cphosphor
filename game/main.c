@@ -19,7 +19,7 @@ int main() {
   conf_load("conf.json");
   lua_init();
   state_bind();
-  window_init(conf.width, conf.height, conf.fullscreen, "flop");
+  window_init(conf.width, conf.height, conf.fullscreen, ENGINE_NAME " " ENGINE_VER);
   ui_init();
   splash_render(conf.width, conf.height);
   audio_init(conf.volume);
@@ -55,7 +55,7 @@ int main() {
     glm_perspective(glm_rad(conf.fov), (float)conf.width / (float)conf.height, 0.1, 100.0, projection);
     physics_update();
 
-    renderer_render(0, view, projection, conf.width, conf.height, -state.debug_drawcolliders);
+    renderer_render(0, cam_dir, view, projection, conf.width, conf.height, -state.debug_drawcolliders);
     ui_render();
     SDL_GL_SwapWindow(window);
     int frame_time = SDL_GetTicks() - frame_start;

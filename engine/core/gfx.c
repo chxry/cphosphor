@@ -139,6 +139,7 @@ void tex_use_cubemap(unsigned int tex) {
 void imgui_init(bool docking) {
   igCreateContext(NULL);
   ImGuiIO* io = igGetIO();
+  io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
   if (docking) {
     io->ConfigWindowsMoveFromTitleBarOnly = true;
     io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;

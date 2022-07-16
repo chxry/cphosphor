@@ -1,4 +1,6 @@
 #version 460 core
+layout (location = 0) out vec3 gPosition;
+layout (location = 1) out vec3 gNormal;
 layout (location = 2) out vec4 gAlbedospec;
 in vec3 texcoord;
 
@@ -126,5 +128,6 @@ void main() {
     );
 
   color = 1.0 - exp(-1.0 * color);
-  gAlbedospec = vec4(color, -1);
+  gAlbedospec.rgb = vec3(color);
+  gAlbedospec.a = -1;
 }

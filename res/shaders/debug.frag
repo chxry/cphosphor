@@ -4,5 +4,5 @@ out vec4 FragColor;
 
 void main() {
   gAlbedospec.rgb = vec3(1.0,0.0,0.0);
-  gAlbedospec.a = -1.0;
+  gAlbedospec.a = -1;
 } 

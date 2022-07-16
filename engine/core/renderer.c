@@ -71,7 +71,7 @@ void renderer_resize(int width, int height) {
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
 }
 
-void renderer_render(unsigned int fbo, mat4 view, mat4 projection, int x, int y, int colliders) {
+void renderer_render(unsigned int fbo, vec3 cam_dir, mat4 view, mat4 projection, int x, int y, int colliders) {
   mat4 light_view, light_projection;
   glm_lookat(world.light_dir, (vec3){0, 0, 0}, GLM_YUP, light_view);
   glm_ortho(-50, 50, -50, 50, 0.01, 50, light_projection);
@@ -114,6 +114,7 @@ void renderer_render(unsigned int fbo, mat4 view, mat4 projection, int x, int y,
     glm_rotate_z(modelm, glm_rad(entity->rot[2]), modelm);
     glm_scale(modelm, entity->scale);
     shader_set_mat4(basic_shader, "model", modelm);
+    shader_set_float(basic_shader, "spec", model->spec);
     mesh_render(*get_mesh(model->mesh));
   }
 
@@ -183,8 +184,10 @@ void renderer_render(unsigned int fbo, mat4 view, mat4 projection, int x, int y,
   shader_set_float(lighting_shader, "light_diffuse", world.light_diffuse);
   shader_set_vec3(lighting_shader, "light_dir", world.light_dir);
   shader_set_vec3(lighting_shader, "light_color", world.light_color);
+  shader_set_int(lighting_shader, "shadow_softness", world.shadow_softness);
   shader_set_mat4(lighting_shader, "light_view", light_view);
   shader_set_mat4(lighting_shader, "light_projection", light_projection);
+  shader_set_vec3(lighting_shader, "cam_dir", cam_dir);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, gposition);
   glActiveTexture(GL_TEXTURE1);

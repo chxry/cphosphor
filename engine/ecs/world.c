@@ -15,6 +15,7 @@ void world_load(const char* path) {
   world.light_diffuse = json_object_dotget_number(root, "light.diffuse");
   glm_vec3_copy((vec3)VEC3_FROM_JSON(json_object_dotget_array(root, "light.dir")), world.light_dir);
   glm_vec3_copy((vec3)VEC3_FROM_JSON(json_object_dotget_array(root, "light.color")), world.light_color);
+  world.shadow_softness = json_object_dotget_number(root, "light.shadow_softness");
   world.sky_mode = json_object_dotget_number(root, "sky.mode");
 
   JSON_Array* entities = json_object_get_array(root, "entities");
@@ -114,6 +115,7 @@ void world_write(const char* path) {
   json_object_dotset_number(root, "light.diffuse", world.light_diffuse);
   json_object_dotset_value(root, "light.dir", json_vec3(world.light_dir));
   json_object_dotset_value(root, "light.color", json_vec3(world.light_color));
+  json_object_dotset_number(root, "light.shadow_softness", world.shadow_softness);
   json_object_dotset_number(root, "sky.mode", world.sky_mode);
 
   int i;
