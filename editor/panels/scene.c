@@ -68,12 +68,8 @@ void scene_update() {
   glBindTexture(GL_TEXTURE_2D, scene_tex);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scene_size.x, scene_size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
-  mat4 view, projection;
-  glm_look(cam_pos, cam_dir, GLM_YUP, view);
-  glm_perspective(glm_rad(90), scene_size.x / scene_size.y, 0.1, 100.0, projection);
-
   renderer_resize(scene_size.x, scene_size.y);
-  renderer_render(scene_fbo, cam_dir, view, projection, scene_size.x, scene_size.y, selected_entity);
+  renderer_render(scene_fbo, cam_pos, cam_dir, 90, scene_size.x, scene_size.y, selected_entity, true);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <cglm/cglm.h>
+#include <stdbool.h>
 
 #include "engine/core/gfx.h"
 #include "engine/core/audio.h"
@@ -21,7 +22,7 @@ int main() {
   state_bind();
   window_init(conf.width, conf.height, conf.fullscreen, ENGINE_NAME " " ENGINE_VER);
   ui_init();
-  splash_render(conf.width, conf.height);
+  splash_render("Loading", conf.width, conf.height);
   audio_init(conf.volume);
   assets_init("res.zip");
   shaders_init();
@@ -50,12 +51,11 @@ int main() {
       player_processevent(&e);
     }
 
-    mat4 view, projection;
-    player_movement(&view);
-    glm_perspective(glm_rad(conf.fov), (float)conf.width / (float)conf.height, 0.1, 100.0, projection);
+    vec3 cam_pos, cam_dir;
+    player_movement(cam_pos, cam_dir);
     physics_update();
 
-    renderer_render(0, cam_dir, view, projection, conf.width, conf.height, -state.debug_drawcolliders);
+    renderer_render(0, cam_pos, cam_dir, conf.fov, conf.width, conf.height, -state.debug_drawcolliders, false);
     ui_render();
     SDL_GL_SwapWindow(window);
     int frame_time = SDL_GetTicks() - frame_start;

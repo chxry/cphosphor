@@ -1,6 +1,6 @@
 #include "player.h"
 
-vec3 player_pos = (vec3){27.0, 3.0, -16.0};
+vec3 player_pos = (vec3){10.0, 2.0, 10.0};
 vec3 vel = (vec3){0.0, 0.0, 0.0};
 vec3 cam_pos;
 vec3 cam_dir;
@@ -48,7 +48,7 @@ bool test_collision(vec3 new_pos) {
   }
 }
 
-void player_movement(mat4* view) {
+void player_movement(vec3 cam_pos, vec3 cam_dir) {
   cam_dir[0] = cos(glm_rad(yaw)) * cos(glm_rad(pitch));
   cam_dir[1] = sin(glm_rad(pitch));
   cam_dir[2] = sin(glm_rad(yaw)) * cos(glm_rad(pitch));
@@ -106,5 +106,4 @@ void player_movement(mat4* view) {
   vel[2] *= 0.9;
 
   glm_vec3_add(player_pos, (vec3){0.0, height, 0.0}, cam_pos);
-  glm_look(cam_pos, cam_dir, GLM_YUP, *view);
 }

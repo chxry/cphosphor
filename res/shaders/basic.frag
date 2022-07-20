@@ -1,7 +1,7 @@
 #version 460 core
-layout (location = 0) out vec3 gPosition;
-layout (location = 1) out vec3 gNormal;
-layout (location = 2) out vec4 gAlbedospec;
+layout(location = 0) out vec3 gPosition;
+layout(location = 1) out vec3 gNormal;
+layout(location = 2) out vec4 gAlbedospec;
 
 in vec3 fragpos;
 in vec2 texcoord;

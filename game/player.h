@@ -8,7 +8,6 @@
 #include "game/game.h"
 
 extern vec3 player_pos;
-extern vec3 cam_dir;
 
 void player_processevent(SDL_Event* e);
-void player_movement(mat4* view);
+void player_movement(vec3 cam_pos, vec3 cam_dir);

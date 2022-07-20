@@ -67,7 +67,7 @@ editor: $(EDITOR)
 
 format:
 	$(call ECHO,"clang-format","linting")
-	clang-format -i $(shell find engine/ game/ editor/ -type f -name '*.[ch]')
+	clang-format -i $(shell find engine/ game/ editor/ res/shaders -type f -name '*.[ch]' -o -name '*.vert' -o -name '*.frag')
 
 clean:
 	$(call ECHO,"clean","removing objects")

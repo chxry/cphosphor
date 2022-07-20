@@ -97,11 +97,6 @@ void ui_info(int offset) {
       igTextWrapped("Copyright (c) 2017 Juliette Foucaut and Doug Binks.\n\n" ZLIB_LICENSE);
       igTreePop();
     }
-    if (igTreeNode_Str("Assets")) {
-      igTextWrapped("3D tree01by mozhdeh parizi");
-      igTextWrapped("Quick terrain test by Kris Teper");
-      igTreePop();
-    }
     igTreePop();
   }
   igPopTextWrapPos();
@@ -119,7 +114,7 @@ void ui_helpmarker(char* info) {
   }
 }
 
-void splash_render(int x, int y) {
+void splash_render(char* msg, int x, int y) {
   glViewport(0, 0, x, y);
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -140,7 +135,9 @@ void splash_render(int x, int y) {
   igText(ENGINE_NAME);
   igSetWindowFontScale(0.4);
   igSetCursorPosX((x - size.x) / 2);
-  igText("Loading v" ENGINE_VER ".");
+  igText(msg);
+  igSameLine(x / 2 + size.x / 2 - 36, 0);
+  igText("v" ENGINE_VER);
   igPopFont();
   igEnd();
 

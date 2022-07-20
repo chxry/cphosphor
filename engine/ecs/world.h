@@ -22,7 +22,7 @@ typedef struct {
 
 #include "components/model.h"
 #include "components/boxcollider.h"
-#include "components/text.h"
+#include "components/light.h"
 #include "components/rigidbody.h"
 
 typedef struct {

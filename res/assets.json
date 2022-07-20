@@ -1,5 +1,5 @@
 {
-  "tex": [{"path":"tex\/terrain.jpg"},{"path":"tex\/tree.jpg"},{"path":"tex\/white.jpg"}],
-  "mesh": [{"path":"mesh\/terrain.obj","attr":8},{"path":"mesh\/tree.obj","attr":8},{"path":"mesh\/cube.obj","attr":8},{"path":"mesh\/plane.obj","attr":8},{"path":"mesh\/sphere.obj","attr":8},{"path":"mesh\/cylinder.obj","attr":8}],
-  "shader":[{"id":1391274353,"vert":"shaders\/basic.vert","frag":"shaders\/basic.frag"},{"id":1583569869,"vert":"shaders\/debug.vert","frag":"shaders\/debug.frag"},{"id":2083617856,"vert":"shaders\/skybox.vert","frag":"shaders\/skybox.frag"},{"id":765834938,"vert":"shaders\/skybox.vert","frag":"shaders\/atmosphere.frag"},{"id":1246522299,"vert":"shaders\/shadow.vert","frag":"shaders\/shadow.frag"},{"id":1334256266,"vert":"shaders\/lighting.vert","frag":"shaders\/lighting.frag"}]
+  "tex": [{"path":"tex\/white.jpg","alpha":false},{"path":"tex\/grid.png","alpha":true},{"path":"tex\/light.png","alpha":true},{"path":"tex\/garfield.png","alpha":true}],
+  "mesh": [{"path":"mesh\/cube.obj","attr":8},{"path":"mesh\/plane.obj","attr":8},{"path":"mesh\/sphere.obj","attr":8},{"path":"mesh\/cylinder.obj","attr":8},{"path":"mesh\/garfield.obj","attr":8}],
+  "shader":[{"id":1391274353,"vert":"shaders\/basic.vert","frag":"shaders\/basic.frag"},{"id":1583569869,"vert":"shaders\/debug.vert","frag":"shaders\/debug.frag"},{"id":2083617856,"vert":"shaders\/skybox.vert","frag":"shaders\/skybox.frag"},{"id":765834938,"vert":"shaders\/skybox.vert","frag":"shaders\/atmosphere.frag"},{"id":1246522299,"vert":"shaders\/shadow.vert","frag":"shaders\/shadow.frag"},{"id":1334256266,"vert":"shaders\/lighting.vert","frag":"shaders\/lighting.frag"},{"id":844270324,"vert":"shaders\/billboard.vert","frag":"shaders\/billboard.frag"}]
 }

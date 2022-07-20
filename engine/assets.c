@@ -15,6 +15,11 @@ filedata_t load_file(char* path) {
 tex_t* load_tex(JSON_Object* obj) {
   tex_t* tex = malloc(sizeof(tex_t));
   tex->path = json_object_get_string(obj, "path");
+  int format = json_object_get_boolean(obj, "alpha") ? GL_RGBA : GL_RGB;
+  char buf[64];
+  snprintf(buf, sizeof(buf), "Loading \"%s\".", tex->path);
+  splash_render(buf, 1280, 720);
+
   glGenTextures(1, &tex->tex);
   glBindTexture(GL_TEXTURE_2D, tex->tex);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -26,7 +31,7 @@ tex_t* load_tex(JSON_Object* obj) {
   stbi_set_flip_vertically_on_load(true);
   unsigned char* data = stbi_load_from_memory(file.data, file.len, &w, &h, &n, 0);
   if (data) {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, GL_UNSIGNED_BYTE, data);
   } else {
     log_error("Failed to load texture \"%s\".", tex->path);
     glDeleteTextures(1, &tex->tex);
@@ -46,6 +51,10 @@ mesh_t* load_mesh(JSON_Object* obj) {
   mesh_t* mesh = malloc(sizeof(mesh_t));
   char* path = json_object_get_string(obj, "path");
   int attr = json_object_get_number(obj, "attr");
+  char buf[64];
+  snprintf(buf, sizeof(buf), "Loading \"%s\".", path);
+  splash_render(buf, 1280, 720);
+
   tinyobj_shape_t* shape = NULL;
   tinyobj_material_t* material = NULL;
   tinyobj_attrib_t attrib;
@@ -136,8 +145,8 @@ void assets_init(char* path) {
   for (int i = 0; i < json_object_get_count(root); i++) {
     JSON_Array* arr = json_value_get_array(json_object_get_value_at(root, i));
     asset_t* asset = map_get(&assets, json_object_get_name(root, i));
-    for (int i = 0; i < json_array_get_count(arr); i++) {
-      vec_push(&asset->assets, asset->load(json_array_get_object(arr, i)));
+    for (int j = 0; j < json_array_get_count(arr); j++) {
+      vec_push(&asset->assets, asset->load(json_array_get_object(arr, j)));
     }
   }
 

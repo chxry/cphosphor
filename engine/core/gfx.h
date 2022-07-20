@@ -23,6 +23,7 @@ extern unsigned int skybox_shader;
 extern unsigned int atmosphere_shader;
 extern unsigned int shadow_shader;
 extern unsigned int lighting_shader;
+extern unsigned int billboard_shader;
 extern ImFont* display_font;
 extern ImFont* large_icons;
 

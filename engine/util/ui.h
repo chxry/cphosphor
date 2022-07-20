@@ -16,4 +16,4 @@
 void asset_selector(char* label, char* selected, char* type);
 void ui_info(int offset);
 void ui_helpmarker(char* info);
-void splash_render(int x, int y);
+void splash_render(char* msg, int x, int y);

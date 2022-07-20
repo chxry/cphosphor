@@ -9,6 +9,7 @@ unsigned int skybox_shader;
 unsigned int atmosphere_shader;
 unsigned int shadow_shader;
 unsigned int lighting_shader;
+unsigned int billboard_shader;
 ImFont* display_font;
 ImFont* large_icons;
 
@@ -25,6 +26,7 @@ void window_init(int width, int height, bool fullscreen, char* title) {
 
   int gl = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
   glLineWidth(2.0);
 
   renderer_init(width, height);
@@ -39,6 +41,7 @@ void shaders_init() {
   atmosphere_shader = get_shader(765834938)->program;
   shadow_shader = get_shader(1246522299)->program;
   lighting_shader = get_shader(1334256266)->program;
+  billboard_shader = get_shader(844270324)->program;
   shader_use(lighting_shader);
   shader_set_int(lighting_shader, "gPosition", 0);
   shader_set_int(lighting_shader, "gNormal", 1);

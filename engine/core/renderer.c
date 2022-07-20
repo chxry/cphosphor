@@ -43,8 +43,9 @@ void renderer_init(int width, int height) {
                SHADOW_RES, SHADOW_RES, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+  glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, (vec4){1.0, 1.0, 1.0, 1.0});
   glBindFramebuffer(GL_FRAMEBUFFER, shadowbuffer);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowmap, 0);
 
@@ -71,10 +72,14 @@ void renderer_resize(int width, int height) {
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
 }
 
-void renderer_render(unsigned int fbo, vec3 cam_dir, mat4 view, mat4 projection, int x, int y, int colliders) {
+void renderer_render(unsigned int fbo, vec3 cam_pos, vec3 cam_dir, float fov, int x, int y, int colliders, bool billboards) {
+  mat4 view, projection;
+  glm_look(cam_pos, cam_dir, GLM_YUP, view);
+  glm_perspective(glm_rad(fov), (float)x / (float)y, 0.1, 100.0, projection);
+
   mat4 light_view, light_projection;
   glm_lookat(world.light_dir, (vec3){0, 0, 0}, GLM_YUP, light_view);
-  glm_ortho(-50, 50, -50, 50, 0.01, 50, light_projection);
+  glm_ortho(-40, 40, -40, 40, 0.1, 50, light_projection);
   glViewport(0, 0, SHADOW_RES, SHADOW_RES);
   glBindFramebuffer(GL_FRAMEBUFFER, shadowbuffer);
   glClear(GL_DEPTH_BUFFER_BIT);
@@ -82,6 +87,7 @@ void renderer_render(unsigned int fbo, vec3 cam_dir, mat4 view, mat4 projection,
   shader_set_mat4(shadow_shader, "view", light_view);
   shader_set_mat4(shadow_shader, "projection", light_projection);
 
+  // SHADOWS
   int i;
   model_t* model;
   vec_foreach(&get_component("model")->components, model, i) {
@@ -97,13 +103,14 @@ void renderer_render(unsigned int fbo, vec3 cam_dir, mat4 view, mat4 projection,
   }
 
   glViewport(0, 0, x, y);
-  glClearColor(0.0, 0.0, 0.0, 1.0);
+  glClearColor(1.0, 1.0, 1.0, 1.0);
   glBindFramebuffer(GL_FRAMEBUFFER, gbuffer);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   shader_use(basic_shader);
   shader_set_mat4(basic_shader, "view", view);
   shader_set_mat4(basic_shader, "projection", projection);
 
+  // MODELS
   vec_foreach(&get_component("model")->components, model, i) {
     entity_t* entity = get_entity(model->entity);
     tex_use(get_tex(model->tex)->tex);
@@ -118,6 +125,8 @@ void renderer_render(unsigned int fbo, vec3 cam_dir, mat4 view, mat4 projection,
     mesh_render(*get_mesh(model->mesh));
   }
 
+  // COLLIDERS
+  glDepthFunc(GL_LEQUAL);
   shader_use(debug_shader);
   shader_set_mat4(debug_shader, "view", view);
   shader_set_mat4(debug_shader, "projection", projection);
@@ -154,7 +163,29 @@ void renderer_render(unsigned int fbo, vec3 cam_dir, mat4 view, mat4 projection,
   }
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-  glDepthFunc(GL_LEQUAL);
+  // BILLBOARDS
+  if (billboards) {
+    glBlendFunc(GL_SRC_COLOR, GL_DST_COLOR);
+    glDepthFunc(GL_ALWAYS);
+    shader_use(billboard_shader);
+    shader_set_mat4(billboard_shader, "view", view);
+    shader_set_mat4(billboard_shader, "projection", projection);
+    tex_use(get_tex("tex/light.png")->tex);
+    light_t* light;
+    vec_foreach(&get_component("light")->components, light, i) {
+      entity_t* entity = get_entity(light->entity);
+      mat4 model;
+      glm_translate_make(model, entity->pos);
+      float dis = glm_vec3_distance(entity->pos, cam_pos) / 20;
+      shader_set_float(billboard_shader, "distance", MAX(dis, 0.15));
+      shader_set_mat4(billboard_shader, "model", model);
+      mesh_render(quad);
+    }
+    glBlendFunc(GL_ONE, GL_ZERO);
+    glDepthFunc(GL_LEQUAL);
+  }
+
+  // SKYBOX
   mat4 skybox_view = GLM_MAT4_ZERO_INIT;
   mat3 view3;
   glm_mat4_pick3(view, view3);
@@ -177,17 +208,34 @@ void renderer_render(unsigned int fbo, vec3 cam_dir, mat4 view, mat4 projection,
   mesh_render(*get_mesh("mesh/cube.obj"));
   glDepthFunc(GL_LESS);
 
+  // LIGHTING
   glBindFramebuffer(GL_FRAMEBUFFER, fbo);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   shader_use(lighting_shader);
   shader_set_float(lighting_shader, "light_ambient", world.light_ambient);
   shader_set_float(lighting_shader, "light_diffuse", world.light_diffuse);
-  shader_set_vec3(lighting_shader, "light_dir", world.light_dir);
-  shader_set_vec3(lighting_shader, "light_color", world.light_color);
+  shader_set_vec3(lighting_shader, "sun_dir", world.light_dir);
+  shader_set_vec3(lighting_shader, "sun_color", world.light_color);
   shader_set_int(lighting_shader, "shadow_softness", world.shadow_softness);
   shader_set_mat4(lighting_shader, "light_view", light_view);
   shader_set_mat4(lighting_shader, "light_projection", light_projection);
   shader_set_vec3(lighting_shader, "cam_dir", cam_dir);
+  light_t* light;
+  i = 0;
+  char buf[32];
+  vec_foreach(&get_component("light")->components, light, i) {
+    entity_t* entity = get_entity(light->entity);
+    snprintf(buf, sizeof(buf), "lights[%i].pos", i);
+    shader_set_vec3(lighting_shader, buf, entity->pos);
+    snprintf(buf, sizeof(buf), "lights[%i].color", i);
+    shader_set_vec3(lighting_shader, buf, light->color);
+    snprintf(buf, sizeof(buf), "lights[%i].radius", i);
+    shader_set_float(lighting_shader, buf, light->radius);
+    snprintf(buf, sizeof(buf), "lights[%i].strength", i);
+    shader_set_float(lighting_shader, buf, light->strength);
+  }
+  snprintf(buf, sizeof(buf), "lights[%i].radius", i);
+  shader_set_float(lighting_shader, buf, 0);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, gposition);
   glActiveTexture(GL_TEXTURE1);

@@ -20,7 +20,7 @@ int main() {
   engine_init();
   window_init(1280, 720, false, ENGINE_NAME " Editor " ENGINE_VER);
   imgui_init(true);
-  splash_render(1280, 720);
+  splash_render("Loading", 1280, 720);
   assets_init("res.zip");
   shaders_init();
   world_load("res/scene.json");
@@ -61,6 +61,10 @@ int main() {
         if (igMenuItem_BoolPtr(ICON_FA_FILE " Save", NULL, NULL, true)) {
           world_write("scene.json");
         }
+        igBeginDisabled(true);
+        igMenuItem_BoolPtr(ICON_FA_UNDO " Undo", NULL, NULL, true);
+        igMenuItem_BoolPtr(ICON_FA_REPEAT " Redo", NULL, NULL, true);
+        igEndDisabled();
         if (igMenuItem_BoolPtr(ICON_FA_TIMES " Exit", NULL, NULL, true)) {
           return 0;
         }

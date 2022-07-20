@@ -3,11 +3,15 @@
 world_t world;
 
 void world_load(const char* path) {
+  char buf[64];
+  snprintf(buf, sizeof(buf), "Loading world.", path);
+  splash_render(buf, 1280, 720);
+
   vec_init(&world.entities);
   map_init(&world.components);
   component_register("model", model);
   component_register("boxcollider", boxcollider);
-  component_register("text", text);
+  component_register("light", light);
   component_register("rigidbody", rigidbody);
 
   JSON_Object* root = json_object(json_parse_file(path)); // use asset system

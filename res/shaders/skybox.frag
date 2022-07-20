@@ -1,5 +1,5 @@
 #version 460 core
-layout (location = 2) out vec4 gAlbedospec;
+layout(location = 2) out vec4 gAlbedospec;
 in vec3 texcoord;
 
 uniform samplerCube skybox;
