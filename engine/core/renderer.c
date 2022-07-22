@@ -43,9 +43,6 @@ void renderer_init(int width, int height) {
                SHADOW_RES, SHADOW_RES, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-  glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, (vec4){1.0, 1.0, 1.0, 1.0});
   glBindFramebuffer(GL_FRAMEBUFFER, shadowbuffer);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowmap, 0);
 
@@ -79,7 +76,40 @@ void renderer_render(unsigned int fbo, vec3 cam_pos, vec3 cam_dir, float fov, in
 
   mat4 light_view, light_projection;
   glm_lookat(world.light_dir, (vec3){0, 0, 0}, GLM_YUP, light_view);
-  glm_ortho(-40, 40, -40, 40, 0.1, 50, light_projection);
+
+  vec4 ndc[8] = {
+      {-1.0, -1.0, 0.0, 1.0},
+      {1.0, -1.0, 0.0, 1.0},
+      {-1.0, 1.0, 0.0, 1.0},
+      {1.0, 1.0, 0.0, 1.0},
+      {-1.0, -1.0, 1.0, 1.0},
+      {1.0, -1.0, 1.0, 1.0},
+      {-1.0, 1.0, 1.0, 1.0},
+      {1.0, 1.0, 1.0, 1.0},
+  };
+
+  mat4 inv;
+  glm_mat4_mul(projection, view, inv);
+  glm_mat4_inv_fast(inv, inv);
+
+  vec3 min = {FLT_MAX, FLT_MAX, FLT_MAX};
+  vec3 max = {-FLT_MAX, -FLT_MAX, -FLT_MAX};
+
+  for (int i = 0; i < 8; i++) {
+    glm_mat4_mulv(inv, ndc[i], ndc[i]);
+    glm_mat4_mulv(light_view, ndc[i], ndc[i]);
+    glm_vec4_divs(ndc[i], ndc[i][3], ndc[i]);
+
+    min[0] = MIN(min[0], ndc[i][0]);
+    max[0] = MAX(max[0], ndc[i][0]);
+    min[1] = MIN(min[1], ndc[i][1]);
+    max[1] = MAX(max[1], ndc[i][1]);
+    min[2] = MIN(min[2], ndc[i][2]);
+    max[2] = MAX(max[2], ndc[i][2]);
+  }
+
+  glm_ortho(min[0], max[0], min[1], max[1], -max[2], -min[2], light_projection);
+
   glViewport(0, 0, SHADOW_RES, SHADOW_RES);
   glBindFramebuffer(GL_FRAMEBUFFER, shadowbuffer);
   glClear(GL_DEPTH_BUFFER_BIT);
