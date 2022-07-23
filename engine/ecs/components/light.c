@@ -31,7 +31,7 @@ light_t* light_create(int entity) {
   light->entity = entity;
   glm_vec3_copy(GLM_VEC3_ONE, light->color);
   light->radius = 1.0;
-  light->strength = 0.1;
+  light->strength = 1.0;
   return light;
 }
 

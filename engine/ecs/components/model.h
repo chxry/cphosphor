@@ -12,6 +12,7 @@ typedef struct {
   const char* mesh;
   const char* tex;
   float spec;
+  float reflectivity;
 } model_t;
 
 extern component_t model;

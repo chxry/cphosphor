@@ -28,6 +28,11 @@ typedef struct {
 } tex_t;
 
 typedef struct {
+  int id;
+  unsigned int tex;
+} cubemap_t;
+
+typedef struct {
   char* path;
   unsigned int VBO;
   unsigned int VAO;
@@ -52,5 +57,6 @@ extern map_asset_t assets;
 void assets_init(char* path);
 void asset_register(char* name, asset_t asset);
 tex_t* get_tex(char* path);
+cubemap_t* get_cubemap(int id);
 mesh_t* get_mesh(char* path);
 shader_t* get_shader(int id);

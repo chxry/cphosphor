@@ -44,8 +44,6 @@ void world_load(const char* path) {
   }
 
   log_info("Loaded world \"%s\".", path);
-  // grab from file
-  // skybox_tex = tex_load_cubemap((char* [6]){"tex/sky/right.jpg", "tex/sky/left.jpg", "tex/sky/top.jpg", "tex/sky/bottom.jpg", "tex/sky/front.jpg", "tex/sky/back.jpg"}, GL_RGB);
 }
 
 void component_register(char* name, component_t component) {

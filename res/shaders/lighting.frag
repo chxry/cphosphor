@@ -29,7 +29,7 @@ vec3 lighting_calc(float specular, float distance, vec3 light_dir, vec3 light_co
   float spec = pow(max(dot(normal, normalize(light_dir + cam_dir)), 0.0), 8.0) * specular;
 
   if (distance > 0.0) {
-    float attenuation = 1.0 / pow(distance, 2) * 10;
+    float attenuation = 1.0 / distance;
     diffuse *= attenuation;
     spec *= attenuation;
   }
@@ -40,6 +40,7 @@ vec3 lighting_calc(float specular, float distance, vec3 light_dir, vec3 light_co
 void main() {
   vec3 albedo = texture(gAlbedospec, texcoord).rgb;
   float specular = texture(gAlbedospec, texcoord).a;
+  FragColor = vec4(albedo, 1.0);
   if (specular > 0) {
     vec3 frag_pos = texture(gPosition, texcoord).rgb;
     vec3 light = lighting_calc(specular, 0.0, sun_dir, sun_color);
@@ -66,8 +67,6 @@ void main() {
       light += lighting_calc(specular, length(lights[i].pos - frag_pos) / lights[i].radius, normalize(lights[i].pos - frag_pos), lights[i].color * lights[i].strength);
     }
 
-    FragColor = vec4(albedo * light, 1.0);
-  } else {
-    FragColor = vec4(albedo, 1.0);
+    FragColor.rgb *= light;
   }
 }

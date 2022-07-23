@@ -41,6 +41,39 @@ tex_t* load_tex(JSON_Object* obj) {
   return tex;
 }
 
+cubemap_t* load_cubemap(JSON_Object* obj) {
+  cubemap_t* cm = malloc(sizeof(cubemap_t));
+  cm->id = json_object_get_number(obj, "id");
+  int format = json_object_get_boolean(obj, "alpha") ? GL_RGBA : GL_RGB;
+
+  glGenTextures(1, &cm->tex);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, cm->tex);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+  stbi_set_flip_vertically_on_load(false);
+  int w, h, n;
+
+  JSON_Object* arr = json_object_get_array(obj, "tex");
+  for (int i = 0; i < json_array_get_count(arr); i++) {
+    char* path = json_array_get_string(arr, i);
+    char buf[64];
+    snprintf(buf, sizeof(buf), "Loading \"%s\".", path);
+    splash_render(buf, 1280, 720);
+    filedata_t file = load_file(path);
+    unsigned char* data = stbi_load_from_memory(file.data, file.len, &w, &h, &n, 0);
+    if (data) {
+      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, w, h, 0, format, GL_UNSIGNED_BYTE, data);
+    } else {
+      log_error("Failed to load texture \"%s\".", path);
+    }
+    stbi_image_free(data);
+  }
+  return cm;
+}
+
 void load_obj(void* ctx, const char* filename, const int is_mtl, const char* obj_filename, char** buf, size_t* len) {
   filedata_t file = load_file(filename);
   *buf = file.data;
@@ -131,12 +164,14 @@ shader_t* load_shader(JSON_Object* obj) {
 }
 
 asset_t tex = {.load = load_tex};
+asset_t cubemap = {.load = load_cubemap};
 asset_t mesh = {.load = load_mesh};
 asset_t shader = {.load = load_shader};
 
 void assets_init(char* path) {
   map_init(&assets);
   asset_register("tex", tex);
+  asset_register("cubemap", cubemap);
   asset_register("mesh", mesh);
   asset_register("shader", shader);
   PHYSFS_init(NULL);
@@ -158,7 +193,7 @@ void asset_register(char* name, asset_t asset) {
   map_set(&assets, name, asset);
 }
 
-void* get_asset(char* path, char* name) {
+void* get_asset_path(char* path, char* name) {
   int i;
   void* asset;
   vec_foreach(&(map_get(&assets, name)->assets), asset, i) {
@@ -169,21 +204,29 @@ void* get_asset(char* path, char* name) {
   return 0;
 }
 
-tex_t* get_tex(char* path) {
-  return get_asset(path, "tex");
-}
-
-mesh_t* get_mesh(char* path) {
-  return get_asset(path, "mesh");
-}
-
-shader_t* get_shader(int id) {
+void* get_asset_id(int id, char* name) {
   int i;
-  shader_t* shader;
-  vec_foreach(&(map_get(&assets, "shader")->assets), shader, i) {
-    if (shader->id == id) {
-      return shader;
+  void* asset;
+  vec_foreach(&(map_get(&assets, name)->assets), asset, i) {
+    if (*((int*)asset) == id) {
+      return asset;
     }
   }
   return 0;
+}
+
+tex_t* get_tex(char* path) {
+  return get_asset_path(path, "tex");
+}
+
+cubemap_t* get_cubemap(int id) {
+  return get_asset_id(id, "cubemap");
+}
+
+mesh_t* get_mesh(char* path) {
+  return get_asset_path(path, "mesh");
+}
+
+shader_t* get_shader(int id) {
+  return get_asset_id(id, "shader");
 }
