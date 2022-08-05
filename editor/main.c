@@ -20,6 +20,7 @@ int main() {
   engine_init();
   window_init(1280, 720, false, ENGINE_NAME " Editor " ENGINE_VER);
   imgui_init(true);
+  audio_init(1.0);
   splash_render("Loading", 1280, 720);
   assets_init("res.zip");
   shaders_init();
