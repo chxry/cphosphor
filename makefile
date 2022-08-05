@@ -1,7 +1,7 @@
 ENGINE_NAME = "Phosphor"
 ENGINE_VER = "0.2"
 
-SRC = $(shell find engine/ lib/cglm/src/ lib/physfs/src/ -type f -name '*.c') lib/glad/build/src/gl.c lib/vec/src/vec.c lib/map/src/map.c lib/cmixer/src/cmixer.c lib/parson/parson.c
+SRC = $(shell find engine/ lib/cglm/src/ lib/physfs/src/ -type f -name '*.c') lib/glad/build/src/gl.c lib/vec/src/vec.c lib/map/src/map.c lib/parson/parson.c lib/fmod_sdl/FMOD_SDL.c
 OBJS = $(SRC:.c=.o)
 GAME = game.o
 GAMESRC = $(shell find game/ -type f -name '*.c')
@@ -15,8 +15,8 @@ RES = res.zip
 
 CFLAGS = -Wall -O2 -DIMGUI_IMPL_API="extern \"C\"" -c -DENGINE_VER=\"$(ENGINE_VER)\" -DENGINE_NAME=\"$(ENGINE_NAME)\"
 CFLAGS += -g
-CFLAGS += -I. -Iengine -Igame -Ieditor -Ilib -Ilib/glad/build/include -Ilib/vec/src -Ilib/map/src -Ilib/cmixer/src -Ilib/cimgui -Ilib/cimgui/imgui -Ilib/cglm/include -Ilib/physfs/src -I/usr/include/SDL2 -Ilib/bulletcapi
-LDFLAGS = -ldl -lSDL2 -lm -llua
+CFLAGS += -I. -Iengine -Igame -Ieditor -Ilib -Ilib/glad/build/include -Ilib/vec/src -Ilib/map/src -Ilib/cimgui -Ilib/cimgui/imgui -Ilib/cglm/include -Ilib/physfs/src -I/usr/include/SDL2 -Ilib/bulletcapi -Ilib/fmod
+LDFLAGS = -ldl -lSDL2 -lm -llua -rpath lib/fmod
 MAKEFLAGS += --silent
 ECHO = echo -e "\033[1m$(1) \033[0m$(2)"
 .SUFFIXES:
@@ -26,11 +26,11 @@ setup: glad cimgui bullet
 
 $(GAME): $(OBJS) $(GAMEOBJS) $(RES)
 	$(call ECHO,"linking",$(GAME))
-	clang++ $(LDFLAGS) $(OBJS) $(GAMEOBJS) $(BULLETOBJS) lib/cimgui/libcimgui.a imgui_sdl.o imgui_opengl3.o bulletcapi.o -o $(GAME)
+	clang++ $(LDFLAGS) $(OBJS) $(GAMEOBJS) $(BULLETOBJS) lib/cimgui/libcimgui.a imgui_sdl.o imgui_opengl3.o bulletcapi.o lib/fmod/libfmod.so.13 -o $(GAME)
 
 $(EDITOR): $(OBJS) $(EDITOROBJS) $(RES)
 	$(call ECHO,"linking",$(EDITOR))
-	clang++ $(LDFLAGS) $(OBJS) $(EDITOROBJS) $(BULLETOBJS) lib/cimgui/libcimgui.a imgui_sdl.o imgui_opengl3.o bulletcapi.o -o $(EDITOR)
+	clang++ $(LDFLAGS) $(OBJS) $(EDITOROBJS) $(BULLETOBJS) lib/cimgui/libcimgui.a imgui_sdl.o imgui_opengl3.o bulletcapi.o lib/fmod/libfmod.so.13 -o $(EDITOR)
 
 cimgui:
 	$(call ECHO,"compiling","cimgui")

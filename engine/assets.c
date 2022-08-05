@@ -163,10 +163,23 @@ shader_t* load_shader(JSON_Object* obj) {
   return shader;
 }
 
+sound_t* load_sound(JSON_Object* obj) {
+  sound_t* sound = malloc(sizeof(sound_t));
+  sound->path = json_object_get_string(obj, "path");
+  char buf[64];
+  snprintf(buf, sizeof(buf), "Loading \"%s\".", sound->path);
+  splash_render(buf, 1280, 720);
+  filedata_t file = load_file(sound->path);
+  FMOD_CREATESOUNDEXINFO exinfo = {.cbsize = sizeof(FMOD_CREATESOUNDEXINFO), .length = file.len};
+  fmod_checked(FMOD_System_CreateSound(fmod_system, file.data, FMOD_OPENMEMORY | FMOD_3D, &exinfo, &sound->sound));
+  return sound;
+}
+
 asset_t tex = {.load = load_tex};
 asset_t cubemap = {.load = load_cubemap};
 asset_t mesh = {.load = load_mesh};
 asset_t shader = {.load = load_shader};
+asset_t sound = {.load = load_sound};
 
 void assets_init(char* path) {
   map_init(&assets);
@@ -174,6 +187,7 @@ void assets_init(char* path) {
   asset_register("cubemap", cubemap);
   asset_register("mesh", mesh);
   asset_register("shader", shader);
+  asset_register("sound", sound);
   PHYSFS_init(NULL);
   PHYSFS_mount(path, "", 0);
   JSON_Object* root = json_object(json_parse_file("res/assets.json"));
@@ -229,4 +243,8 @@ mesh_t* get_mesh(char* path) {
 
 shader_t* get_shader(int id) {
   return get_asset_id(id, "shader");
+}
+
+sound_t* get_sound(char* path) {
+  return get_asset_path(path, "sound");
 }

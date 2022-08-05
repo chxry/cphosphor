@@ -5,9 +5,8 @@
 #include <iconfonts/IconsFontAwesome4.h>
 #include <physfs.h>
 
-#include "core/gfx.h"
+#include "engine/util/ui.h"
 #include "editor.h"
-#include "log.h"
 
 #define ASSETS_TITLE ICON_FA_FOLDER " Assets"
 

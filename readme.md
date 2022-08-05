@@ -3,6 +3,7 @@
 ### Features
 - OpenGL deferred renderer.
 - Bullet3 rigidbody physics.
+- FMOD audio.
 ### Build Guide
 1. `git clone https://github.com/chxry/phosphor --recursive`
 2. `make setup`

@@ -10,8 +10,6 @@ unsigned int atmosphere_shader;
 unsigned int shadow_shader;
 unsigned int lighting_shader;
 unsigned int billboard_shader;
-ImFont* display_font;
-ImFont* large_icons;
 
 void window_init(int width, int height, bool fullscreen, char* title) {
   if (SDL_Init(SDL_INIT_EVERYTHING)) {

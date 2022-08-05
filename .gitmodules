@@ -20,9 +20,6 @@
 [submodule "lib/map"]
 	path = lib/map
 	url = https://github.com/rxi/map
-[submodule "lib/cmixer"]
-	path = lib/cmixer
-	url = https://github.com/rxi/cmixer
 [submodule "lib/cimgui"]
 	path = lib/cimgui
 	url = https://github.com/cimgui/cimgui
@@ -39,3 +36,6 @@
 [submodule "lib/bullet3"]
 	path = lib/bullet3
 	url = https://github.com/bulletphysics/bullet3
+[submodule "lib/fmod_sdl"]
+	path = lib/fmod_sdl
+	url = https://github.com/flibitijibibo/FMOD_SDL

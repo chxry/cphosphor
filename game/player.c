@@ -8,7 +8,7 @@ float yaw = -90.0;
 float pitch = 0.0;
 bool ground = false;
 float height = 1.6;
-const float RADIUS = 0.4;
+float radius = 0.4;
 
 void player_processevent(SDL_Event* e) {
   if (!SDL_GetRelativeMouseMode()) {
@@ -38,7 +38,7 @@ void player_processevent(SDL_Event* e) {
 }
 
 bool test_collision(vec3 new_pos) {
-  aabb_t player_box = {{new_pos[0] - RADIUS, new_pos[1], new_pos[2] - RADIUS}, {new_pos[0] + RADIUS, new_pos[1] + height, new_pos[2] + RADIUS}};
+  aabb_t player_box = {{new_pos[0] - radius, new_pos[1], new_pos[2] - radius}, {new_pos[0] + radius, new_pos[1] + height, new_pos[2] + radius}};
   if (world_test_collision(player_box)) {
     glm_vec3_copy(player_pos, new_pos);
     return true;
@@ -95,7 +95,7 @@ void player_movement(vec3 cam_pos, vec3 cam_dir) {
   new_pos[1] += vel[1];
   if (test_collision(new_pos)) {
     if (!ground && (ground = vel[1] < 0)) {
-      audio_play("audio/fall.wav");
+      // audio_play(player_pos);
     }
     vel[1] = 0.0;
   }

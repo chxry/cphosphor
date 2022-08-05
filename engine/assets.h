@@ -8,7 +8,9 @@
 #include <physfs.h>
 #include <glad/gl.h>
 #include <stb/stb_image.h>
+#include <fmod.h>
 
+#include "core/audio.h"
 #include "log.h"
 
 typedef struct {
@@ -50,6 +52,11 @@ typedef struct {
   unsigned int program;
 } shader_t;
 
+typedef struct {
+  char* path;
+  FMOD_SOUND* sound;
+} sound_t;
+
 #include "core/gfx.h"
 
 extern map_asset_t assets;
@@ -60,3 +67,4 @@ tex_t* get_tex(char* path);
 cubemap_t* get_cubemap(int id);
 mesh_t* get_mesh(char* path);
 shader_t* get_shader(int id);
+sound_t* get_sound(char* path);

@@ -1,5 +1,9 @@
 #include "ui.h"
 
+ImFont* display_font;
+ImFont* large_icons;
+unsigned int fmod_logo;
+
 void imgui_init(bool docking) {
   igCreateContext(NULL);
   ImGuiIO* io = igGetIO();
@@ -71,6 +75,7 @@ void imgui_init(bool docking) {
   style->PopupRounding = 4.0;
   style->FrameRounding = 2.0;
 
+  // asset system isnt initialized yet, probably should use physfs here
   ImFontConfig config = *ImFontConfig_ImFontConfig();
   ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/fonts/roboto.ttf", 16, &config, NULL);
   config.MergeMode = true;
@@ -80,6 +85,16 @@ void imgui_init(bool docking) {
   display_font = ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/fonts/comfortaa.ttf", 54, &config, NULL);
   large_icons = ImFontAtlas_AddFontFromFileTTF(io->Fonts, "res/fonts/fontawesome.ttf", 54, &config, icon_ranges);
   ImFontAtlas_Build(io->Fonts);
+
+  glGenTextures(1, &fmod_logo);
+  glBindTexture(GL_TEXTURE_2D, fmod_logo);
+  int w, h, n;
+  stbi_set_flip_vertically_on_load(true);
+  unsigned char* data = stbi_load("res/tex/fmod.png", &w, &h, &n, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+  glGenerateMipmap(GL_TEXTURE_2D);
+  stbi_image_free(data);
+
   ImGui_ImplSDL2_InitForOpenGL(window, ctx);
   ImGui_ImplOpenGL3_Init("#version 460");
 }
@@ -174,12 +189,20 @@ void ui_info(int offset) {
       igTextWrapped("Copyright (c) 2012-2019 Syoyo Fujita and many contributors.\n\n" MIT_LICENSE);
       igTreePop();
     }
-    if (igTreeNode_Str("vec, map & cmixer")) {
+    if (igTreeNode_Str("vec & map")) {
       igTextWrapped("Copyright (c) 2014,2017 rxi.\n\n" MIT_LICENSE);
       igTreePop();
     }
     if (igTreeNode_Str("glad")) {
       igTextWrapped("Copyright (c) 2013-2022 David Herberth.\n\n" MIT_LICENSE);
+      igTreePop();
+    }
+    if (igTreeNode_Str("FMOD")) {
+      igTextWrapped("Copyright (c) 2004-2022 Firelight Technologies Pty Ltd.");
+      igTreePop();
+    }
+    if (igTreeNode_Str("FMOD_SDL")) {
+      igTextWrapped("Copyright (c) 2018-2021 Ethan Lee.\n\n" ZLIB_LICENSE);
       igTreePop();
     }
     if (igTreeNode_Str("IconFontCppHeaders")) {
@@ -210,7 +233,6 @@ void splash_render(char* msg, int x, int y) {
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplSDL2_NewFrame(window);
   igNewFrame();
-  ImGuiIO* io = igGetIO();
   igSetNextWindowPos((ImVec2){0, 0}, ImGuiCond_Always, (ImVec2){0, 0});
   igSetNextWindowSize((ImVec2){x, y}, ImGuiCond_Always);
   igBegin("splash", NULL, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground);
@@ -228,6 +250,8 @@ void splash_render(char* msg, int x, int y) {
   igSameLine(x / 2 + size.x / 2 - 36, 0);
   igText("v" ENGINE_VER);
   igPopFont();
+  igSetCursorPos((ImVec2){(x - 92) / 2, y - 56.0});
+  igImage((void*)(intptr_t)fmod_logo, (ImVec2){92, 24}, (ImVec2){0, 1}, (ImVec2){1, 0}, (ImVec4){1, 1, 1, 1}, (ImVec4){0, 0, 0, 0});
   igEnd();
 
   igRender();

@@ -22,12 +22,16 @@ int main() {
   state_bind();
   window_init(conf.width, conf.height, conf.fullscreen, ENGINE_NAME " " ENGINE_VER);
   ui_init();
-  splash_render("Loading", conf.width, conf.height);
   audio_init(conf.volume);
+  splash_render("Loading", conf.width, conf.height);
   assets_init("res.zip");
   shaders_init();
   world_load("res/scene.json");
   physics_init();
+  while (SDL_GetTicks() < 1500) {
+    splash_render("Loading Finished.", conf.width, conf.height);
+  }
+  audio_play(get_sound("audio/turiipip.mp3")->sound, (vec3){-3, 1.6, 4.7});
   bool quit = false;
   frame_delay = 1000 / conf.fps;
   while (!quit) {
@@ -54,6 +58,7 @@ int main() {
     vec3 cam_pos, cam_dir;
     player_movement(cam_pos, cam_dir);
     physics_update();
+    audio_update(cam_pos, cam_dir);
 
     renderer_render(0, cam_pos, cam_dir, conf.fov, conf.width, conf.height, -state.debug_drawcolliders, false);
     ui_render();
