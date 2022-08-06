@@ -1,6 +1,7 @@
 #include "assets.h"
 
 char* assets_path = "";
+char* assets_asset = "";
 
 void asset_button(void* data, char* dir, char* name) {
   PHYSFS_Stat stat;
@@ -9,9 +10,12 @@ void asset_button(void* data, char* dir, char* name) {
   igGetCursorPos(&pos);
   char buf[32];
   sprintf(buf, "##%s", name);
-  if (igSelectable_Bool(buf, 0, ImGuiSelectableFlags_None, (ImVec2){80, 80})) {
+  if (igSelectable_Bool(buf, strcmp(name, assets_asset) == 0, ImGuiSelectableFlags_None, (ImVec2){80, 80})) {
     if (stat.filetype == PHYSFS_FILETYPE_DIRECTORY) {
       assets_path = name;
+      assets_asset = "";
+    } else {
+      assets_asset = name;
     }
   }
   if (stat.filetype != PHYSFS_FILETYPE_DIRECTORY) {
@@ -48,10 +52,25 @@ void assets_render() {
       igBeginDisabled(!assets_path[0]);
       if (igButton(ICON_FA_ARROW_LEFT, (ImVec2){0, 0})) {
         assets_path = "";
+        assets_asset = "";
       }
       igEndDisabled();
       igSameLine(0, 8);
-      igText("%s/", assets_path);
+      if (assets_asset[0]) {
+        char name[128];
+        snprintf(name, sizeof(name), "%s/%s", assets_path, assets_asset);
+        PHYSFS_Stat stat;
+        PHYSFS_stat(name, &stat);
+        int i = 0;
+        char* units[] = {"B", "kB", "MB", "GB", "TB"};
+        while (stat.filesize > 1024) {
+          stat.filesize /= 1024;
+          i++;
+        }
+        igText("%s (%i%s)", name, stat.filesize, units[i]);
+      } else {
+        igText("%s/", assets_path);
+      }
       PHYSFS_enumerateFilesCallback(assets_path, asset_button, NULL);
     }
     igEnd();

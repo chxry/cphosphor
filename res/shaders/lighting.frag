@@ -23,16 +23,13 @@ struct light_t {
 };
 uniform light_t lights[100];
 
-vec3 lighting_calc(float specular, float distance, vec3 light_dir, vec3 light_color) {
+vec3 lighting_calc(float specular, float attenuation, vec3 light_dir, vec3 light_color) {
   vec3 normal = texture(gNormal, texcoord).rgb;
   float diffuse = max(dot(normal, normalize(light_dir)), 0.0) * light_diffuse;
   float spec = pow(max(dot(normal, normalize(light_dir + cam_dir)), 0.0), 8.0) * specular;
 
-  if (distance > 0.0) {
-    float attenuation = 1.0 / distance;
-    diffuse *= attenuation;
-    spec *= attenuation;
-  }
+  diffuse *= attenuation;
+  spec *= attenuation;
 
   return vec3(diffuse + spec) * light_color;
 }
@@ -43,7 +40,7 @@ void main() {
   FragColor = vec4(albedo, 1.0);
   if (specular > 0) {
     vec3 frag_pos = texture(gPosition, texcoord).rgb;
-    vec3 light = lighting_calc(specular, 0.0, sun_dir, sun_color);
+    vec3 light = lighting_calc(specular, 1.0, sun_dir, sun_color);
 
     vec4 lightspace = light_projection * light_view * vec4(frag_pos, 1.0);
     lightspace = lightspace * 0.5 + 0.5;
@@ -61,10 +58,10 @@ void main() {
     light += vec3(light_ambient);
 
     for (int i = 0; i < 100; i++) {
-      if (lights[i].radius == 0) {
+      if (lights[i].radius < 0) {
         break;
       }
-      light += lighting_calc(specular, length(lights[i].pos - frag_pos) / lights[i].radius, normalize(lights[i].pos - frag_pos), lights[i].color * lights[i].strength);
+      light += lighting_calc(specular, 1.0 / pow(length(lights[i].pos - frag_pos), 2), normalize(lights[i].pos - frag_pos), lights[i].color * lights[i].strength);
     }
 
     FragColor.rgb *= light;

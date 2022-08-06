@@ -31,9 +31,18 @@ int main() {
   while (SDL_GetTicks() < 1500) {
     splash_render("Loading Finished.", conf.width, conf.height);
   }
-  audio_play(get_sound("audio/turiipip.mp3")->sound, (vec3){-3, 1.6, 4.7});
   bool quit = false;
   frame_delay = 1000 / conf.fps;
+
+  int i;
+  audiosrc_t* audiosrc;
+  vec_foreach(&get_component("audiosrc")->components, audiosrc, i) {
+    if (audiosrc->autoplay) {
+      entity_t* entity = get_entity(audiosrc->entity);
+      audio_play(get_sound(audiosrc->sound)->sound, entity->pos);
+    }
+  }
+
   while (!quit) {
     int frame_start = SDL_GetTicks();
 

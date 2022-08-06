@@ -4,7 +4,9 @@
 #include <fmod.h>
 #include <fmod_errors.h>
 #include <cglm/cglm.h>
+#include <vec.h>
 
+#include "ecs/world.h"
 #include "assets.h"
 #include "log.h"
 

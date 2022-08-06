@@ -24,6 +24,7 @@ typedef struct {
 #include "components/boxcollider.h"
 #include "components/light.h"
 #include "components/rigidbody.h"
+#include "components/audiosrc.h"
 
 typedef struct {
   const char* name;

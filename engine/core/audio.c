@@ -10,16 +10,16 @@ void fmod_checked(FMOD_RESULT result) {
 
 void audio_init(float volume) {
   fmod_checked(FMOD_System_Create(&fmod_system, FMOD_VERSION));
-  fmod_checked(FMOD_System_Init(fmod_system, 512, FMOD_INIT_3D_RIGHTHANDED, 0));
+  fmod_checked(FMOD_System_Init(fmod_system, 512, FMOD_INIT_3D_RIGHTHANDED | FMOD_INIT_PROFILE_ENABLE, 0));
   FMOD_SDL_Register(fmod_system);
   audio_setvolume(volume);
   log_info("Loaded FMOD.");
 }
 
 void audio_update(vec3 pos, vec3 dir) {
-  vec3 right,up;
-  glm_vec3_crossn(GLM_YUP,dir,right);
-  glm_vec3_cross(dir,right,up);
+  vec3 right, up;
+  glm_vec3_crossn(GLM_YUP, dir, right);
+  glm_vec3_cross(dir, right, up);
   fmod_checked(FMOD_System_Set3DListenerAttributes(fmod_system, 0, pos, GLM_VEC3_ZERO, dir, up));
   fmod_checked(FMOD_System_Update(fmod_system));
 }

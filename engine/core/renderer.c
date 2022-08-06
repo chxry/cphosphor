@@ -154,24 +154,29 @@ void render_colliders(mat4 view, mat4 projection, int colliders) {
   glDepthFunc(GL_LESS);
 }
 
+void render_billboard_component(vec_void_t components, unsigned int tex, vec3 cam_pos) {
+  tex_use(tex, GL_TEXTURE0);
+  int i;
+  void* component;
+  vec_foreach(&components, component, i) {
+    entity_t* entity = get_entity(*(int*)component);
+    mat4 model;
+    glm_translate_make(model, entity->pos);
+    float dis = glm_vec3_distance(entity->pos, cam_pos) / 40.0;
+    shader_set_float(billboard_shader, "distance", dis + 0.2);
+    shader_set_mat4(billboard_shader, "model", model);
+    mesh_render(quad);
+  }
+}
+
 void render_billboards(mat4 view, mat4 projection, vec3 cam_pos) {
-  glBlendFunc(GL_SRC_COLOR, GL_DST_COLOR);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glDepthFunc(GL_ALWAYS);
   shader_use(billboard_shader);
   shader_set_mat4(billboard_shader, "view", view);
   shader_set_mat4(billboard_shader, "projection", projection);
-  tex_use(get_tex("tex/light.png")->tex, GL_TEXTURE0);
-  int i;
-  light_t* light;
-  vec_foreach(&get_component("light")->components, light, i) {
-    entity_t* entity = get_entity(light->entity);
-    mat4 model;
-    glm_translate_make(model, entity->pos);
-    float dis = glm_vec3_distance(entity->pos, cam_pos) / 20;
-    shader_set_float(billboard_shader, "distance", MAX(dis, 0.15));
-    shader_set_mat4(billboard_shader, "model", model);
-    mesh_render(quad);
-  }
+  render_billboard_component(get_component("light")->components, get_tex("tex/light.png")->tex, cam_pos);
+  render_billboard_component(get_component("audiosrc")->components, get_tex("tex/audiosrc.png")->tex, cam_pos);
   glBlendFunc(GL_ONE, GL_ZERO);
   glDepthFunc(GL_LESS);
 }
@@ -250,9 +255,6 @@ void renderer_render(unsigned int fbo, vec3 cam_pos, vec3 cam_dir, float fov, in
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   render_models(view, projection, cam_pos);
   render_colliders(view, projection, colliders);
-  if (billboards) {
-    render_billboards(view, projection, cam_pos);
-  }
   render_skybox(view, projection);
 
   // Lighting pass
@@ -276,13 +278,11 @@ void renderer_render(unsigned int fbo, vec3 cam_pos, vec3 cam_dir, float fov, in
     shader_set_vec3(lighting_shader, buf, entity->pos);
     snprintf(buf, sizeof(buf), "lights[%i].color", i);
     shader_set_vec3(lighting_shader, buf, light->color);
-    snprintf(buf, sizeof(buf), "lights[%i].radius", i);
-    shader_set_float(lighting_shader, buf, light->radius);
     snprintf(buf, sizeof(buf), "lights[%i].strength", i);
     shader_set_float(lighting_shader, buf, light->strength);
   }
-  snprintf(buf, sizeof(buf), "lights[%i].radius", i);
-  shader_set_float(lighting_shader, buf, 0);
+  snprintf(buf, sizeof(buf), "lights[%i].strength", i);
+  shader_set_float(lighting_shader, buf, -1);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, gposition);
   glActiveTexture(GL_TEXTURE1);
@@ -292,4 +292,7 @@ void renderer_render(unsigned int fbo, vec3 cam_pos, vec3 cam_dir, float fov, in
   glActiveTexture(GL_TEXTURE3);
   glBindTexture(GL_TEXTURE_2D, shadowmap);
   mesh_render(quad);
+  if (billboards) {
+    render_billboards(view, projection, cam_pos);
+  }
 }

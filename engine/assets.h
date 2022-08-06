@@ -10,7 +10,6 @@
 #include <stb/stb_image.h>
 #include <fmod.h>
 
-#include "core/audio.h"
 #include "log.h"
 
 typedef struct {
@@ -58,6 +57,7 @@ typedef struct {
 } sound_t;
 
 #include "core/gfx.h"
+#include "core/audio.h"
 
 extern map_asset_t assets;
 
