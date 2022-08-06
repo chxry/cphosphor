@@ -283,14 +283,10 @@ void renderer_render(unsigned int fbo, vec3 cam_pos, vec3 cam_dir, float fov, in
   }
   snprintf(buf, sizeof(buf), "lights[%i].strength", i);
   shader_set_float(lighting_shader, buf, -1);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, gposition);
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, gnormal);
-  glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_2D, galbedospec);
-  glActiveTexture(GL_TEXTURE3);
-  glBindTexture(GL_TEXTURE_2D, shadowmap);
+  tex_use(gposition, GL_TEXTURE0);
+  tex_use(gnormal, GL_TEXTURE1);
+  tex_use(galbedospec, GL_TEXTURE2);
+  tex_use(shadowmap, GL_TEXTURE3);
   mesh_render(quad);
   if (billboards) {
     render_billboards(view, projection, cam_pos);

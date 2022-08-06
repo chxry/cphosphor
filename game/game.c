@@ -10,13 +10,6 @@ state_t state = {
 const char* keybind_names[KEYBINDS] = {"forward", "back", "left", "right", "jump", "crouch", "sprint", "menu", "console", "debug"};
 const char* keybind_names_h[KEYBINDS] = {"Move Forward", "Move Backward", "Move Left", "Move Right", "Jump", "Crouch", "Sprint", "Open Menu", "Open console", "Show debug info"};
 
-void state_bind() {
-  lua_bind(&state.world_gravity, "world_gravity");
-  lua_bind(&state.player_speed, "player_speed");
-  lua_bind(&state.player_jumpheight, "player_jumpheight");
-  lua_bind(&state.debug_drawcolliders, "debug_drawcolliders");
-}
-
 void conf_load(const char* path) {
   JSON_Object* root = json_object(json_parse_file("conf.json"));
   JSON_Array* res = json_object_dotget_array(root, "gfx.res");

@@ -8,6 +8,7 @@
 #include "engine/core/gfx.h"
 #include "engine/core/audio.h"
 #include "engine/util/ui.h"
+#include "engine/lua.h"
 #include "game/game.h"
 #include "game/player.h"
 #include "game/game.h"

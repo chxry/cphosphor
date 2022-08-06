@@ -14,6 +14,7 @@ void world_load(const char* path) {
   component_register("light", light);
   component_register("rigidbody", rigidbody);
   component_register("audiosrc", audiosrc);
+  component_register("luascript", luascript);
 
   JSON_Object* root = json_object(json_parse_file(path)); // use asset system
   world.light_ambient = json_object_dotget_number(root, "light.ambient");

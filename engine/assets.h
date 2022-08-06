@@ -56,6 +56,11 @@ typedef struct {
   FMOD_SOUND* sound;
 } sound_t;
 
+typedef struct {
+  char* path;
+  char* contents;
+} luafile_t;
+
 #include "core/gfx.h"
 #include "core/audio.h"
 
@@ -68,3 +73,4 @@ cubemap_t* get_cubemap(int id);
 mesh_t* get_mesh(char* path);
 shader_t* get_shader(int id);
 sound_t* get_sound(char* path);
+luafile_t* get_luafile(char* path);

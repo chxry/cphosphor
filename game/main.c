@@ -10,6 +10,7 @@
 #include "engine/engine.h"
 #include "engine/assets.h"
 #include "engine/log.h"
+#include "engine/lua.h"
 #include "game.h"
 #include "ui.h"
 #include "player.h"
@@ -19,7 +20,6 @@ int main() {
   engine_init();
   conf_load("conf.json");
   lua_init();
-  state_bind();
   window_init(conf.width, conf.height, conf.fullscreen, ENGINE_NAME " " ENGINE_VER);
   ui_init();
   audio_init(conf.volume);
@@ -68,6 +68,7 @@ int main() {
     player_movement(cam_pos, cam_dir);
     physics_update();
     audio_update(cam_pos, cam_dir);
+    lua_update();
 
     renderer_render(0, cam_pos, cam_dir, conf.fov, conf.width, conf.height, -state.debug_drawcolliders, false);
     ui_render();

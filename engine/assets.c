@@ -175,11 +175,23 @@ sound_t* load_sound(JSON_Object* obj) {
   return sound;
 }
 
+luafile_t* load_luafile(JSON_Object* obj) {
+  luafile_t* luafile = malloc(sizeof(luafile_t));
+  luafile->path = json_object_get_string(obj, "path");
+  char buf[64];
+  snprintf(buf, sizeof(buf), "Loading \"%s\".", luafile->path);
+  splash_render(buf, 1280, 720);
+  filedata_t file = load_file(luafile->path);
+  luafile->contents = file.data;
+  return luafile;
+}
+
 asset_t tex = {.load = load_tex};
 asset_t cubemap = {.load = load_cubemap};
 asset_t mesh = {.load = load_mesh};
 asset_t shader = {.load = load_shader};
 asset_t sound = {.load = load_sound};
+asset_t luafile = {.load = load_luafile};
 
 void assets_init(char* path) {
   map_init(&assets);
@@ -188,6 +200,7 @@ void assets_init(char* path) {
   asset_register("mesh", mesh);
   asset_register("shader", shader);
   asset_register("sound", sound);
+  asset_register("luafile", luafile);
   PHYSFS_init(NULL);
   PHYSFS_mount(path, "", 0);
   JSON_Object* root = json_object(json_parse_file("res/assets.json"));
@@ -247,4 +260,8 @@ shader_t* get_shader(int id) {
 
 sound_t* get_sound(char* path) {
   return get_asset_path(path, "sound");
+}
+
+luafile_t* get_luafile(char* path) {
+  return get_asset_path(path, "luafile");
 }

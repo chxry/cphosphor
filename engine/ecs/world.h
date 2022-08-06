@@ -25,6 +25,7 @@ typedef struct {
 #include "components/light.h"
 #include "components/rigidbody.h"
 #include "components/audiosrc.h"
+#include "components/luascript.h"
 
 typedef struct {
   const char* name;

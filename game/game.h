@@ -4,7 +4,6 @@
 #include <SDL2/SDL.h>
 #include <parson/parson.h>
 
-#include "engine/engine.h"
 #include "engine/log.h"
 
 #define KEYBIND_FORWARD 0
@@ -44,6 +43,5 @@ extern conf_t conf;
 extern state_t state;
 extern const char* keybind_names_h[KEYBINDS];
 
-void state_bind();
 void conf_load(const char* path);
 void conf_write(const char* path);
