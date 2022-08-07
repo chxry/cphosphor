@@ -16,6 +16,17 @@ void audio_init(float volume) {
   log_info("Loaded FMOD.");
 }
 
+void audio_start() {
+  int i;
+  audiosrc_t* audiosrc;
+  vec_foreach(&get_component("audiosrc")->components, audiosrc, i) {
+    if (audiosrc->autoplay) {
+      entity_t* entity = get_entity(audiosrc->entity);
+      audio_play(get_sound(audiosrc->sound)->sound, entity->pos);
+    }
+  }
+}
+
 void audio_update(vec3 pos, vec3 dir) {
   vec3 right, up;
   glm_vec3_crossn(GLM_YUP, dir, right);

@@ -228,6 +228,7 @@ void* get_asset_path(char* path, char* name) {
       return asset;
     }
   }
+  log_error("Could not load \"%s\" \"%s\".",name,path);
   return 0;
 }
 
@@ -239,6 +240,7 @@ void* get_asset_id(int id, char* name) {
       return asset;
     }
   }
+  log_error("Could not load \"%s\" \"%i\".",name,id);
   return 0;
 }
 

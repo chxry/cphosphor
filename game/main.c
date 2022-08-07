@@ -34,14 +34,8 @@ int main() {
   bool quit = false;
   frame_delay = 1000 / conf.fps;
 
-  int i;
-  audiosrc_t* audiosrc;
-  vec_foreach(&get_component("audiosrc")->components, audiosrc, i) {
-    if (audiosrc->autoplay) {
-      entity_t* entity = get_entity(audiosrc->entity);
-      audio_play(get_sound(audiosrc->sound)->sound, entity->pos);
-    }
-  }
+  audio_start();
+  lua_call_scripts("start");
 
   while (!quit) {
     int frame_start = SDL_GetTicks();
@@ -68,7 +62,7 @@ int main() {
     player_movement(cam_pos, cam_dir);
     physics_update();
     audio_update(cam_pos, cam_dir);
-    lua_update();
+    lua_call_scripts("update");
 
     renderer_render(0, cam_pos, cam_dir, conf.fov, conf.width, conf.height, -state.debug_drawcolliders, false);
     ui_render();

@@ -15,6 +15,7 @@ extern void FMOD_SDL_Register(FMOD_SYSTEM* system);
 
 void fmod_checked(FMOD_RESULT result);
 void audio_init(float volume);
+void audio_start();
 void audio_update(vec3 pos, vec3 dir);
 void audio_play(FMOD_SOUND* sound, vec3 pos);
 void audio_setvolume(float volume);
