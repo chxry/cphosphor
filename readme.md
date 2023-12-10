@@ -8,7 +8,8 @@
 - Lua scripting.
 ### Build Guide
 1. `git clone https://github.com/chxry/phosphor --recursive`
-2. `make setup`
-2. `make game` / `make editor`
+2. copy fmod headers and so to lib/fmod
+3. `make setup`
+4. `make game` / `make editor`
 ### License
 [MIT License](license.md)
